@@ -54,7 +54,7 @@ button{font-family:var(--fb);cursor:pointer;}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 14px 40px #7c3aed1a;border-color:#c4b5fd;}
 .pcard.oos{opacity:.55;pointer-events:none;}
 .pcard-img{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#ede9fe,#ddd6fe);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.8rem;}
-.pcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.pcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;}
 .pcard-img .femoji{position:relative;z-index:1;}
 .pcard-badges{position:absolute;top:9px;left:9px;display:flex;flex-direction:column;gap:4px;z-index:2;}
 .pbadge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:0.68rem;font-weight:700;color:#fff;}
