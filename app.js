@@ -167,8 +167,12 @@ function gameCardHTML(g){
     ${g.badge&&g.stock?`<div class="pcard-badges"><span class="pbadge pb-${g.badge}">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
     ${!g.stock?'<div class="pcard-badges"><span class="pbadge pb-oos">OUT OF STOCK</span></div>':''}
     <div class="pcard-img">
-      <img src="${g.img||''}" alt="${g.title}" onerror="this.style.display='none'" loading="lazy"/>
-      <span class="femoji">${g.icon}</span>
+      ${g.img
+        ? `<img src="${g.img}" alt="${g.title}" loading="lazy"
+             onload="this.nextElementSibling.style.display='none'"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>`
+        : ''}
+      <span class="femoji" ${g.img?'style="display:none"':''}>${g.icon}</span>
     </div>
     <div class="pcard-body">
       <div class="pcard-plat">${g.platform}</div>
