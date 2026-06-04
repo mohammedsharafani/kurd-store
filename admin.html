@@ -96,8 +96,26 @@ tr:hover td{background:var(--gl);}
 </head>
 <body>
 
+<!-- PASSWORD SCREEN -->
+<div class="loading-overlay" id="passwordScreen">
+  <div style="background:#1a0533;border-radius:20px;padding:36px 32px;width:min(380px,95vw);text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:12px;">🔐</div>
+    <div style="font-family:Rajdhani,sans-serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:6px;">Admin Access</div>
+    <div style="font-size:.82rem;color:#a78bfa;margin-bottom:22px;">Enter password to continue</div>
+    <input id="pwInput" type="password" placeholder="Enter password..." 
+      style="width:100%;padding:12px 16px;border-radius:10px;border:2px solid #3b1f6a;background:#0d0220;color:#fff;font-size:.95rem;outline:none;margin-bottom:12px;text-align:center;letter-spacing:3px;"
+      onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button onclick="checkPw()" 
+      style="width:100%;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:10px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;">
+      Unlock Admin →
+    </button>
+    <div id="pwError" style="color:#f87171;font-size:.8rem;margin-top:10px;display:none;">❌ Wrong password. Try again.</div>
+    <div style="margin-top:18px;font-size:.72rem;color:#6d3eb8;">Kurd Store Admin Panel</div>
+  </div>
+</div>
+
 <!-- Loading overlay shown until Firebase is ready -->
-<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
   <div class="loading-spinner"></div>
   <div class="loading-text">🔥 Connecting to Firebase...</div>
 </div>
@@ -115,6 +133,7 @@ tr:hover td{background:var(--gl);}
     <li><button id="navSubs"   onclick="showSec('subs',this)"            >📦 Subscriptions</button></li>
     <li><button id="navCodes"  onclick="showSec('codes',this)"           >🏷️ Discount Codes</button></li>
     <li><button id="navRev"    onclick="showSec('reviews',this)"         >⭐ Reviews</button></li>
+    <li><button id="navOrders" onclick="showSec('orders',this)"          >📋 Orders <span id="pendingBadge" style="background:#dc2626;color:#fff;border-radius:99px;font-size:.65rem;padding:1px 7px;margin-left:4px;display:none;">0</span></button></li>
     <li><button id="navSet"    onclick="showSec('settings',this)"        >⚙️ Settings</button></li>
   </ul>
   <div class="sb-sec">Store Pages</div>
@@ -265,6 +284,36 @@ tr:hover td{background:var(--gl);}
     </div>
   </div>
 
+  <!-- ORDERS -->
+  <div id="sec-orders" style="display:none;">
+    <div class="topbar">
+      <div><h1>📋 Orders</h1><p>All customer orders from Firebase</p></div>
+      <div style="display:flex;gap:8px;">
+        <select id="orderFilter" onchange="renderOrders()" style="padding:6px 12px;font-size:.82rem;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--text);outline:none;">
+          <option value="all">All Orders</option>
+          <option value="pending">⏳ Pending</option>
+          <option value="delivered">✅ Delivered</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="renderOrders()">🔄 Refresh</button>
+      </div>
+    </div>
+    <div class="stat-cards" style="grid-template-columns:repeat(3,1fr);">
+      <div class="sc"><div class="sc-icon purple">📋</div><div><div class="sc-num" id="ordTotal">0</div><div class="sc-lbl">Total Orders</div></div></div>
+      <div class="sc"><div class="sc-icon orange">⏳</div><div><div class="sc-num" id="ordPending">0</div><div class="sc-lbl">Pending</div></div></div>
+      <div class="sc"><div class="sc-icon green">✅</div><div><div class="sc-num" id="ordDelivered">0</div><div class="sc-lbl">Delivered</div></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">📋 Order List</div></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Customer</th><th>Email</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="ordersTbody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="ordersEmpty" style="display:none;"><div class="ei">📋</div><p>No orders yet.</p></div>
+    </div>
+  </div>
+
   <!-- SETTINGS -->
   <div id="sec-settings" style="display:none;">
     <div class="topbar"><div><h1>⚙️ Settings</h1><p>Logo, name, and appearance — saved to Firebase for all visitors</p></div></div>
@@ -295,6 +344,36 @@ tr:hover td{background:var(--gl);}
         <div class="form-actions"><button class="btn btn-primary" onclick="saveSettings()">💾 Save to Firebase</button></div>
       </div>
     </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">🔥 Banner / Announcement</div><div style="font-size:.78rem;color:var(--gray);">Shown at top of home page</div></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="form-group full" style="flex-direction:row;align-items:center;gap:12px;">
+            <label style="margin:0;">Show Banner</label>
+            <select id="bannerEnabled" style="width:auto;">
+              <option value="false">❌ Hidden</option>
+              <option value="true">✅ Visible</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Banner Title</label><input id="bannerTitle" type="text" placeholder="🔥 Special Deal!"/></div>
+          <div class="form-group"><label>Banner Text</label><input id="bannerText" type="text" placeholder="Get 20% off all PS5 games this week!"/></div>
+          <div class="form-group"><label>Button Text</label><input id="bannerBtn" type="text" placeholder="Shop Now →"/></div>
+          <div class="form-group"><label>Button Link</label><input id="bannerLink" type="text" placeholder="discounts.html"/></div>
+          <div class="form-group"><label>Background Color</label>
+            <select id="bannerBg">
+              <option value="linear-gradient(135deg,#7c3aed,#a855f7)">Purple (Default)</option>
+              <option value="linear-gradient(135deg,#dc2626,#ef4444)">Red</option>
+              <option value="linear-gradient(135deg,#059669,#10b981)">Green</option>
+              <option value="linear-gradient(135deg,#d97706,#f59e0b)">Orange/Gold</option>
+              <option value="linear-gradient(135deg,#1e40af,#3b82f6)">Blue</option>
+              <option value="linear-gradient(135deg,#1a0533,#3b1f6a)">Dark Purple</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="saveBanner()">💾 Save Banner</button></div>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="panel-hd"><div class="panel-title">🌙 Dark Mode</div></div>
       <div class="panel-body" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
@@ -335,8 +414,7 @@ function onDbReady() {
   _dbReady = true;
   const overlay = document.getElementById('loadingOverlay');
   if(!window._KS_DB) {
-    // Firebase failed — show error
-    overlay.innerHTML = '<div style="text-align:center;color:#fca5a5;padding:20px;"><div style="font-size:2.5rem;margin-bottom:12px;">❌</div><div style="font-family:Rajdhani,sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:8px;">Firebase Connection Failed</div><div style="font-size:.85rem;margin-bottom:20px;opacity:.8;">Check your internet connection and try refreshing the page.</div><button onclick="location.reload()" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.9rem;font-weight:600;cursor:pointer;">🔄 Retry</button></div>';
+    overlay.innerHTML = '<div style="text-align:center;color:#fca5a5;padding:20px;"><div style="font-size:2.5rem;margin-bottom:12px;">❌</div><div style="font-family:Rajdhani,sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:8px;">Firebase Connection Failed</div><div style="font-size:.85rem;margin-bottom:20px;opacity:.8;">Check your internet connection and try refreshing.</div><button onclick="location.reload()" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.9rem;font-weight:600;cursor:pointer;">🔄 Retry</button></div>';
     return;
   }
   overlay.style.display = 'none';
@@ -344,11 +422,15 @@ function onDbReady() {
 }
 
 window.addEventListener('ks_db_ready', onDbReady);
+setTimeout(() => { if(!_dbReady) onDbReady(); }, 5000);
 
-// Fallback: if event already fired before listener registered
-setTimeout(() => {
-  if(!_dbReady) onDbReady();
-}, 5000);
+// Check if already authenticated this session
+window.addEventListener('load', ()=>{
+  if(sessionStorage.getItem('ks_admin_auth')=='1'){
+    document.getElementById('passwordScreen').style.display='none';
+    document.getElementById('loadingOverlay').style.display='flex';
+  }
+});
 
 // ── INIT ──
 async function init(){
@@ -376,7 +458,7 @@ function updateSBrand(s){
 
 // ── NAVIGATION ──
 function showSec(name, btn){
-  ['games','subs','codes','reviews','settings'].forEach(s=>{
+  ['games','subs','codes','reviews','orders','settings'].forEach(s=>{
     const el=document.getElementById('sec-'+s);
     if(el) el.style.display = s===name ? 'block' : 'none';
   });
@@ -386,6 +468,7 @@ function showSec(name, btn){
   if(name==='subs')     renderSTable();
   if(name==='codes')    renderCodes();
   if(name==='reviews')  renderRvTable();
+  if(name==='orders')   renderOrders();
   if(name==='settings') loadSettings();
 }
 
@@ -739,6 +822,7 @@ async function loadSettings(){
     document.getElementById('logoPrev').classList.add('vis');
     document.getElementById('logoClearBtn').classList.add('vis');
   }
+  loadBannerSettings(s);
 }
 
 function updateLP(){
@@ -793,6 +877,31 @@ async function saveSettings(){
   updateSBrand(s); showToast('✅ Settings saved! All store pages updated.');
 }
 
+// ══════════════════
+//  BANNER
+// ══════════════════
+async function saveBanner(){
+  showSaving();
+  const s = await db().getSettings();
+  s.bannerEnabled = document.getElementById('bannerEnabled').value === 'true';
+  s.bannerTitle   = document.getElementById('bannerTitle').value.trim();
+  s.bannerText    = document.getElementById('bannerText').value.trim();
+  s.bannerBtn     = document.getElementById('bannerBtn').value.trim();
+  s.bannerLink    = document.getElementById('bannerLink').value.trim();
+  s.bannerBg      = document.getElementById('bannerBg').value;
+  await db().saveSettings(s);
+  showToast('✅ Banner saved!');
+}
+
+function loadBannerSettings(s){
+  document.getElementById('bannerEnabled').value = s.bannerEnabled ? 'true' : 'false';
+  document.getElementById('bannerTitle').value   = s.bannerTitle  || '';
+  document.getElementById('bannerText').value    = s.bannerText   || '';
+  document.getElementById('bannerBtn').value     = s.bannerBtn    || 'Shop Now →';
+  document.getElementById('bannerLink').value    = s.bannerLink   || '';
+  document.getElementById('bannerBg').value      = s.bannerBg     || 'linear-gradient(135deg,#7c3aed,#a855f7)';
+}
+
 function toggleDark(){
   const cur=localStorage.getItem('ks_theme')||'light';
   const next=cur==='dark'?'light':'dark';
@@ -801,6 +910,105 @@ function toggleDark(){
   document.getElementById('darkModeBtn').textContent=next==='dark'?'☀️ Disable Dark Mode':'🌙 Enable Dark Mode';
   showToast(next==='dark'?'🌙 Dark mode enabled':'☀️ Light mode enabled');
 }
+
+// ══════════════════
+//  PASSWORD
+// ══════════════════
+const ADMIN_PASSWORD = 'kurd2024'; // ← Change this to your own password!
+
+function checkPw(){
+  const val = document.getElementById('pwInput').value;
+  const err = document.getElementById('pwError');
+  if(val === ADMIN_PASSWORD){
+    document.getElementById('passwordScreen').style.display='none';
+    document.getElementById('loadingOverlay').style.display='flex';
+    sessionStorage.setItem('ks_admin_auth','1');
+    // trigger DB connection
+    window.dispatchEvent(new Event('ks_start_db'));
+  } else {
+    err.style.display='block';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+    setTimeout(()=>err.style.display='none',3000);
+  }
+}
+
+// ══════════════════
+//  ORDERS
+// ══════════════════
+async function renderOrders(){
+  try {
+    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+    const db = getDatabase(app);
+    const snap = await get(ref(db,'orders'));
+
+    const tb = document.getElementById('ordersTbody');
+    const em = document.getElementById('ordersEmpty');
+
+    if(!snap.exists()){
+      tb.innerHTML=''; em.style.display='block';
+      document.getElementById('ordTotal').textContent='0';
+      document.getElementById('ordPending').textContent='0';
+      document.getElementById('ordDelivered').textContent='0';
+      return;
+    }
+
+    const raw = snap.val();
+    let orders = Object.entries(raw).map(([id,o])=>({_id:id,...o}));
+    orders.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    const filter = document.getElementById('orderFilter').value;
+    const filtered = filter==='all' ? orders : orders.filter(o=>o.status===filter);
+
+    const total     = orders.length;
+    const pending   = orders.filter(o=>o.status==='pending').length;
+    const delivered = orders.filter(o=>o.status==='delivered').length;
+
+    document.getElementById('ordTotal').textContent=total;
+    document.getElementById('ordPending').textContent=pending;
+    document.getElementById('ordDelivered').textContent=delivered;
+
+    // Update sidebar badge
+    const badge = document.getElementById('pendingBadge');
+    if(pending>0){ badge.textContent=pending; badge.style.display='inline'; }
+    else badge.style.display='none';
+
+    em.style.display = filtered.length ? 'none' : 'block';
+    tb.innerHTML = filtered.map((o,i)=>`<tr>
+      <td style="font-weight:700;color:var(--p);">#${total-i}</td>
+      <td><strong>${o.name||'—'}</strong></td>
+      <td style="font-size:.78rem;color:var(--gray);">${o.email||'—'}</td>
+      <td style="max-width:160px;font-size:.78rem;">${o.items||'—'}</td>
+      <td class="td-price">${iqd(o.total||0)}</td>
+      <td style="font-size:.78rem;">${o.method||'—'}${o.discount?'<br><span style="color:#059669;font-size:.72rem;">🏷️ '+o.discount+'</span>':''}</td>
+      <td style="font-size:.75rem;color:var(--gray);">${o.date?new Date(o.date).toLocaleDateString():''}</td>
+      <td><span style="padding:3px 9px;border-radius:99px;font-size:.72rem;font-weight:700;background:${o.status==='delivered'?'#d1fae5':'#fef3c7'};color:${o.status==='delivered'?'#059669':'#b45309'};">${o.status==='delivered'?'✅ Delivered':'⏳ Pending'}</span></td>
+      <td class="td-act">
+        ${o.status==='pending'
+          ? `<button class="btn btn-success btn-sm" onclick="markDelivered('${o._id}')">✅ Mark Delivered</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="markPending('${o._id}')">↩ Pending</button>`
+        }
+      </td>
+    </tr>`).join('');
+
+  } catch(err){ console.error('Orders error:',err); showToast('❌ Error loading orders'); }
+}
+
+async function updateOrderStatus(id, status){
+  try {
+    const { getDatabase, ref, update } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const { getApps, initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+    const db = getDatabase(app);
+    await update(ref(db,'orders/'+id), {status});
+    showToast(status==='delivered'?'✅ Marked as delivered!':'↩ Marked as pending');
+    renderOrders();
+  } catch(err){ showToast('❌ Error updating order'); }
+}
+function markDelivered(id){ updateOrderStatus(id,'delivered'); }
+function markPending(id){ updateOrderStatus(id,'pending'); }
 </script>
 </body>
 </html>
