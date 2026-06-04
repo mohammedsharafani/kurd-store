@@ -36,11 +36,7 @@ const DEFAULT_SETTINGS = {
   tagline:'Your Kurdish Gaming Store',taglineKd:'دوکانی یاری کوردیەکەت',
   logoImg:'',logoEmoji:'🎮',telegram:'sharafaani',
 };
-const DEFAULT_CODES = {
-  KURD20:{type:'percent',value:20,desc:'20% off everything'},
-  SAVE10:{type:'percent',value:10,desc:'10% off everything'},
-  VIP50:{type:'fixed',value:50000,desc:'50,000 IQD off'},
-};
+const DEFAULT_CODES = {};  // Always read from Firebase — no hardcoded codes
 const DEFAULT_REVIEWS = [
   {id:1,name:'Ahmed K.',game:'God of War Ragnarök',stars:5,text:'Amazing game, got the key instantly!',date:'2024-01-15'},
   {id:2,name:'Sara M.',game:'PlayStation Plus',stars:5,text:'Very fast and trustworthy. Kurdish support is great!',date:'2024-01-20'},

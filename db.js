@@ -17,7 +17,7 @@
     async function getGames()   { const d=await _get('store/games');   return d?.list?.length?d.list:DEFAULT_GAMES; }
     async function getSubs()    { const d=await _get('store/subs');    return d?.list?.length?d.list:DEFAULT_SUBS; }
     async function getSettings(){ const d=await _get('store/settings');return d?Object.assign({},DEFAULT_SETTINGS,d):DEFAULT_SETTINGS; }
-    async function getCodes()   { const d=await _get('store/codes');   return d?.codes?d.codes:DEFAULT_CODES; }
+    async function getCodes()   { const d=await _get('store/codes');   return d?.codes?d.codes:{}; }  // empty if none saved
     async function getReviews() { const d=await _get('store/reviews'); return d?.list?.length?d.list:DEFAULT_REVIEWS; }
 
     async function saveGames(l)   { await _set('store/games',   {list:l}); }
