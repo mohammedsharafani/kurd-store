@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kurd Store</title>
+<link rel="stylesheet" href="shared.css"/>
+<script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
+</head>
+<body>
+<div id="navMount"></div>
+
+<div class="hero">
+  <div class="hero-badge">🎮 <span data-en="Your Kurdish Gaming Store" data-kd="دوکانی یاری کوردیەکەت">Your Kurdish Gaming Store</span></div>
+  <h1 class="hero-title"><span data-en="Level Up Your" data-kd="یاریەکانت">Level Up Your</span><br><em data-en="Gaming Experience" data-kd="باشتر بکە">Gaming Experience</em></h1>
+  <p class="hero-sub" data-en="Buy digital games & subscriptions instantly." data-kd="یاری دیجیتاڵ و ئەبوونەمەندی بکڕە.">Buy digital games &amp; subscriptions instantly.</p>
+  <div class="hero-actions">
+    <a href="playstation.html" class="btn btn-primary">🎮 PlayStation</a>
+    <a href="xbox.html" class="btn btn-primary" style="background:linear-gradient(135deg,#107c10,#52b043);">🟢 Xbox</a>
+    <a href="pc.html" class="btn btn-primary" style="background:linear-gradient(135deg,#1e40af,#3b82f6);">💻 PC/Steam</a>
+    <a href="subscriptions.html" class="btn btn-outline">📦 Subscriptions</a>
+  </div>
+</div>
+
+<div class="statsbar">
+  <div class="stat"><div class="stat-num" id="stGames">—</div><div class="stat-lbl">Games</div></div>
+  <div class="stat"><div class="stat-num" id="stSubs">—</div><div class="stat-lbl">Subscriptions</div></div>
+  <div class="stat"><div class="stat-num">⚡</div><div class="stat-lbl">Instant Delivery</div></div>
+  <div class="stat"><div class="stat-num">🔒</div><div class="stat-lbl">Secure Payment</div></div>
+</div>
+
+<div class="section">
+  <div class="section-hd"><div><div class="section-title">🗂️ <em>Browse by Category</em></div></div></div>
+  <div class="cat-grid">
+    <a class="cat-card" href="playstation.html"><div class="cat-icon">🎮</div><div class="cat-name">PlayStation</div><div class="cat-count" id="cPs">—</div></a>
+    <a class="cat-card" href="xbox.html"><div class="cat-icon">🟢</div><div class="cat-name">Xbox</div><div class="cat-count" id="cXbox">—</div></a>
+    <a class="cat-card" href="pc.html"><div class="cat-icon">💻</div><div class="cat-name">PC / Steam</div><div class="cat-count" id="cPc">—</div></a>
+    <a class="cat-card" href="nintendo.html"><div class="cat-icon">🔴</div><div class="cat-name">Nintendo</div><div class="cat-count" id="cNin">—</div></a>
+    <a class="cat-card" href="subscriptions.html"><div class="cat-icon">📦</div><div class="cat-name">Subscriptions</div><div class="cat-count" id="cSubs">—</div></a>
+    <a class="cat-card" href="discounts.html"><div class="cat-icon">🏷️</div><div class="cat-name">Discounts</div><div class="cat-count" id="cDisc">—</div></a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-hd"><div><div class="section-title">🔥 <em>Featured Games</em></div></div><a href="playstation.html" class="see-all">See all →</a></div>
+  <div class="grid-4" id="featuredGrid"><div style="color:var(--gray);padding:20px;">Loading...</div></div>
+</div>
+<div class="section">
+  <div class="section-hd"><div><div class="section-title">🆕 <em>New Arrivals</em></div></div></div>
+  <div class="grid-4" id="newGrid"></div>
+</div>
+<div class="section">
+  <div class="section-hd"><div><div class="section-title">🏷️ <em>On Sale</em></div></div><a href="discounts.html" class="see-all">All deals →</a></div>
+  <div class="grid-4" id="saleGrid"></div>
+</div>
+<div class="section">
+  <div class="section-hd"><div><div class="section-title">📦 <em>Subscriptions</em></div></div><a href="subscriptions.html" class="see-all">All →</a></div>
+  <div class="grid-3" id="subsGrid"></div>
+</div>
+<div class="section">
+  <div class="section-hd"><div><div class="section-title">⭐ <em>Reviews</em></div></div>
+    <button class="btn btn-outline btn-sm btn-pill" onclick="openReviewModal()">+ Add Review</button>
+  </div>
+  <div class="grid-3" id="reviewsGrid"></div>
+</div>
+<div class="section">
+  <div class="section-hd">
+    <div><div class="section-title">📋 <em>Order History</em></div></div>
+    <button class="see-all" onclick="clearHist()" style="color:#dc2626;">Clear</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:11px;" id="histList"></div>
+</div>
+
+<div class="trust-grid">
+  <div class="trust-item"><div class="ti-icon">⚡</div><div class="ti-title">Instant Delivery</div><div class="ti-sub">Key to your email</div></div>
+  <div class="trust-item"><div class="ti-icon">🔒</div><div class="ti-title">Secure Payment</div><div class="ti-sub">FIB / Qi / Fastpay</div></div>
+  <div class="trust-item"><div class="ti-icon">✅</div><div class="ti-title">Genuine Keys</div><div class="ti-sub">100% authentic</div></div>
+  <div class="trust-item"><div class="ti-icon">🌍</div><div class="ti-title">Kurdish Support</div><div class="ti-sub">Badini Kurdish</div></div>
+  <div class="trust-item"><div class="ti-icon">💬</div><div class="ti-title">Telegram</div><div class="ti-sub">@sharafaani</div></div>
+</div>
+
+<div id="footerMount"></div>
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-hd"><h2>🛒 Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyCartDisc()">Apply</button></div>
+  <div class="disc-msg" id="discMsg"></div>
+  <div class="cart-ft" id="cartFt" style="display:none;">
+    <div class="cart-disc-line" id="cartDiscLine"><span>🏷️ Discount</span><span id="cartDiscAmt"></span></div>
+    <div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-price" id="cartTotalPrice">0 IQD</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">Checkout →</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal" onclick="if(event.target===this)closeCheckout()">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title" id="modalTitle">Complete Order</div><button class="close-btn" onclick="closeCheckout()">✕</button></div>
+    <div class="order-sum"><div class="order-sum-title">📋 Order Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div>
+    <div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Confirm</div></div>
+    <div class="step-panel active" id="sp1"><p style="font-size:.82rem;color:var(--text2);margin-bottom:12px;">Choose payment method:</p><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
+    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><div style="font-size:.7rem;color:#a78bfa;">Tap to copy</div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr"><strong>How to pay:</strong><br>1. Open your <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong> to the number above<br>3. Screenshot the transfer<br><br><strong>چۆن پارەبدەیت:</strong><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە<br>٣. ئایمەیجی گواستنەوە بکە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
+    <div class="step-panel" id="sp3"><div class="form-group"><label class="form-label">Name / ناوت</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div><div class="form-group"><label class="form-label">Email / ئیمەیڵ</label><input class="form-input" id="custEmail" type="email" placeholder="you@email.com"/></div><div id="tgLinkWrap"></div><div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div></div>
+    <div class="step-panel" id="sp4"><div class="success-box"><div class="success-icon">🎉</div><div class="success-title">Order Received!</div><div class="success-desc">Key within <strong>1–2 hours</strong>.<br><br>کیلێکەکەت دەنێرین ژێر <strong>١-٢ کاتژمێر</strong>.</div><div id="tgFollowWrap"></div><button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button></div></div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal" onclick="if(event.target===this)closeReviewModal()">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">⭐ Add Review</div><button class="close-btn" onclick="closeReviewModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" id="rvName" type="text" placeholder="Ahmed Ali"/></div>
+    <div class="form-group"><label class="form-label">Game / Product</label><input class="form-input" id="rvGame" type="text" placeholder="God of War"/></div>
+    <div class="form-group"><label class="form-label">Rating</label>
+      <div class="star-select" id="starSel">
+        <span class="star-btn active" onclick="setStar(1)">⭐</span><span class="star-btn active" onclick="setStar(2)">⭐</span><span class="star-btn active" onclick="setStar(3)">⭐</span><span class="star-btn active" onclick="setStar(4)">⭐</span><span class="star-btn active" onclick="setStar(5)">⭐</span>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Review</label><textarea class="form-input" id="rvText" rows="3" placeholder="Your experience..."></textarea></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="submitReview()">Submit ✓</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script type="module" src="db.js"></script>
+<script src="app.js"></script>
+
+<script>
+initTheme();
+let rvStars=5;
+function setStar(n){ rvStars=n; document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('active',i<n)); }
+function openReviewModal(){ document.getElementById('reviewModal').classList.add('open'); }
+function closeReviewModal(){ document.getElementById('reviewModal').classList.remove('open'); }
+function clearHist(){ if(confirm('Clear order history?')){ localStorage.removeItem('ks_history'); renderHist(); } }
+
+function renderHist(){
+  const hist=JSON.parse(localStorage.getItem('ks_history')||'[]');
+  const el=document.getElementById('histList');
+  if(!hist.length){ el.innerHTML='<div class="no-results"><div class="no-results-icon">📋</div><p>No orders yet</p></div>'; return; }
+  el.innerHTML=hist.map(o=>`<div class="hist-item"><div class="hist-icon">${o.items[0]?.icon||'🎮'}</div><div class="hist-info"><div class="hist-title">${o.items.map(i=>i.name).join(', ')}</div><div class="hist-meta">${o.date} · ${o.method}</div></div><div class="hist-price">${iqd(o.total)}</div><div class="hist-status ${o.status}">${o.status==='pending'?'⏳ Pending':'✅ Delivered'}</div></div>`).join('');
+}
+
+async function submitReview(){
+  const name=document.getElementById('rvName').value.trim();
+  const text=document.getElementById('rvText').value.trim();
+  if(!name||!text){ showToast('Please fill in name and review!'); return; }
+  const reviews=await window._KS_DB.getReviews();
+  reviews.unshift({id:Date.now(),name,game:document.getElementById('rvGame').value.trim()||'Kurd Store',stars:rvStars,text,date:new Date().toLocaleDateString()});
+  await window._KS_DB.saveReviews(reviews);
+  closeReviewModal(); showToast('⭐ Review added!');
+  document.getElementById('rvName').value='';
+  document.getElementById('rvGame').value='';
+  document.getElementById('rvText').value='';
+}
+
+async function initPage(){
+  await buildNav('home');
+  applyLang();
+
+  // Live listeners — auto update when admin saves
+  window._KS_DB.listenGames(games=>{
+    document.getElementById('stGames').textContent=games.length;
+    document.getElementById('cPs').textContent=games.filter(g=>g.category==='ps').length+' games';
+    document.getElementById('cXbox').textContent=games.filter(g=>g.category==='xbox').length+' games';
+    document.getElementById('cPc').textContent=games.filter(g=>g.category==='pc').length+' games';
+    document.getElementById('cNin').textContent=games.filter(g=>g.category==='nintendo').length+' games';
+    document.getElementById('cDisc').textContent=games.filter(g=>g.badge==='sale').length+' deals';
+    document.getElementById('featuredGrid').innerHTML=games.slice(0,4).map(gameCardHTML).join('');
+    document.getElementById('newGrid').innerHTML=games.filter(g=>g.badge==='new').slice(0,4).map(gameCardHTML).join('');
+    document.getElementById('saleGrid').innerHTML=games.filter(g=>g.badge==='sale').slice(0,4).map(gameCardHTML).join('');
+  });
+  window._KS_DB.listenSubs(subs=>{
+    document.getElementById('stSubs').textContent=subs.length;
+    document.getElementById('cSubs').textContent=subs.length+' plans';
+    document.getElementById('subsGrid').innerHTML=subs.slice(0,3).map(subCardHTML).join('');
+  });
+  window._KS_DB.listenReviews(reviews=>{
+    document.getElementById('reviewsGrid').innerHTML=reviews.slice(0,6).map(r=>`
+      <div class="review-card">
+        <div class="rv-hd"><div class="rv-avatar">${r.name[0]}</div><div><div class="rv-name">${r.name}</div><div class="rv-date">${r.date}</div></div></div>
+        <div class="rv-stars">${'⭐'.repeat(r.stars)}</div>
+        <div class="rv-text">${r.text}</div>
+        <div class="rv-game">🎮 ${r.game}</div>
+      </div>`).join('');
+  });
+  renderHist();
+}
+
+waitForDB(initPage);
+</script>
+</body>
+</html>

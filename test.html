@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/>
+<title>Firebase Test</title>
+<style>
+body{font-family:sans-serif;padding:30px;background:#0f0520;color:#e9d5ff;}
+.box{background:#1a0533;border-radius:12px;padding:20px;margin:10px 0;}
+.ok{color:#34d399;} .err{color:#f87171;} .wait{color:#a78bfa;}
+pre{font-size:.8rem;color:#c4b5fd;white-space:pre-wrap;word-break:break-all;}
+</style>
+</head>
+<body>
+<h2>🔥 Firebase Connection Test</h2>
+<div class="box" id="status"><span class="wait">⏳ Connecting to Firebase...</span></div>
+<div class="box" id="dataBox" style="display:none;">
+  <div id="dataContent"></div>
+</div>
+
+<script src="firebase-config.js"></script>
+<script>
+(async function(){
+  const status = document.getElementById('status');
+  const dataBox = document.getElementById('dataBox');
+  const dataContent = document.getElementById('dataContent');
+
+  try {
+    status.innerHTML = '<span class="wait">⏳ Loading Firebase SDK...</span>';
+
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+
+    status.innerHTML = '<span class="wait">⏳ Initializing app...</span>';
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db  = getDatabase(app);
+
+    status.innerHTML = '<span class="wait">⏳ Reading from database...</span>';
+
+    const snap = await get(ref(db, 'store/games'));
+
+    if(snap.exists()){
+      const data = snap.val();
+      const games = data.list || [];
+      status.innerHTML = `<span class="ok">✅ Firebase connected! Found ${games.length} games in database.</span>`;
+      dataBox.style.display = 'block';
+      dataContent.innerHTML = '<strong>Games in Firebase:</strong><pre>'+JSON.stringify(games.slice(0,2), null, 2)+'</pre>';
+    } else {
+      status.innerHTML = '<span class="err">⚠️ Firebase connected but database is EMPTY — no games saved yet.</span>';
+    }
+
+  } catch(err) {
+    status.innerHTML = `<span class="err">❌ Error: ${err.message}</span>`;
+    dataBox.style.display = 'block';
+    dataContent.innerHTML = '<pre>'+err.stack+'</pre>';
+  }
+})();
+</script>
+</body></html>

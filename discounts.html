@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Kurd Store — Discounts</title><link rel="stylesheet" href="shared.css"/><script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script></head>
+<body>
+<div id="navMount"></div>
+<div class="page-hd" style="background:linear-gradient(135deg,#dc2626,#ef4444);"><div class="bc"><a href="index.html">🏠 Home</a> › <span>🏷️ Discounts</span></div><h1>🏷️ Discounts & Deals</h1></div>
+<div class="section" style="padding-top:28px;">
+  <div class="disc-banner"><div><h2>Got a Discount Code?</h2><p>Enter your code to save on your order</p></div><div class="disc-input-row"><input class="disc-input" id="heroCode" type="text" placeholder="e.g. KURD20"/><button class="disc-apply" onclick="tryHeroCode()">Apply</button></div></div>
+  <div style="font-size:.82rem;margin-bottom:16px;font-weight:600;" id="heroMsg"></div>
+  <div class="section-hd"><div><div class="section-title">🏷️ <em>Sale Games</em></div><div class="section-sub" id="saleCount"></div></div></div>
+  <div class="grid-4" id="saleGrid"><div style="color:var(--gray);padding:20px;">Loading...</div></div>
+  <div class="no-results" id="noResults" style="display:none;"><div class="no-results-icon">🏷️</div><p>No sale games right now</p></div>
+</div>
+<div id="footerMount"></div>
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar"><div class="cart-hd"><h2>🛒 Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div><div class="cart-items" id="cartItems"></div><div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyCartDisc()">Apply</button></div><div class="disc-msg" id="discMsg"></div><div class="cart-ft" id="cartFt" style="display:none;"><div class="cart-disc-line" id="cartDiscLine"><span>🏷️</span><span id="cartDiscAmt"></span></div><div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-price" id="cartTotalPrice">0 IQD</span></div><button class="checkout-btn" onclick="openCheckout()">Checkout →</button></div></div>
+<div class="modal-overlay" id="checkoutModal" onclick="if(event.target===this)closeCheckout()"><div class="modal"><div class="modal-hd"><div class="modal-title" id="modalTitle">Complete Order</div><button class="close-btn" onclick="closeCheckout()">✕</button></div><div class="order-sum"><div class="order-sum-title">📋 Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div><div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Confirm</div></div><div class="step-panel active" id="sp1"><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div><div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr">1. Open <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong><br><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div><div class="step-panel" id="sp3"><div class="form-group"><label class="form-label">Name</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="custEmail" type="email" placeholder="you@email.com"/></div><div id="tgLinkWrap"></div><div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div></div><div class="step-panel" id="sp4"><div class="success-box"><div class="success-icon">🎉</div><div class="success-title">Order Received!</div><div id="tgFollowWrap"></div><button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button></div></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="firebase-config.js"></script><script type="module" src="db.js"></script>
+<script src="app.js"></script>
+<script>
+initTheme();
+async function tryHeroCode(){
+  const code=document.getElementById('heroCode').value.trim().toUpperCase();
+  const msg=document.getElementById('heroMsg');
+  const codes=await window._KS_DB.getCodes();
+  const c=codes[code];
+  if(c){ saveAppliedDisc({code,...c}); msg.textContent='✅ Code "'+code+'" applied! '+c.desc; msg.style.color='#059669'; showToast('🏷️ Discount applied!'); }
+  else { msg.textContent='❌ Invalid code. Try: KURD20, SAVE10, VIP50'; msg.style.color='#dc2626'; }
+}
+async function initPage(){
+  await buildNav('discounts'); applyLang();
+  window._KS_DB.listenGames(games=>{
+    const sale=games.filter(g=>g.badge==='sale');
+    document.getElementById('saleCount').textContent=sale.length+' games on sale';
+    if(!sale.length){document.getElementById('saleGrid').innerHTML='';document.getElementById('noResults').style.display='block';}
+    else{document.getElementById('noResults').style.display='none';document.getElementById('saleGrid').innerHTML=sale.map(gameCardHTML).join('');}
+  });
+}
+waitForDB(initPage);
+</script>
+</body></html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kurd Store — Xbox Games</title>
+<link rel="stylesheet" href="shared.css"/>
+<script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
+</head>
+<body>
+<div id="navMount"></div>
+<div class="page-hd" style="background:linear-gradient(135deg,#107c10,#52b043);">
+  <div class="bc"><a href="index.html">🏠 Home</a> › <span>🟢 Xbox Games</span></div>
+  <h1>🟢 Xbox Games</h1>
+</div>
+<div style="padding:28px 4vw 0;">
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search..." oninput="doSearch(this.value)"/>
+    <span class="search-icon">🔍</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="filterTab(this,'all')">All</button>
+    <button class="tab" onclick="filterTab(this,'new')">🆕 New</button>
+    <button class="tab" onclick="filterTab(this,'sale')">🏷️ On Sale</button>
+    <button class="tab" onclick="filterTab(this,'instock')">✅ In Stock</button>
+  </div>
+  <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;" id="resultCount"></div>
+</div>
+<div class="section" style="padding-top:0;">
+  <div class="grid-4" id="gameGrid"><div style="color:var(--gray);padding:20px;">Loading...</div></div>
+  <div class="no-results" id="noResults" style="display:none;"><div class="no-results-icon">🔍</div><p>No games found</p></div>
+</div>
+<div id="footerMount"></div>
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-hd"><h2>🛒 Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyCartDisc()">Apply</button></div>
+  <div class="disc-msg" id="discMsg"></div>
+  <div class="cart-ft" id="cartFt" style="display:none;">
+    <div class="cart-disc-line" id="cartDiscLine"><span>🏷️ Discount</span><span id="cartDiscAmt"></span></div>
+    <div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-price" id="cartTotalPrice">0 IQD</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">Checkout →</button>
+  </div>
+</div>
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal" onclick="if(event.target===this)closeCheckout()">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title" id="modalTitle">Complete Order</div><button class="close-btn" onclick="closeCheckout()">✕</button></div>
+    <div class="order-sum"><div class="order-sum-title">📋 Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div>
+    <div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Confirm</div></div>
+    <div class="step-panel active" id="sp1"><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
+    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr">1. Open <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong><br>3. Screenshot it<br><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
+    <div class="step-panel" id="sp3"><div class="form-group"><label class="form-label">Name</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="custEmail" type="email" placeholder="you@email.com"/></div><div id="tgLinkWrap"></div><div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div></div>
+    <div class="step-panel" id="sp4"><div class="success-box"><div class="success-icon">🎉</div><div class="success-title">Order Received!</div><div class="success-desc">Key within <strong>1–2 hours</strong>.</div><div id="tgFollowWrap"></div><button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button></div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script type="module" src="db.js"></script>
+<script src="app.js"></script>
+
+<script>
+initTheme();
+let allGames=[], activeFilter='all', searchQ='';
+
+function getFiltered(){
+  return allGames.filter(g=>{
+    if(activeFilter==='new'     && g.badge!=='new')  return false;
+    if(activeFilter==='sale'    && g.badge!=='sale') return false;
+    if(activeFilter==='instock' && !g.stock)         return false;
+    if(searchQ && !g.title.toLowerCase().includes(searchQ) && !g.titleKd.includes(searchQ)) return false;
+    return true;
+  });
+}
+function renderGrid(){
+  const list=getFiltered();
+  const grid=document.getElementById('gameGrid');
+  const nr=document.getElementById('noResults');
+  const rc=document.getElementById('resultCount');
+  rc.textContent=list.length+' game'+(list.length!==1?'s':'')+' found';
+  if(!list.length){ grid.innerHTML=''; nr.style.display='block'; }
+  else { nr.style.display='none'; grid.innerHTML=list.map(gameCardHTML).join(''); }
+}
+function filterTab(btn,t){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); activeFilter=t; renderGrid();
+}
+function doSearch(v){ searchQ=v.toLowerCase().trim(); renderGrid(); }
+
+async function initPage(){
+  await buildNav('xbox');
+  applyLang();
+  // Live listener
+  window._KS_DB.listenGames(games=>{
+    allGames='xbox'?games.filter(g=>g.category==='xbox'):games;
+    renderGrid();
+  });
+}
+
+waitForDB(initPage);
+</script>
+</body>
+</html>
