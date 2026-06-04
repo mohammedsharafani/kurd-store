@@ -32,8 +32,19 @@ function saveCart(c){ localStorage.setItem('ks_cart',JSON.stringify(c)); }
 function updateCartBadge(){ document.querySelectorAll('.cart-count').forEach(el=>el.textContent=getCart().length); }
 function getAppliedDisc(){ try{return JSON.parse(localStorage.getItem('ks_disc'));}catch(e){return null;} }
 function saveAppliedDisc(d){ localStorage.setItem('ks_disc',JSON.stringify(d)); }
-function calcDisc(sub){
+function calcDisc(sub, cart){
   const d=getAppliedDisc(); if(!d) return 0;
+  // If appliesTo is set, only discount matching items
+  if(d.appliesTo && d.appliesTo!=='all' && cart && cart.length){
+    const eligible = cart.filter(i=>{
+      if(d.appliesTo==='subs')     return i.type==='sub';
+      if(d.appliesTo==='sale')     return i.badge==='sale';
+      return i.category===d.appliesTo || i.platform?.toLowerCase()===d.appliesTo;
+    });
+    const eligibleSub = eligible.reduce((s,x)=>s+x.price,0);
+    if(!eligibleSub) return 0;
+    return d.type==='percent'?Math.round(eligibleSub*d.value/100):Math.min(d.value,eligibleSub);
+  }
   return d.type==='percent'?Math.round(sub*d.value/100):Math.min(d.value,sub);
 }
 function addGameToCart(g){
@@ -70,7 +81,7 @@ function renderCartItems(){
       <button class="ci-rm" onclick="removeFromCart(${i.uid})">✕</button>
     </div>`).join('');
   const sub=cart.reduce((s,x)=>s+x.price,0);
-  const disc=calcDisc(sub);
+  const disc=calcDisc(sub,cart);
   const dl=document.getElementById('cartDiscLine');
   const da=document.getElementById('cartDiscAmt');
   if(dl&&da){if(disc>0){dl.style.display='flex';da.textContent='-'+iqd(disc);}else dl.style.display='none';}
@@ -95,7 +106,7 @@ function openCheckout(){
   closeCart();
   document.getElementById('orderItems').innerHTML=cart.map(i=>`<div class="order-item"><span>${i.icon} ${i.name}</span><span>${iqd(i.price)}</span></div>`).join('');
   const sub=cart.reduce((s,x)=>s+x.price,0);
-  document.getElementById('orderTotal').textContent=iqd(sub-calcDisc(sub));
+  document.getElementById('orderTotal').textContent=iqd(sub-calcDisc(sub,cart));
   _selMethod=null;
   document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
   document.querySelectorAll('.pm-check').forEach(c=>c.textContent='');
@@ -118,8 +129,9 @@ function goStep(n){
     document.getElementById('pdbNum').textContent=m.number;
     document.getElementById('instrMethod').textContent=m.name;
     document.getElementById('instrMethodKd').textContent=m.nameKd;
-    const sub=getCart().reduce((s,x)=>s+x.price,0);
-    document.getElementById('instrAmt').textContent=iqd(sub-calcDisc(sub));
+    const cart2=getCart();
+    const sub=cart2.reduce((s,x)=>s+x.price,0);
+    document.getElementById('instrAmt').textContent=iqd(sub-calcDisc(sub,cart2));
   }
   document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp'+n).classList.add('active');
@@ -134,7 +146,7 @@ async function submitOrder(){
   if(!name||!email){showToast('Please enter name and email!');return;}
   const cart=getCart();
   const sub=cart.reduce((s,x)=>s+x.price,0);
-  const disc=calcDisc(sub);
+  const disc=calcDisc(sub,cart);
   const total=sub-disc;
   const d=getAppliedDisc();
   const method=_selMethod?PAYMENT_METHODS.find(x=>x.id===_selMethod)?.name:'';
