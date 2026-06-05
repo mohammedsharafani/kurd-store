@@ -702,7 +702,7 @@ async function renderGTable(search=''){
   const em = document.getElementById('gEmpty');
   if(!list.length){ tb.innerHTML=''; em.style.display='block'; return; }
   em.style.display='none';
-  tb.innerHTML = list.map(g=>`<tr draggable="true" data-id="${g.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropGame(event)" style="cursor:grab;">
+  tb.innerHTML = list.map(g=>`<tr draggable="true" data-id="${g.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropGame(event)" style="cursor:grab;">
     <td><div style="display:flex;align-items:center;gap:7px;"><span style="color:var(--gray);font-size:1rem;cursor:grab;" title="Drag to reorder">⠿</span><div style="width:56px;height:34px;border-radius:6px;overflow:hidden;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${g.img?`<img src="${g.img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>`:''}${g.icon}</div></div></td>
     <td><strong>${g.title}</strong></td>
     <td style="color:#a78bfa;">${g.titleKd}</td>
@@ -1454,6 +1454,204 @@ async function updateOrderStatus(id, status){
 }
 function markDelivered(id){ updateOrderStatus(id,'delivered'); }
 function markPending(id){ updateOrderStatus(id,'pending'); }
+
+// ══════════════════════════════════════
+//  DRAG & DROP GAME REORDERING
+// ══════════════════════════════════════
+let _dragId = null;
+function dragStart(e){
+  _dragId = parseInt(e.currentTarget.dataset.id);
+  e.currentTarget.style.opacity = '0.4';
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('#gTbody tr').forEach(r=>r.style.background='');
+  e.currentTarget.style.background = 'var(--ps)';
+}
+function dragLeave(e){
+  e.currentTarget.style.background = '';
+}
+async function dropGame(e){
+  e.preventDefault();
+  document.querySelectorAll('#gTbody tr').forEach(r=>{ r.style.background=''; r.style.opacity='1'; });
+  const targetId = parseInt(e.currentTarget.dataset.id);
+  if(!_dragId || _dragId === targetId) return;
+  const games = await db().getGames();
+  const fromIdx = games.findIndex(g=>g.id===_dragId);
+  const toIdx   = games.findIndex(g=>g.id===targetId);
+  if(fromIdx < 0 || toIdx < 0) return;
+  const moved = games.splice(fromIdx, 1)[0];
+  games.splice(toIdx, 0, moved);
+  showSaving();
+  await db().saveGames(games);
+  showToast('✅ Games reordered!');
+  renderGTable();
+  _dragId = null;
+}
+
+// ══════════════════════════════════════
+//  DUPLICATE GAME
+// ══════════════════════════════════════
+async function duplicateGame(id){
+  const games = await db().getGames();
+  const g = games.find(x=>x.id===id);
+  if(!g) return;
+  const newId = Math.max(...games.map(x=>x.id)) + 1;
+  const copy = {...g, id:newId, title:g.title+' (Copy)', stock:false};
+  games.push(copy);
+  showSaving();
+  await db().saveGames(games);
+  showToast('⧉ Game duplicated!');
+  renderGTable();
+}
+
+// ══════════════════════════════════════
+//  QUICK PRICE EDIT
+// ══════════════════════════════════════
+async function quickEditPrice(id, currentPrice){
+  const newPrice = prompt('New price (IQD):
+Current: '+Number(currentPrice).toLocaleString()+' IQD', currentPrice);
+  if(newPrice===null) return;
+  const p = parseFloat(newPrice);
+  if(isNaN(p)||p<=0){ showToast('⚠️ Invalid price!'); return; }
+  showSaving();
+  const games = await db().getGames();
+  const idx = games.findIndex(g=>g.id===id);
+  if(idx>-1){
+    games[idx].price = p;
+    await db().saveGames(games);
+    showToast('✅ Price updated to '+p.toLocaleString()+' IQD!');
+    renderGTable();
+  }
+}
+
+// ══════════════════════════════════════
+//  TELEGRAM BOT
+// ══════════════════════════════════════
+async function saveBotSettings(){
+  showSaving();
+  const s = await db().getSettings();
+  s.botToken  = document.getElementById('sBotToken').value.trim();
+  s.botChatId = document.getElementById('sBotChatId').value.trim();
+  await db().saveSettings(s);
+  showToast('✅ Bot settings saved!');
+}
+async function testBot(){
+  const s = await db().getSettings();
+  const token  = document.getElementById('sBotToken').value.trim()  || s.botToken  || '';
+  const chatId = document.getElementById('sBotChatId').value.trim() || s.botChatId || '';
+  if(!token||!chatId){ showToast('⚠️ Enter Bot Token and Chat ID first!'); return; }
+  try {
+    const res = await fetch('https://api.telegram.org/bot'+token+'/sendMessage',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id:chatId, text:'✅ Kurd Store Bot is working!
+
+You will now receive instant notifications for every new order. 🎮'})
+    });
+    const data = await res.json();
+    if(data.ok) showToast('✅ Test message sent! Check Telegram.');
+    else showToast('❌ Error: '+(data.description||'Unknown'));
+  } catch(e){ showToast('❌ Failed: '+e.message); }
+}
+
+// ══════════════════════════════════════
+//  GOOGLE ANALYTICS
+// ══════════════════════════════════════
+async function saveGaSettings(){
+  showSaving();
+  const s = await db().getSettings();
+  s.gaId = document.getElementById('sGaId').value.trim();
+  await db().saveSettings(s);
+  showToast('✅ Analytics ID saved!');
+}
+
+// ══════════════════════════════════════
+//  EMAILJS
+// ══════════════════════════════════════
+async function saveEmailSettings(){
+  showSaving();
+  const s = await db().getSettings();
+  s.emailKey      = document.getElementById('sEmailKey').value.trim();
+  s.emailService  = document.getElementById('sEmailService').value.trim();
+  s.emailTemplate = document.getElementById('sEmailTemplate').value.trim();
+  await db().saveSettings(s);
+  showToast('✅ Email settings saved!');
+}
+async function testEmail(){
+  const s = await db().getSettings();
+  const key      = document.getElementById('sEmailKey').value.trim()      || s.emailKey      || '';
+  const service  = document.getElementById('sEmailService').value.trim()  || s.emailService  || '';
+  const template = document.getElementById('sEmailTemplate').value.trim() || s.emailTemplate || '';
+  const testAddr = document.getElementById('sEmailTest').value.trim();
+  if(!key||!service||!template){ showToast('⚠️ Fill in all EmailJS fields first!'); return; }
+  if(!testAddr){ showToast('⚠️ Enter a test email address!'); return; }
+  try {
+    showToast('⏳ Sending test email...');
+    if(!window.emailjs){
+      await new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js'; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); });
+    }
+    window.emailjs.init(key);
+    await window.emailjs.send(service, template, {
+      to_email:testAddr, customer_name:'Test Customer',
+      order_items:'God of War — Active PS5', order_total:'52,000 IQD',
+      payment_method:'FIB', store_name:s.storeName||'Kurd Store',
+      telegram:'@'+(s.telegram||'sharafaani')
+    });
+    showToast('✅ Test email sent to '+testAddr+'!');
+  } catch(e){ showToast('❌ Email failed: '+JSON.stringify(e)); console.error(e); }
+}
+
+// ══════════════════════════════════════
+//  SALES DASHBOARD
+// ══════════════════════════════════════
+async function loadDashboard(){
+  const games = await db().getGames();
+  document.getElementById('dashGames').textContent = games.length;
+  try {
+    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const { getApps, initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app2 = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+    const db2  = getDatabase(app2);
+    const snap = await get(ref(db2,'orders'));
+    if(!snap.exists()){
+      ['dashOrders','dashRevenue','dashPending'].forEach(id=>document.getElementById(id).textContent='0');
+      document.getElementById('dashOrdersEmpty').style.display='block';
+      document.getElementById('dashRecentOrders').innerHTML='';
+      document.getElementById('dashTopGames').innerHTML='<div style="color:var(--gray);font-size:.85rem;padding:10px;">No orders yet</div>';
+      return;
+    }
+    const raw = snap.val();
+    const orders = Object.entries(raw).map(([id,o])=>({_id:id,...o})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const total     = orders.length;
+    const pending   = orders.filter(o=>o.status==='pending').length;
+    const revenue   = orders.reduce((s,o)=>s+(o.total||0),0);
+    document.getElementById('dashOrders').textContent   = total;
+    document.getElementById('dashPending').textContent  = pending;
+    document.getElementById('dashRevenue').textContent  = Number(revenue).toLocaleString()+' IQD';
+    // Recent orders
+    document.getElementById('dashOrdersEmpty').style.display='none';
+    document.getElementById('dashRecentOrders').innerHTML = orders.slice(0,5).map(o=>`<tr>
+      <td style="padding:9px 12px;border-bottom:1px solid var(--gl);"><strong>${o.name||'—'}</strong><br><span style="font-size:.72rem;color:var(--gray);">${o.date?new Date(o.date).toLocaleDateString():''}</span></td>
+      <td style="padding:9px 12px;border-bottom:1px solid var(--gl);font-size:.78rem;max-width:140px;">${(o.items||'').substring(0,40)}${(o.items||'').length>40?'...':''}</td>
+      <td style="padding:9px 12px;border-bottom:1px solid var(--gl);font-family:var(--fd);font-weight:700;color:var(--p);">${Number(o.total||0).toLocaleString()} IQD</td>
+      <td style="padding:9px 12px;border-bottom:1px solid var(--gl);"><span style="padding:2px 8px;border-radius:99px;font-size:.68rem;font-weight:700;background:${o.status==='delivered'?'#d1fae5':'#fef3c7'};color:${o.status==='delivered'?'#059669':'#b45309'};">${o.status==='delivered'?'✅':'⏳'} ${o.status}</span></td>
+    </tr>`).join('');
+    // Top games
+    const counts={};
+    orders.forEach(o=>{ if(o.items) o.items.split(',').forEach(i=>{ const k=i.trim(); if(k) counts[k]=(counts[k]||0)+1; }); });
+    const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('dashTopGames').innerHTML = sorted.length
+      ? sorted.map(([name,count],i)=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--gl);">
+          <div style="width:26px;height:26px;background:var(--ps);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:var(--p);font-size:.85rem;">${i+1}</div>
+          <div style="flex:1;font-size:.83rem;font-weight:600;color:var(--text);">${name.substring(0,35)}</div>
+          <div style="font-family:var(--fd);font-weight:700;color:var(--p);">${count}x</div>
+        </div>`).join('')
+      : '<div style="color:var(--gray);font-size:.85rem;padding:10px;">No data yet</div>';
+  } catch(e){ console.error('Dashboard error:',e); showToast('❌ Error loading dashboard'); }
+}
+
 </script>
 </body>
 </html>

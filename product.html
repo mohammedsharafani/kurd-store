@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="preconnect" href="https://www.gstatic.com"/>
-<link rel="preconnect" href="https://firebaseinstallations.googleapis.com"/>
-<link rel="dns-prefetch" href="https://firebaseio.com"/>
 <title>Kurd Store — Game</title>
 <link rel="stylesheet" href="shared.css"/>
 <script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
 <style>
+body{padding-bottom:80px;}
 .product-page{padding:32px 4vw;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:36px;max-width:1100px;margin:0 auto;}
 .product-img-wrap{border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;background:linear-gradient(135deg,#ede9fe,#ddd6fe);position:relative;}
 .product-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;z-index:2;}
@@ -16,7 +15,7 @@
 .product-info{display:flex;flex-direction:column;gap:14px;}
 .product-platform{font-size:.75rem;font-weight:700;letter-spacing:1px;color:var(--pl);text-transform:uppercase;}
 .product-title{font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--text);line-height:1.1;}
-.product-title-kd{font-size:.95rem;color:#a78bfa;margin-top:2px;}
+.product-title-kd{font-size:.95rem;color:#a78bfa;}
 .product-badges{display:flex;gap:8px;flex-wrap:wrap;}
 .product-price-wrap{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
 .product-price{font-family:var(--fd);font-size:1.9rem;font-weight:700;color:var(--p);}
@@ -28,12 +27,9 @@
 .product-meta-lbl{color:var(--gray);min-width:100px;font-weight:600;}
 .product-meta-val{color:var(--text);font-weight:600;}
 .product-expiry{border-radius:10px;padding:10px 14px;font-size:.82rem;font-weight:600;}
-.product-expiry.soon{background:#fef3c7;border:1.5px solid #f59e0b;color:#b45309;}
-.product-expiry.expired{background:#fee2e2;border:1.5px solid #dc2626;color:#dc2626;}
 .variant-select{display:flex;flex-direction:column;gap:9px;}
 .variant-opt{border:2px solid var(--border);border-radius:13px;padding:13px 15px;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.variant-opt:hover{border-color:var(--p);background:var(--ps);}
-.variant-opt.sel{border-color:var(--p);background:var(--ps);}
+.variant-opt:hover,.variant-opt.sel{border-color:var(--p);background:var(--ps);}
 .variant-opt-label{font-weight:700;font-size:.92rem;}
 .variant-opt-desc{font-size:.76rem;color:var(--gray);margin-top:2px;}
 .variant-opt-price{font-family:var(--fd);font-size:1.15rem;font-weight:700;color:var(--p);white-space:nowrap;}
@@ -45,36 +41,39 @@
 .add-cart-big:disabled{background:#9ca3af;cursor:not-allowed;box-shadow:none;transform:none;}
 .tg-contact-btn{background:var(--gl);color:var(--p);border:2px solid var(--border);border-radius:12px;padding:13px 18px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:var(--fb);text-decoration:none;display:flex;align-items:center;gap:7px;transition:background .2s;white-space:nowrap;}
 .tg-contact-btn:hover{background:var(--ps);}
+.share-wrap{position:relative;}
+.share-btn{background:var(--gl);color:var(--text2);border:2px solid var(--border);border-radius:12px;padding:11px 16px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:var(--fb);display:flex;align-items:center;gap:7px;}
+.share-btn:hover{background:var(--ps);color:var(--p);}
+.share-menu{position:absolute;bottom:calc(100% + 8px);right:0;background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:8px;box-shadow:0 8px 32px #7c3aed22;z-index:10;display:none;flex-direction:column;gap:4px;min-width:180px;}
+.share-menu.open{display:flex;}
+.share-menu-item{padding:9px 14px;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--text);}
+.share-menu-item:hover{background:var(--gl);}
+.sticky-cart-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1.5px solid var(--border);padding:12px 16px;z-index:150;display:none;align-items:center;gap:12px;box-shadow:0 -4px 24px #7c3aed18;}
+.sticky-cart-bar.visible{display:flex;}
+.sticky-game-info{flex:1;min-width:0;}
+.sticky-game-title{font-weight:700;font-size:.88rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sticky-game-price{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--p);}
+.sticky-add-btn{background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--fb);}
+.sticky-add-btn:disabled{background:#9ca3af;cursor:not-allowed;}
 .related-sec{padding:0 4vw 56px;position:relative;z-index:1;}
-body{padding-bottom:80px;}
-@media(max-width:768px){
-  .product-page{grid-template-columns:1fr;gap:24px;}
-  .product-title{font-size:1.55rem;}
-}
+@media(max-width:768px){.product-page{grid-template-columns:1fr;gap:24px;}.product-title{font-size:1.55rem;}}
 </style>
 </head>
 <body>
 <div id="navMount"></div>
-
 <div class="page-hd" style="background:linear-gradient(135deg,var(--p),var(--pl));" id="pageHd">
   <div class="bc"><a href="index.html">🏠 Home</a> › <a id="bcCat" href="index.html">Games</a> › <span id="bcTitle">...</span></div>
   <h1 id="pageHdTitle">Loading...</h1>
 </div>
-
 <div class="product-page" id="productPage">
   <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--gray);">
-    <div style="font-size:2rem;margin-bottom:12px;">⏳</div>
-    <div>Loading game...</div>
+    <div style="font-size:2rem;margin-bottom:12px;">⏳</div><div>Loading game...</div>
   </div>
 </div>
-
 <div class="related-sec" id="relatedSec">
-  <div class="section-hd">
-    <div><div class="section-title">🎮 <em>Related Games</em></div><div class="section-sub">More games you might like</div></div>
-  </div>
+  <div class="section-hd"><div><div class="section-title">🎮 <em>Related Games</em></div><div class="section-sub">More games you might like</div></div></div>
   <div class="grid-4" id="relatedGrid"></div>
 </div>
-
 <div id="footerMount"></div>
 
 <!-- CART -->
@@ -82,7 +81,7 @@ body{padding-bottom:80px;}
 <div class="cart-sidebar" id="cartSidebar">
   <div class="cart-hd"><h2>🛒 Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div>
   <div class="cart-items" id="cartItems"></div>
-  <div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyCartDisc()">Apply</button></div>
+  <div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyDisc()">Apply</button></div>
   <div class="disc-msg" id="discMsg"></div>
   <div class="cart-ft" id="cartFt" style="display:none;">
     <div class="cart-disc-line" id="cartDiscLine"><span>🏷️ Discount</span><span id="cartDiscAmt"></span></div>
@@ -98,133 +97,100 @@ body{padding-bottom:80px;}
     <div class="order-sum"><div class="order-sum-title">📋 Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div>
     <div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Confirm</div></div>
     <div class="step-panel active" id="sp1"><p style="font-size:.82rem;color:var(--text2);margin-bottom:12px;">Choose payment method:</p><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
-    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><div style="font-size:.7rem;color:#a78bfa;">Tap to copy</div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr"><strong>How to pay:</strong><br>1. Open your <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong> to the number above<br>3. Screenshot the transfer<br><br><strong>چۆن پارەبدەیت:</strong><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
+    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><div style="font-size:.7rem;color:#a78bfa;">Tap to copy</div><button class="copy-btn" onclick="copyNum()">📋 Copy</button></div><div class="pay-instr"><strong>How to pay:</strong><br>1. Open your <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong> to the number above<br>3. Screenshot the transfer<br><br><strong>چۆن پارەبدەیت:</strong><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
     <div class="step-panel" id="sp3"><div class="form-group"><label class="form-label">Name / ناوت</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div><div class="form-group"><label class="form-label">Email / ئیمەیڵ</label><input class="form-input" id="custEmail" type="email" placeholder="you@email.com"/></div><div id="tgLinkWrap"></div><div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div></div>
     <div class="step-panel" id="sp4"><div class="success-box"><div class="success-icon">🎉</div><div class="success-title">Order Received!</div><div class="success-desc">Key within <strong>1–2 hours</strong>.<br><br>کیلێکەکەت دەنێرین ژێر <strong>١-٢ کاتژمێر</strong>.</div><div id="tgFollowWrap"></div><button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button></div></div>
   </div>
 </div>
 
+<!-- STICKY CART BAR -->
+<div class="sticky-cart-bar" id="stickyBar">
+  <div class="sticky-game-info"><div class="sticky-game-title" id="stickyTitle">Game</div><div class="sticky-game-price" id="stickyPrice">0 IQD</div></div>
+  <button class="sticky-add-btn" id="stickyBtn" onclick="doAddToCart()">🛒 Add to Cart</button>
+</div>
+<button class="back-to-top" id="bttBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <div class="toast" id="toast"></div>
 
-<!-- STICKY CART BAR -->
-<div class="sticky-cart-bar" id="stickyCartBar">
-  <div class="sticky-game-info">
-    <div class="sticky-game-title" id="stickyTitle">Game</div>
-    <div class="sticky-game-price" id="stickyPrice">0 IQD</div>
-  </div>
-  <button class="sticky-add-btn" id="stickyAddBtn" onclick="doAddToCart()">🛒 Add to Cart</button>
-</div>
-<button class="back-to-top" id="backToTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-<!-- Load Firebase config first -->
 <script src="firebase-config.js"></script>
-
-<!-- Load Firebase + everything inline so no race conditions -->
 <script>
+// Self-contained async — no dependency on app.js or db.js
 (async function(){
-  try {
-    // 1. Load Firebase - always create fresh to avoid cross-page issues
-    const { initializeApp, getApps, deleteApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const { getDatabase, ref, get, push } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-
-    let app;
-    const existingApps = getApps();
-    if(existingApps.length > 0) {
-      app = existingApps[0];
-    } else {
-      app = initializeApp(FIREBASE_CONFIG);
+  // ── HELPERS ──
+  function iqd(n){ return Number(n).toLocaleString()+' IQD'; }
+  function getLang(){ return localStorage.getItem('ks_lang')||'en'; }
+  function getTheme(){ return localStorage.getItem('ks_theme')||'light'; }
+  function getCart(){ try{return JSON.parse(localStorage.getItem('ks_cart'))||[];}catch(e){return[];} }
+  function saveCart(c){ localStorage.setItem('ks_cart',JSON.stringify(c)); }
+  function getDisc(){ try{return JSON.parse(localStorage.getItem('ks_disc'));}catch(e){return null;} }
+  function calcDisc(sub,cart){
+    const d=getDisc(); if(!d) return 0;
+    if(d.appliesTo&&d.appliesTo!=='all'&&cart){
+      const el=cart.filter(i=>d.appliesTo==='subs'?i.type==='sub':i.category===d.appliesTo);
+      const es=el.reduce((s,x)=>s+x.price,0); if(!es) return 0;
+      return d.type==='percent'?Math.round(es*d.value/100):Math.min(d.value,es);
     }
-    const db = getDatabase(app);
+    return d.type==='percent'?Math.round(sub*d.value/100):Math.min(d.value,sub);
+  }
+  function updateBadge(){ document.querySelectorAll('.cart-count').forEach(el=>el.textContent=getCart().length); }
+  function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
 
-    // 2. Get game ID from URL
-    const params = new URLSearchParams(window.location.search);
-    const gameId = parseInt(params.get('id'));
+  try {
+    // ── FIREBASE ──
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getDatabase, ref, get, push } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+    const db  = getDatabase(app);
+    async function fbGet(p){ const s=await get(ref(db,p)); return s.exists()?s.val():null; }
+
+    // ── GET GAME ID ──
+    const gameId = parseInt(new URLSearchParams(window.location.search).get('id'));
     if(!gameId){ window.location.href='index.html'; return; }
 
-    // 3. Helper functions
-    function iqd(n){ return Number(n).toLocaleString()+' IQD'; }
-    function getTheme(){ return localStorage.getItem('ks_theme')||'light'; }
-    function getLang(){ return localStorage.getItem('ks_lang')||'en'; }
-    function getCart(){ try{return JSON.parse(localStorage.getItem('ks_cart'))||[];}catch(e){return[];} }
-    function saveCart(c){ localStorage.setItem('ks_cart',JSON.stringify(c)); }
-    function updateCartBadge(){ document.querySelectorAll('.cart-count').forEach(el=>el.textContent=getCart().length); }
-    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+    // ── FETCH DATA ──
+    const [gData, sData] = await Promise.all([fbGet('store/games'), fbGet('store/settings')]);
+    const games    = gData?.list?.length ? gData.list : DEFAULT_GAMES;
+    const settings = sData ? Object.assign({},DEFAULT_SETTINGS,sData) : DEFAULT_SETTINGS;
 
-    function getAppliedDisc(){ try{return JSON.parse(localStorage.getItem('ks_disc'));}catch(e){return null;} }
-    function calcDisc(sub,cart){
-      const d=getAppliedDisc(); if(!d) return 0;
-      if(d.appliesTo&&d.appliesTo!=='all'&&cart&&cart.length){
-        const el=cart.filter(i=>{ if(d.appliesTo==='subs') return i.type==='sub'; return i.category===d.appliesTo||i.platform?.toLowerCase()===d.appliesTo; });
-        const es=el.reduce((s,x)=>s+x.price,0); if(!es) return 0;
-        return d.type==='percent'?Math.round(es*d.value/100):Math.min(d.value,es);
-      }
-      return d.type==='percent'?Math.round(sub*d.value/100):Math.min(d.value,sub);
-    }
-
-    // 4. Fetch data from Firebase
-    async function fbGet(path){ const s=await get(ref(db,path)); return s.exists()?s.val():null; }
-
-    const [gamesData, settingsData, subsData] = await Promise.all([
-      fbGet('store/games'),
-      fbGet('store/settings'),
-      fbGet('store/subs')
-    ]);
-
-    const games    = gamesData?.list    || DEFAULT_GAMES;
-    const settings = settingsData ? Object.assign({},DEFAULT_SETTINGS,settingsData) : DEFAULT_SETTINGS;
-
-    // 5. Auto expire
+    // ── AUTO EXPIRE ──
     const now = new Date();
-    const allGames = games.map(g=>{
-      if(g.expiryDate && new Date(g.expiryDate)<now && g.stock) return {...g,stock:false};
-      return g;
-    });
-
+    const allGames = games.map(g=> g.expiryDate&&new Date(g.expiryDate)<now&&g.stock ? {...g,stock:false} : g);
     const game = allGames.find(g=>g.id===gameId);
     if(!game){ window.location.href='index.html'; return; }
 
-    const l = getLang();
-    const title = l==='en'?game.title:game.titleKd;
+    const l     = getLang();
+    const title = l==='en' ? game.title : game.titleKd;
+    const isOos = !game.stock;
+    const discPct = game.oldPrice ? Math.round((1-game.price/game.oldPrice)*100) : 0;
 
-    // 6. Update header
+    // ── PAGE HEADER ──
     document.title = 'Kurd Store — '+title;
     document.getElementById('pageHdTitle').textContent = title;
     document.getElementById('bcTitle').textContent = title;
     const catLinks={ps:'playstation.html',xbox:'xbox.html',pc:'pc.html',nintendo:'nintendo.html'};
-    const bcCat = document.getElementById('bcCat');
-    bcCat.href = catLinks[game.category]||'index.html';
-    bcCat.textContent = game.platform;
+    document.getElementById('bcCat').href = catLinks[game.category]||'index.html';
+    document.getElementById('bcCat').textContent = game.platform;
 
-    // 7. Check expiry
-    function checkExpiry(g){
-      if(!g.expiryDate) return {expired:false,soon:false,label:''};
-      const exp=new Date(g.expiryDate); const diff=Math.ceil((exp-now)/(1000*60*60*24));
-      if(diff<=0) return {expired:true,soon:false,label:'This deal has expired'};
-      if(diff<=3) return {expired:false,soon:true,label:'⏰ Deal expires in '+diff+' day'+(diff!==1?'s':'')+'!'};
-      return {expired:false,soon:false,label:'Valid until '+exp.toLocaleDateString()};
-    }
-    const expiry = checkExpiry(game);
-    const isOos  = !game.stock || expiry.expired;
-    const discPct = game.oldPrice ? Math.round((1-game.price/game.oldPrice)*100) : 0;
-
-    // 8. Render product
-    let selectedVariantIdx = 0;
-    function getSelectedVariant(){
-      if(!game.variants||!game.variants.length) return null;
-      return game.variants[selectedVariantIdx];
-    }
-    function getCurrentPrice(){
-      const v=getSelectedVariant();
-      return v ? v.price : game.price;
+    // ── EXPIRY ──
+    let expiryHTML = '';
+    if(game.expiryDate){
+      const exp = new Date(game.expiryDate);
+      const diff = Math.ceil((exp-now)/(1000*60*60*24));
+      if(diff<=0) expiryHTML = '<div class="product-expiry" style="background:#fee2e2;border:1.5px solid #dc2626;color:#dc2626;">❌ This deal has expired</div>';
+      else if(diff<=3) expiryHTML = `<div class="product-expiry" style="background:#fef3c7;border:1.5px solid #f59e0b;color:#b45309;">⏰ Deal expires in ${diff} day${diff!==1?'s':''}!</div>`;
     }
 
+    // ── VARIANT STATE ──
+    let selIdx = 0;
+    function getCurrentPrice(){ return game.variants?.length ? game.variants[selIdx].price : game.price; }
+
+    // ── RENDER PRODUCT ──
     document.getElementById('productPage').innerHTML = `
       <div>
         <div class="product-img-wrap">
           ${game.img?`<img src="${game.img}" alt="${game.title}" loading="lazy" onerror="this.style.display='none'"/>`:''}
           <div class="product-emoji-fb">${game.icon}</div>
           ${game.badge&&game.stock?`<div style="position:absolute;top:12px;left:12px;z-index:3;"><span class="pbadge pb-${game.badge}" style="font-size:.8rem;padding:4px 13px;">${game.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
-          ${isOos?`<div style="position:absolute;inset:0;background:#00000066;display:flex;align-items:center;justify-content:center;z-index:4;"><span style="background:#6b7280;color:#fff;border-radius:99px;padding:8px 20px;font-weight:700;font-size:.9rem;">OUT OF STOCK</span></div>`:''}
+          ${isOos?`<div style="position:absolute;inset:0;background:#00000066;display:flex;align-items:center;justify-content:center;z-index:4;"><span style="background:#6b7280;color:#fff;border-radius:99px;padding:8px 20px;font-weight:700;">OUT OF STOCK</span></div>`:''}
         </div>
       </div>
       <div class="product-info">
@@ -233,15 +199,15 @@ body{padding-bottom:80px;}
         ${game.titleKd&&l==='en'?`<div class="product-title-kd">${game.titleKd}</div>`:''}
         <div class="product-badges">
           ${game.badge&&game.stock?`<span class="pbadge pb-${game.badge}" style="font-size:.78rem;padding:4px 13px;">${game.badge==='sale'?'🏷️ ON SALE':'🆕 NEW'}</span>`:''}
-          ${!isOos?'<span class="pbadge" style="background:#059669;font-size:.78rem;padding:4px 13px;">✅ In Stock</span>':'<span class="pbadge pb-oos" style="font-size:.78rem;padding:4px 13px;">❌ Out of Stock</span>'}
+          <span class="pbadge" style="background:${isOos?'#6b7280':'#059669'};font-size:.78rem;padding:4px 13px;">${isOos?'❌ Out of Stock':'✅ In Stock'}</span>
         </div>
         <div class="product-price-wrap">
-          <div class="product-price" id="displayPrice">${iqd(game.price)}</div>
+          <div class="product-price" id="displayPrice">${iqd(game.variants?.length?game.variants[0].price:game.price)}</div>
           ${game.oldPrice&&!game.variants?`<div class="product-old-price">${iqd(game.oldPrice)}</div>`:''}
           ${discPct>0&&!game.variants?`<div class="product-disc-tag">${discPct}% OFF</div>`:''}
         </div>
-        ${expiry.label?`<div class="product-expiry ${expiry.expired?'expired':'soon'}">${expiry.expired?'❌':'⏰'} ${expiry.label}</div>`:''}
-        ${game.description?`<div class="product-desc">${game.description}</div>`:`<div class="product-desc">🎮 Digital game key — delivered instantly to your email after payment confirmation.<br><br>📧 پاش پشتڕاستکردنەوەی پارەدان، کیلێکەکەت دەنێردرێت بۆ ئیمەیڵەکەت.</div>`}
+        ${expiryHTML}
+        ${game.description?`<div class="product-desc">${game.description}</div>`:`<div class="product-desc">🎮 Digital game key — delivered instantly to your email after payment.<br><br>📧 کیلێکەکەت دەنێردرێت بۆ ئیمەیڵەکەت دوای پشتڕاستکردنەوەی پارەدان.</div>`}
         <div class="product-meta">
           <div class="product-meta-row"><span class="product-meta-lbl">Platform:</span><span class="product-meta-val">${game.platform}</span></div>
           <div class="product-meta-row"><span class="product-meta-lbl">Format:</span><span class="product-meta-val">Digital Key 🔑</span></div>
@@ -251,16 +217,15 @@ body{padding-bottom:80px;}
         ${game.variants&&game.variants.length&&!isOos?`
         <div>
           <div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:10px;">🎮 Choose your option:</div>
-          <div class="variant-select" id="variantSelect">
+          <div class="variant-select" id="variantSel">
             ${game.variants.map((v,i)=>{
-              const colors={activeps5:'#059669',activeps4:'#3b82f6',inaccount:'#7c3aed',active:'#059669'};
-              const bgs={activeps5:'#d1fae5',activeps4:'#dbeafe',inaccount:'#ede9fe',active:'#d1fae5'};
-              const color=colors[v.type]||'#7c3aed';
-              const bg=bgs[v.type]||'#ede9fe';
-              return `<div class="variant-opt${i===0?' sel':''}" onclick="pickVariant(this,${i})" data-price="${v.price}" data-label="${v.label}" data-idx="${i}">
+              const colors={activeps5:'#059669',activeps4:'#3b82f6',inaccount:'#7c3aed'};
+              const bgs={activeps5:'#d1fae5',activeps4:'#dbeafe',inaccount:'#ede9fe'};
+              const c=colors[v.type]||'#7c3aed', bg=bgs[v.type]||'#ede9fe';
+              return `<div class="variant-opt${i===0?' sel':''}" onclick="pickVariant(this,${i})" data-idx="${i}">
                 <div style="display:flex;align-items:center;gap:10px;flex:1;">
                   <div style="width:38px;height:38px;border-radius:9px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${v.type==='inaccount'?'👤':'✅'}</div>
-                  <div><div class="variant-opt-label" style="color:${color};">${v.label}</div><div class="variant-opt-desc">${v.desc}</div></div>
+                  <div><div class="variant-opt-label" style="color:${c};">${v.label}</div><div class="variant-opt-desc">${v.desc}</div></div>
                 </div>
                 <div style="display:flex;align-items:center;gap:9px;">
                   <div class="variant-opt-price">${iqd(v.price)}</div>
@@ -269,124 +234,91 @@ body{padding-bottom:80px;}
               </div>`;
             }).join('')}
           </div>
-        </div>`:``}
+        </div>`:''}
         <div class="product-actions">
           <button class="add-cart-big" ${isOos?'disabled':''} id="addCartBtn" onclick="doAddToCart()">
             ${isOos?'❌ Out of Stock':'🛒 Add to Cart'}
           </button>
           <a class="tg-contact-btn" href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank">✈️ Telegram</a>
-        <div class="share-wrap">
-          <button class="share-btn" onclick="toggleShareMenu(event)">🔗 Share</button>
-          <div class="share-menu" id="shareMenu">
-            <div class="share-menu-item" onclick="shareVia('telegram')">✈️ Share on Telegram</div>
-            <div class="share-menu-item" onclick="shareVia('whatsapp')">💬 Share on WhatsApp</div>
-            <div class="share-menu-item" onclick="shareVia('copy')">📋 Copy Link</div>
+          <div class="share-wrap">
+            <button class="share-btn" onclick="toggleShare(event)">🔗 Share</button>
+            <div class="share-menu" id="shareMenu">
+              <div class="share-menu-item" onclick="doShare('tg')">✈️ Share on Telegram</div>
+              <div class="share-menu-item" onclick="doShare('wa')">💬 Share on WhatsApp</div>
+              <div class="share-menu-item" onclick="doShare('copy')">📋 Copy Link</div>
+            </div>
           </div>
-        </div>
         </div>
       </div>`;
 
-    // 9. Variant picker
+    // ── VARIANT PICKER ──
     window.pickVariant = function(el, idx){
       document.querySelectorAll('.variant-opt').forEach(o=>{ o.classList.remove('sel'); o.querySelector('.variant-check').textContent=''; });
       el.classList.add('sel'); el.querySelector('.variant-check').textContent='✓';
-      selectedVariantIdx = idx;
-      document.getElementById('displayPrice').textContent = iqd(game.variants[idx].price);
+      selIdx = idx;
+      const price = game.variants[idx].price;
+      document.getElementById('displayPrice').textContent = iqd(price);
+      document.getElementById('stickyPrice').textContent  = iqd(price);
     };
 
-    // 9b. Setup sticky cart bar
-    const stickyBar = document.getElementById('stickyCartBar');
-    const stickyTitle = document.getElementById('stickyTitle');
-    const stickyPrice = document.getElementById('stickyPrice');
-    const stickyBtn   = document.getElementById('stickyAddBtn');
-    const addCartBtnEl = document.getElementById('addCartBtn');
-
-    function updateStickyPrice(){
-      const v = game.variants&&game.variants.length ? game.variants[selectedVariantIdx] : null;
-      const p = v ? v.price : game.price;
-      stickyPrice.textContent = iqd(p);
-    }
-
-    stickyTitle.textContent = title;
-    updateStickyPrice();
-    if(isOos){ stickyBtn.disabled=true; stickyBtn.textContent='❌ Out of Stock'; }
-
-    // Show sticky bar when add-to-cart button scrolls out of view
-    const observer = new IntersectionObserver(entries=>{
-      stickyBar.classList.toggle('visible', !entries[0].isIntersecting);
-    }, {threshold:0});
-    if(addCartBtnEl) observer.observe(addCartBtnEl);
-
-    // Back to top button
-    const bttBtn = document.getElementById('backToTopBtn');
-    window.addEventListener('scroll',()=>{
-      if(bttBtn) bttBtn.classList.toggle('visible', window.scrollY>400);
-    });
-
-    // Share functionality
-    window.toggleShareMenu = function(e){
-      e.stopPropagation();
-      document.getElementById('shareMenu').classList.toggle('open');
-    };
-    document.addEventListener('click',()=>{ const m=document.getElementById('shareMenu'); if(m) m.classList.remove('open'); });
-    window.shareVia = function(platform){
-      const url = window.location.href;
-      const text = encodeURIComponent('🎮 Check out '+title+' on Kurd Store!
-'+url);
-      if(platform==='telegram')  window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent('🎮 '+title+' — Kurd Store'),'_blank');
-      else if(platform==='whatsapp') window.open('https://wa.me/?text='+text,'_blank');
-      else { navigator.clipboard.writeText(url).then(()=>showToast('✅ Link copied!')); }
-      document.getElementById('shareMenu').classList.remove('open');
-    };
-
-    // Update sticky price when variant changes
-    const origPickVariant = window.pickVariant;
-    window.pickVariant = function(el,idx){
-      origPickVariant(el,idx);
-      updateStickyPrice();
-    };
-
-    // 10. Add to cart
+    // ── ADD TO CART ──
     window.doAddToCart = function(){
       if(isOos){ showToast('Out of stock!'); return; }
-      if(game.expiryDate && new Date(game.expiryDate)<now){ showToast('❌ This deal has expired!'); return; }
       const cart = getCart();
       if(game.variants&&game.variants.length){
-        const v = game.variants[selectedVariantIdx];
-        cart.push({uid:Date.now(),gameId:game.id,name:(l==='en'?game.title:game.titleKd)+' — '+v.label,platform:game.platform,price:v.price,icon:game.icon,type:'game',variant:v.type,category:game.category});
-        saveCart(cart); updateCartBadge(); showToast(v.label+' added to cart!');
+        const v = game.variants[selIdx];
+        cart.push({uid:Date.now(),gameId:game.id,name:title+' — '+v.label,platform:game.platform,price:v.price,icon:game.icon,type:'game',category:game.category,variant:v.type});
+        saveCart(cart); updateBadge(); showToast(v.label+' added!');
       } else {
-        cart.push({uid:Date.now(),gameId:game.id,name:l==='en'?game.title:game.titleKd,platform:game.platform,price:game.price,icon:game.icon,type:'game',category:game.category});
-        saveCart(cart); updateCartBadge(); showToast((l==='en'?game.title:game.titleKd)+' added!');
+        cart.push({uid:Date.now(),gameId:game.id,name:title,platform:game.platform,price:game.price,icon:game.icon,type:'game',category:game.category});
+        saveCart(cart); updateBadge(); showToast(title+' added!');
       }
     };
 
-    // 11. Related games
+    // ── STICKY CART BAR ──
+    document.getElementById('stickyTitle').textContent = title;
+    document.getElementById('stickyPrice').textContent = iqd(getCurrentPrice());
+    if(isOos){ document.getElementById('stickyBtn').disabled=true; document.getElementById('stickyBtn').textContent='❌ Out of Stock'; }
+    const addBtnEl = document.getElementById('addCartBtn');
+    if(addBtnEl){
+      new IntersectionObserver(entries=>{
+        document.getElementById('stickyBar').classList.toggle('visible',!entries[0].isIntersecting);
+      }).observe(addBtnEl);
+    }
+
+    // ── BACK TO TOP ──
+    window.addEventListener('scroll',()=>{ document.getElementById('bttBtn').classList.toggle('visible',window.scrollY>400); });
+
+    // ── SHARE ──
+    window.toggleShare = function(e){ e.stopPropagation(); document.getElementById('shareMenu').classList.toggle('open'); };
+    document.addEventListener('click',()=>document.getElementById('shareMenu')?.classList.remove('open'));
+    window.doShare = function(p){
+      const url=window.location.href;
+      const txt=encodeURIComponent('🎮 '+title+' — Kurd Store!\n'+url);
+      if(p==='tg') window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent('🎮 '+title),'_blank');
+      else if(p==='wa') window.open('https://wa.me/?text='+txt,'_blank');
+      else navigator.clipboard.writeText(url).then(()=>showToast('✅ Link copied!'));
+      document.getElementById('shareMenu').classList.remove('open');
+    };
+
+    // ── RELATED GAMES ──
     const related = allGames.filter(g=>g.id!==game.id&&(g.category===game.category||g.platform===game.platform)&&g.stock).slice(0,4);
     if(!related.length){ document.getElementById('relatedSec').style.display='none'; }
     else {
       document.getElementById('relatedGrid').innerHTML = related.map(g=>`
         <div class="pcard" onclick="window.location.href='product.html?id=${g.id}'" style="cursor:pointer;">
           ${g.badge&&g.stock?`<div class="pcard-badges"><span class="pbadge pb-${g.badge}">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
-          <div class="pcard-img">
-            <img src="${g.img||''}" alt="${g.title}" loading="lazy" loading="lazy" onerror="this.style.display='none'"/>
-            <span class="femoji">${g.icon}</span>
-          </div>
+          <div class="pcard-img"><img src="${g.img||''}" loading="lazy" onerror="this.style.display='none'"/><span class="femoji">${g.icon}</span></div>
           <div class="pcard-body">
             <div class="pcard-plat">${g.platform}</div>
             <div class="pcard-title">${l==='en'?g.title:g.titleKd}</div>
-            <div class="pcard-footer">
-              <div><span class="pcard-price">${iqd(g.price)}</span>${g.oldPrice?`<span class="pcard-old">${iqd(g.oldPrice)}</span>`:''}</div>
-              <button class="add-btn" onclick="event.stopPropagation();window.location.href='product.html?id=${g.id}'">→</button>
-            </div>
+            <div class="pcard-footer"><div><span class="pcard-price">${iqd(g.price)}</span>${g.oldPrice?`<span class="pcard-old">${iqd(g.oldPrice)}</span>`:''}</div><span class="add-btn">→</span></div>
           </div>
         </div>`).join('');
     }
 
-    // 12. Nav & Footer
-    const logoHTML = settings.logoImg
-      ? `<img src="${settings.logoImg}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;" alt="logo"/>`
-      : `<div class="site-logo-emoji">${settings.logoEmoji||'🎮'}</div>`;
+    // ── NAV ──
+    const logoHTML = settings.logoImg?`<img src="${settings.logoImg}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;" alt="logo"/>`:`<div class="site-logo-emoji">${settings.logoEmoji||'🎮'}</div>`;
     document.getElementById('navMount').innerHTML=`
     <nav class="topnav">
       <a class="nav-logo" href="index.html">${logoHTML}<span>${settings.storeName||'Kurd Store'}</span></a>
@@ -400,95 +332,80 @@ body{padding-bottom:80px;}
         <li><a href="discounts.html">🏷️ Discounts</a></li>
       </ul>
       <div class="nav-right">
+        <button class="hamburger" id="hbtn" onclick="this.classList.toggle('open');document.getElementById('mobileNav').classList.toggle('open')"><span></span><span></span><span></span></button>
         <button class="nav-icon-btn" id="darkBtn" onclick="toggleTheme()">${getTheme()==='dark'?'☀️':'🌙'}</button>
         <button class="nav-icon-btn" onclick="toggleLang()">${getLang()==='en'?'🌐 کوردی':'🌐 English'}</button>
         <button class="cart-btn" onclick="openCart()">🛒 Cart <span class="cart-count">0</span></button>
       </div>
-    </nav>`;
-    updateCartBadge();
+    </nav>
+    <div class="mobile-nav" id="mobileNav">
+      <a href="index.html">🏠 Home</a><a href="playstation.html">🎮 PlayStation</a>
+      <a href="xbox.html">🟢 Xbox</a><a href="pc.html">💻 PC/Steam</a>
+      <a href="nintendo.html">🔴 Nintendo</a><a href="subscriptions.html">📦 Subscriptions</a>
+      <a href="discounts.html">🏷️ Discounts</a>
+    </div>`;
+    updateBadge();
 
-    const fe = settings.logoImg?`<img src="${settings.logoImg}" style="width:28px;height:28px;border-radius:7px;object-fit:cover;"/>`:`<div class="fe">${settings.logoEmoji||'🎮'}</div>`;
+    // ── FOOTER ──
+    const fe=settings.logoImg?`<img src="${settings.logoImg}" style="width:28px;height:28px;border-radius:7px;object-fit:cover;"/>`:`<div class="fe">${settings.logoEmoji||'🎮'}</div>`;
     document.getElementById('footerMount').innerHTML=`<footer><div class="footer-grid"><div><div class="footer-logo">${fe}<span>${settings.storeName||'Kurd Store'}</span></div><div class="footer-desc">${settings.tagline||''}</div></div><div class="footer-col"><h4>Pages</h4><ul><li><a href="index.html">🏠 Home</a></li><li><a href="playstation.html">🎮 PlayStation</a></li><li><a href="xbox.html">🟢 Xbox</a></li><li><a href="pc.html">💻 PC/Steam</a></li><li><a href="nintendo.html">🔴 Nintendo</a></li><li><a href="subscriptions.html">📦 Subscriptions</a></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank">✈️ @${settings.telegram||'sharafaani'}</a></li></ul></div></div><div class="footer-bottom"><span>© 2024 ${settings.storeName||'Kurd Store'}.</span></div></footer>`;
 
-    // 13. Checkout modal methods
+    // ── PAYMENT METHODS ──
     document.getElementById('payMethodsEl').innerHTML = PAYMENT_METHODS.map(m=>`
-      <div class="pay-method" onclick="selMethod('${m.id}')" id="pm-${m.id}">
-        <div class="pm-icon">${m.icon}</div>
-        <div><div class="pm-name">${m.name}</div><div class="pm-desc">${m.nameKd}</div></div>
+      <div class="pay-method" onclick="selPM('${m.id}')" id="pm-${m.id}">
+        <div class="pm-icon">${m.icon}</div><div><div class="pm-name">${m.name}</div><div class="pm-desc">${m.nameKd}</div></div>
         <div class="pm-check" id="pmc-${m.id}"></div>
       </div>`).join('');
-    document.getElementById('tgLinkWrap').innerHTML=`<a class="tg-btn" href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank" style="margin-top:12px;">✈️ @${settings.telegram||'sharafaani'}</a>`;
+    document.getElementById('tgLinkWrap').innerHTML=`<p style="font-size:.8rem;color:var(--text2);margin:12px 0 6px;font-weight:600;">Or contact on Telegram:</p><a class="tg-btn" href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank">✈️ @${settings.telegram||'sharafaani'}</a>`;
     document.getElementById('tgFollowWrap').innerHTML=`<a class="tg-btn" href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank">✈️ Follow up</a>`;
 
-    // 14. Cart UI functions
-    window.toggleTheme = function(){
-      const n=getTheme()==='dark'?'light':'dark';
-      localStorage.setItem('ks_theme',n);
-      document.documentElement.setAttribute('data-theme',n);
-      const b=document.getElementById('darkBtn');
-      if(b) b.textContent=n==='dark'?'☀️':'🌙';
-    };
-    window.toggleLang = function(){
-      const n=getLang()==='en'?'kd':'en';
-      localStorage.setItem('ks_lang',n);
-      window.location.reload();
-    };
-    window.renderCartItems = function(){
+    // ── CART UI ──
+    function renderCart(){
       const cart=getCart(); const el=document.getElementById('cartItems'); const ft=document.getElementById('cartFt');
-      if(!el) return;
-      if(!cart.length){ el.innerHTML='<div class="cart-empty"><div style="font-size:2.5rem">🎮</div><p>Cart is empty</p></div>'; if(ft) ft.style.display='none'; return; }
-      el.innerHTML=cart.map(i=>`<div class="cart-item"><div class="ci-icon">${i.icon}</div><div class="ci-info"><div class="ci-name">${i.name}</div><div class="ci-plat">${i.platform}</div></div><div class="ci-price">${iqd(i.price)}</div><button class="ci-rm" onclick="removeFromCart(${i.uid})">✕</button></div>`).join('');
+      if(!cart.length){el.innerHTML='<div class="cart-empty"><div style="font-size:2.5rem">🎮</div><p>Cart is empty</p></div>';if(ft)ft.style.display='none';return;}
+      el.innerHTML=cart.map(i=>`<div class="cart-item"><div class="ci-icon">${i.icon}</div><div class="ci-info"><div class="ci-name">${i.name}</div><div class="ci-plat">${i.platform}</div></div><div class="ci-price">${iqd(i.price)}</div><button class="ci-rm" onclick="rmCart(${i.uid})">✕</button></div>`).join('');
       const sub=cart.reduce((s,x)=>s+x.price,0); const disc=calcDisc(sub,cart);
-      const dl=document.getElementById('cartDiscLine'); const da=document.getElementById('cartDiscAmt');
+      const dl=document.getElementById('cartDiscLine'),da=document.getElementById('cartDiscAmt');
       if(dl&&da){if(disc>0){dl.style.display='flex';da.textContent='-'+iqd(disc);}else dl.style.display='none';}
-      const tp=document.getElementById('cartTotalPrice'); if(tp) tp.textContent=iqd(sub-disc);
-      if(ft) ft.style.display='block';
-    };
-    window.removeFromCart = function(uid){ saveCart(getCart().filter(x=>x.uid!==uid)); updateCartBadge(); renderCartItems(); };
-    window.openCart  = function(){ document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartSidebar').classList.add('open'); renderCartItems(); };
-    window.closeCart = function(){ document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartSidebar').classList.remove('open'); };
-    window.applyCartDisc = async function(){
+      document.getElementById('cartTotalPrice').textContent=iqd(sub-disc);
+      if(ft)ft.style.display='block';
+    }
+    window.rmCart=function(uid){ saveCart(getCart().filter(x=>x.uid!==uid)); updateBadge(); renderCart(); };
+    window.openCart=function(){ document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartSidebar').classList.add('open'); renderCart(); };
+    window.closeCart=function(){ document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartSidebar').classList.remove('open'); };
+    window.applyDisc=async function(){
       const code=document.getElementById('cartDiscInput').value.trim().toUpperCase();
       const msg=document.getElementById('discMsg');
-      const codesData = await fbGet('store/codes');
-      const codes = codesData?.codes || DEFAULT_CODES;
+      const cd=await fbGet('store/codes'); const codes=cd?.codes||DEFAULT_CODES;
       const c=codes[code];
       if(c){
-        if(c.expiry&&new Date(c.expiry)<now){ if(msg){msg.textContent='❌ This code has expired';msg.className='disc-msg err';} return; }
+        if(c.expiry&&new Date(c.expiry)<now){if(msg){msg.textContent='❌ Code expired';msg.className='disc-msg err';}return;}
         localStorage.setItem('ks_disc',JSON.stringify({code,...c}));
-        if(msg){msg.textContent='✅ '+c.desc;msg.className='disc-msg ok';}
-        renderCartItems();
-      } else { if(msg){msg.textContent='❌ Invalid code';msg.className='disc-msg err';} }
+        if(msg){msg.textContent='✅ '+c.desc;msg.className='disc-msg ok';} renderCart();
+      } else {if(msg){msg.textContent='❌ Invalid code';msg.className='disc-msg err';}}
     };
-    window.openCheckout = function(){
+
+    // ── CHECKOUT ──
+    let _pm=null;
+    window.selPM=function(id){ _pm=id; document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel')); document.querySelectorAll('.pm-check').forEach(c=>c.textContent=''); document.getElementById('pm-'+id).classList.add('sel'); document.getElementById('pmc-'+id).textContent='✓'; };
+    window.openCheckout=function(){
       const cart=getCart(); if(!cart.length){showToast('Cart is empty!');return;}
       closeCart();
       document.getElementById('orderItems').innerHTML=cart.map(i=>`<div class="order-item"><span>${i.icon} ${i.name}</span><span>${iqd(i.price)}</span></div>`).join('');
-      const sub=cart.reduce((s,x)=>s+x.price,0); const disc=calcDisc(sub,cart);
-      document.getElementById('orderTotal').textContent=iqd(sub-disc);
-      document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
-      document.querySelectorAll('.pm-check').forEach(c=>c.textContent='');
-      window._selMethod=null; goStep(1);
-      document.getElementById('checkoutModal').classList.add('open');
+      const sub=cart.reduce((s,x)=>s+x.price,0); document.getElementById('orderTotal').textContent=iqd(sub-calcDisc(sub,cart));
+      _pm=null; document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel')); document.querySelectorAll('.pm-check').forEach(c=>c.textContent='');
+      goStep(1); document.getElementById('checkoutModal').classList.add('open');
     };
-    window.closeCheckout = function(){ document.getElementById('checkoutModal').classList.remove('open'); };
-    window._selMethod = null;
-    window.selMethod = function(id){
-      window._selMethod=id;
-      document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
-      document.querySelectorAll('.pm-check').forEach(c=>c.textContent='');
-      document.getElementById('pm-'+id).classList.add('sel');
-      document.getElementById('pmc-'+id).textContent='✓';
-    };
-    window.goStep = function(n){
-      if(n===2&&!window._selMethod){showToast('Please choose a payment method!');return;}
+    window.closeCheckout=function(){ document.getElementById('checkoutModal').classList.remove('open'); };
+    window.goStep=function(n){
+      if(n===2&&!_pm){showToast('Please choose a payment method!');return;}
       if(n===2){
-        const m=PAYMENT_METHODS.find(x=>x.id===window._selMethod);
+        const m=PAYMENT_METHODS.find(x=>x.id===_pm);
         document.getElementById('pdbMethod').textContent=m.icon+' '+m.name;
         document.getElementById('pdbNum').textContent=m.number;
         document.getElementById('instrMethod').textContent=m.name;
         document.getElementById('instrMethodKd').textContent=m.nameKd;
-        const cart=getCart(); const sub=cart.reduce((s,x)=>s+x.price,0);
+        const cart=getCart(),sub=cart.reduce((s,x)=>s+x.price,0);
         document.getElementById('instrAmt').textContent=iqd(sub-calcDisc(sub,cart));
       }
       document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
@@ -497,74 +414,56 @@ body{padding-bottom:80px;}
       const titles={1:'Complete Order',2:'Send Payment',3:'Your Details'};
       if(n<=3) document.getElementById('modalTitle').textContent=titles[n];
     };
-    window.copyPayNum = function(){ navigator.clipboard.writeText(document.getElementById('pdbNum').textContent).then(()=>showToast('✅ Copied!')); };
-    window.submitOrder = async function(){
+    window.copyNum=function(){ navigator.clipboard.writeText(document.getElementById('pdbNum').textContent).then(()=>showToast('✅ Copied!')); };
+    window.submitOrder=async function(){
       const name=document.getElementById('custName').value.trim();
       const email=document.getElementById('custEmail').value.trim();
       if(!name||!email){showToast('Please enter name and email!');return;}
       const cart=getCart(); const sub=cart.reduce((s,x)=>s+x.price,0); const disc=calcDisc(sub,cart); const total=sub-disc;
-      const d=getAppliedDisc(); const method=window._selMethod?PAYMENT_METHODS.find(x=>x.id===window._selMethod)?.name:'';
+      const d=getDisc(); const method=_pm?PAYMENT_METHODS.find(x=>x.id===_pm)?.name:'';
       const items=cart.map(i=>i.name).join(', ');
-      try{
-        await push(ref(db,'orders'),{name,email,items,total,method,discount:d?.code||'',date:new Date().toISOString(),status:'pending'});
-      }catch(e){}
+      // Save order to Firebase
+      try{ await push(ref(db,'orders'),{name,email,items,total,method,discount:d?.code||'',date:new Date().toISOString(),status:'pending'}); }catch(e){}
+      // Local history
       const hist=JSON.parse(localStorage.getItem('ks_history')||'[]');
       hist.unshift({id:Date.now(),items:[...cart],total,method,name,date:new Date().toLocaleDateString(),status:'pending'});
       localStorage.setItem('ks_history',JSON.stringify(hist));
-      const msg=encodeURIComponent(`🛒 New Order — Kurd Store!\n\nName: ${name}\nEmail: ${email}\nItems: ${items}\nTotal: ${iqd(total)}\nPaid via: ${method}${d?'\nDiscount: '+d.code:''}`);
-      window.open(`https://t.me/${settings.telegram||'sharafaani'}?text=${msg}`,'_blank');
-      saveCart([]); localStorage.removeItem('ks_disc'); updateCartBadge();
-
       // Telegram Bot notification
-      const orderPayload = {name,email,items,total:Number(total).toLocaleString()+' IQD',method,discount:d?.code||''};
-      if(settings.botToken && settings.botChatId){
-        const botMsg = `🛒 New Order — ${settings.storeName||'Kurd Store'}!
-
-👤 Name: ${name}
-📧 Email: ${email}
-🎮 Items: ${items}
-💰 Total: ${orderPayload.total}
-💳 Payment: ${method}${d?'
-🏷️ Discount: '+d.code:''}`;
-        fetch(`https://api.telegram.org/bot${settings.botToken}/sendMessage`,{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({chat_id:settings.botChatId, text:botMsg})
+      if(settings.botToken&&settings.botChatId){
+        fetch('https://api.telegram.org/bot'+settings.botToken+'/sendMessage',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({chat_id:settings.botChatId,text:`🛒 New Order!\n\n👤 ${name}\n📧 ${email}\n🎮 ${items}\n💰 ${iqd(total)}\n💳 ${method}${d?'\n🏷️ '+d.code:''}`,parse_mode:'HTML'})
         }).catch(()=>{});
       }
-
-      // EmailJS confirmation email
-      if(settings.emailKey && settings.emailService && settings.emailTemplate && email){
+      // EmailJS confirmation
+      if(settings.emailKey&&settings.emailService&&settings.emailTemplate&&email){
         try{
-          if(!window.emailjs){
-            await new Promise((res,rej)=>{
-              const sc=document.createElement('script');
-              sc.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-              sc.onload=res; sc.onerror=rej; document.head.appendChild(sc);
-            });
-          }
+          if(!window.emailjs){ await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc);}); }
           window.emailjs.init(settings.emailKey);
-          window.emailjs.send(settings.emailService, settings.emailTemplate, {
-            to_email:email, customer_name:name, order_items:items,
-            order_total:orderPayload.total, payment_method:method,
-            store_name:settings.storeName||'Kurd Store',
-            telegram:'@'+(settings.telegram||'sharafaani')
-          });
-        }catch(e){ console.log('Email error:',e); }
+          window.emailjs.send(settings.emailService,settings.emailTemplate,{to_email:email,customer_name:name,order_items:items,order_total:iqd(total),payment_method:method,store_name:settings.storeName||'Kurd Store',telegram:'@'+(settings.telegram||'sharafaani')});
+        }catch(e){}
       }
-
       // Google Analytics
       if(typeof gtag==='function') gtag('event','purchase',{value:total,currency:'IQD'});
-
+      // Open Telegram
+      const msg=encodeURIComponent(`🛒 New Order — ${settings.storeName||'Kurd Store'}!\n\nName: ${name}\nEmail: ${email}\nItems: ${items}\nTotal: ${iqd(total)}\nPaid via: ${method}${d?'\nDiscount: '+d.code:''}`);
+      window.open(`https://t.me/${settings.telegram||'sharafaani'}?text=${msg}`,'_blank');
+      saveCart([]); localStorage.removeItem('ks_disc'); updateBadge();
       goStep(4); document.getElementById('modalTitle').textContent='🎉 Order Sent!';
     };
+
+    // ── THEME / LANG ──
+    window.toggleTheme=function(){ const n=getTheme()==='dark'?'light':'dark'; localStorage.setItem('ks_theme',n); document.documentElement.setAttribute('data-theme',n); document.getElementById('darkBtn').textContent=n==='dark'?'☀️':'🌙'; };
+    window.toggleLang=function(){ localStorage.setItem('ks_lang',getLang()==='en'?'kd':'en'); window.location.reload(); };
+
+    updateBadge();
 
   } catch(err){
     console.error('Product page error:', err);
     document.getElementById('productPage').innerHTML=`<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--gray);">
       <div style="font-size:2rem;margin-bottom:12px;">❌</div>
-      <p>Error loading game.</p>
-      <p style="font-size:.8rem;opacity:.6;margin:8px 0;">${err.message}</p>
-      <a href="index.html" style="color:var(--p);font-weight:700;">← Go back home</a>
+      <p>Error loading game: ${err.message}</p>
+      <a href="index.html" style="color:var(--p);font-weight:700;margin-top:12px;display:inline-block;">← Go back home</a>
     </div>`;
   }
 })();
