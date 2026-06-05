@@ -14,23 +14,66 @@
     async function _set(path,data){ await set(ref(db,path),data); }
     function _listen(path,cb){ onValue(ref(db,path),s=>cb(s.exists()?s.val():null)); }
 
-    async function getGames()   { const d=await _get('store/games');   return d?.list?.length?d.list:DEFAULT_GAMES; }
-    async function getSubs()    { const d=await _get('store/subs');    return d?.list?.length?d.list:DEFAULT_SUBS; }
-    async function getSettings(){ const d=await _get('store/settings');return d?Object.assign({},DEFAULT_SETTINGS,d):DEFAULT_SETTINGS; }
-    async function getCodes()   { const d=await _get('store/codes');   return d?.codes?d.codes:{}; }  // empty if none saved
-    async function getReviews() { const d=await _get('store/reviews'); return d?.list?.length?d.list:DEFAULT_REVIEWS; }
+    // ── IN-MEMORY CACHE (avoids repeated Firebase reads) ──
+    const _cache = {};
+    const _CACHE_TTL = 30000; // 30 seconds
 
-    async function saveGames(l)   { await _set('store/games',   {list:l}); }
-    async function saveSubs(l)    { await _set('store/subs',    {list:l}); }
-    async function saveSettings(d){ await _set('store/settings',d); }
-    async function saveCodes(c)   { await _set('store/codes',   {codes:c}); }
-    async function saveReviews(l) { await _set('store/reviews', {list:l}); }
+    async function _getCached(path, fallback){
+      const now = Date.now();
+      if(_cache[path] && (now - _cache[path].ts) < _CACHE_TTL){
+        return _cache[path].data;
+      }
+      const d = await _get(path);
+      const result = d !== null ? d : null;
+      _cache[path] = { data: result, ts: now };
+      return result;
+    }
+    function _invalidate(path){ delete _cache[path]; }
+
+    async function getGames()   { const d=await _getCached('store/games',null);   return d?.list?.length?d.list:DEFAULT_GAMES; }
+    async function getSubs()    { const d=await _getCached('store/subs',null);    return d?.list?.length?d.list:DEFAULT_SUBS; }
+    async function getSettings(){ const d=await _getCached('store/settings',null);return d?Object.assign({},DEFAULT_SETTINGS,d):DEFAULT_SETTINGS; }
+    async function getCodes()   { const d=await _getCached('store/codes',null);   return d?.codes?d.codes:{}; }
+    async function getReviews() { const d=await _getCached('store/reviews',null); return d?.list?.length?d.list:DEFAULT_REVIEWS; }
+
+    async function saveGames(l)   { _invalidate('store/games');    await _set('store/games',   {list:l}); }
+    async function saveSubs(l)    { _invalidate('store/subs');     await _set('store/subs',    {list:l}); }
+    async function saveSettings(d){ _invalidate('store/settings'); await _set('store/settings',d); }
+    async function saveCodes(c)   { _invalidate('store/codes');    await _set('store/codes',   {codes:c}); }
+    async function saveReviews(l) { _invalidate('store/reviews');  await _set('store/reviews', {list:l}); }
     async function saveOrder(o)   { await push(ref(db,'orders'),o); }
 
-    function listenGames(cb)   { _listen('store/games',   d=>cb(d?.list||DEFAULT_GAMES)); }
-    function listenSubs(cb)    { _listen('store/subs',    d=>cb(d?.list||DEFAULT_SUBS)); }
-    function listenSettings(cb){ _listen('store/settings',d=>cb(d?Object.assign({},DEFAULT_SETTINGS,d):DEFAULT_SETTINGS)); }
-    function listenReviews(cb) { _listen('store/reviews', d=>cb(d?.list||DEFAULT_REVIEWS)); }
+    // Use one-time fetch for store pages (faster than persistent listener)
+    // Listeners only keep ONE connection open per path
+    const _activeListeners = {};
+    function listenGames(cb){
+      if(_activeListeners['games']) return;
+      _activeListeners['games'] = _listen('store/games', d=>{
+        _cache['store/games']={data:d,ts:Date.now()};
+        cb(d?.list||DEFAULT_GAMES);
+      });
+    }
+    function listenSubs(cb){
+      if(_activeListeners['subs']) return;
+      _activeListeners['subs'] = _listen('store/subs', d=>{
+        _cache['store/subs']={data:d,ts:Date.now()};
+        cb(d?.list||DEFAULT_SUBS);
+      });
+    }
+    function listenSettings(cb){
+      if(_activeListeners['settings']) return;
+      _activeListeners['settings'] = _listen('store/settings', d=>{
+        _cache['store/settings']={data:d,ts:Date.now()};
+        cb(d?Object.assign({},DEFAULT_SETTINGS,d):DEFAULT_SETTINGS);
+      });
+    }
+    function listenReviews(cb){
+      if(_activeListeners['reviews']) return;
+      _activeListeners['reviews'] = _listen('store/reviews', d=>{
+        _cache['store/reviews']={data:d,ts:Date.now()};
+        cb(d?.list||DEFAULT_REVIEWS);
+      });
+    }
 
     window._KS_DB = {
       getGames,getSubs,getSettings,getCodes,getReviews,

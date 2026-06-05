@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://www.gstatic.com"/>
+<link rel="preconnect" href="https://firebaseinstallations.googleapis.com"/>
+<link rel="dns-prefetch" href="https://firebaseio.com"/>
 <title>Kurd Store — Game</title>
 <link rel="stylesheet" href="shared.css"/>
 <script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
@@ -211,7 +214,7 @@ body{padding-bottom:80px;}
     document.getElementById('productPage').innerHTML = `
       <div>
         <div class="product-img-wrap">
-          ${game.img?`<img src="${game.img}" alt="${game.title}" onerror="this.style.display='none'"/>`:''}
+          ${game.img?`<img src="${game.img}" alt="${game.title}" loading="lazy" onerror="this.style.display='none'"/>`:''}
           <div class="product-emoji-fb">${game.icon}</div>
           ${game.badge&&game.stock?`<div style="position:absolute;top:12px;left:12px;z-index:3;"><span class="pbadge pb-${game.badge}" style="font-size:.8rem;padding:4px 13px;">${game.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
           ${isOos?`<div style="position:absolute;inset:0;background:#00000066;display:flex;align-items:center;justify-content:center;z-index:4;"><span style="background:#6b7280;color:#fff;border-radius:99px;padding:8px 20px;font-weight:700;font-size:.9rem;">OUT OF STOCK</span></div>`:''}
@@ -359,7 +362,7 @@ body{padding-bottom:80px;}
         <div class="pcard" onclick="window.location.href='product.html?id=${g.id}'" style="cursor:pointer;">
           ${g.badge&&g.stock?`<div class="pcard-badges"><span class="pbadge pb-${g.badge}">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
           <div class="pcard-img">
-            <img src="${g.img||''}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'"/>
+            <img src="${g.img||''}" alt="${g.title}" loading="lazy" loading="lazy" onerror="this.style.display='none'"/>
             <span class="femoji">${g.icon}</span>
           </div>
           <div class="pcard-body">

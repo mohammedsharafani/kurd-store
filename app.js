@@ -228,7 +228,7 @@ async function buildNav(activePage){
   </nav>`;
   updateCartBadge();
 
-  // Inject mobile nav
+  // Inject mobile nav (once only)
   const mobileNavId = 'mobileNavEl';
   if(!document.getElementById(mobileNavId)){
     const mobileNav = document.createElement('div');
@@ -243,9 +243,14 @@ async function buildNav(activePage){
       <a href="subscriptions.html">📦 Subscriptions</a>
       <a href="discounts.html">🏷️ Discounts</a>`;
     document.body.insertBefore(mobileNav, document.body.firstChild.nextSibling);
+    // Mark active
+    document.querySelectorAll('#'+mobileNavId+' a').forEach(a=>{
+      if(window.location.href.includes(a.getAttribute('href').replace('./',''))){
+        a.classList.add('active');
+      }
+    });
   }
-
-  // Add hamburger to nav
+  // Add hamburger to nav (once only)
   const navRight = document.querySelector('.nav-right');
   if(navRight && !document.getElementById('hamburgerBtn')){
     const hbtn = document.createElement('button');
@@ -257,11 +262,6 @@ async function buildNav(activePage){
     };
     navRight.insertBefore(hbtn, navRight.firstChild);
   }
-
-  // Mark active link in mobile nav
-  document.querySelectorAll('#'+mobileNavId+' a').forEach(a=>{
-    if(a.href === window.location.href) a.classList.add('active');
-  });
 
   if(document.getElementById('payMethodsEl')){
     document.getElementById('payMethodsEl').innerHTML=PAYMENT_METHODS.map(m=>`
@@ -336,13 +336,15 @@ function initBackToTop(){
 
 // ── KEY FIX: Poll for _KS_DB instead of relying on events ──
 function waitForDB(callback){
-  showLoader('🎮');
-  const run = ()=>{ hideLoader(); callback(); };
+  // Only show loader if DB not ready yet
+  const needsLoader = !window._KS_DB;
+  if(needsLoader) showLoader('🎮');
+  const run = ()=>{ if(needsLoader) hideLoader(); callback(); };
   if(window._KS_DB){ run(); return; }
   let tries=0;
   const interval=setInterval(()=>{
     tries++;
     if(window._KS_DB){ clearInterval(interval); run(); }
-    else if(tries>50){ clearInterval(interval); console.error('Firebase timeout'); run(); }
+    else if(tries>40){ clearInterval(interval); run(); } // 4 second max
   },100);
 }
