@@ -170,35 +170,49 @@ tr:hover td{background:var(--gl);}
     <div class="panel" id="bulkPanel" style="display:none;">
       <div class="panel-hd">
         <div class="panel-title">⚡ Bulk Add Games</div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="addBulkRow()">+ Add Row</button>
           <button class="btn btn-primary btn-sm" onclick="saveBulkGames()">💾 Save All to Firebase</button>
           <button class="btn btn-danger btn-sm" onclick="hideBulk()">✕ Close</button>
         </div>
       </div>
+      <div style="padding:10px 18px;background:#fef3c7;font-size:.78rem;color:#b45309;border-bottom:1.5px solid var(--border);">
+        💡 <strong>Tip:</strong> Required: <strong>Title (EN)</strong> only. Price required unless variants filled. Leave unused fields empty.
+      </div>
+      <div style="padding:12px 18px;background:var(--gl);border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:.8rem;font-weight:700;color:var(--text2);">🗓️ Apply same expiry date to ALL rows:</span>
+        <input type="date" id="bulkGlobalExpiry" style="padding:6px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;background:var(--card);color:var(--text);outline:none;"/>
+        <button class="btn btn-outline btn-sm" onclick="applyGlobalExpiry()">Apply to All</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAllExpiry()">Clear All Expiry</button>
+        <span style="font-size:.75rem;color:var(--gray);">Or set per-row expiry in the table</span>
+      </div>
       <div class="panel-body" style="padding:0;">
         <div style="overflow-x:auto;">
-          <table id="bulkTable" style="width:100%;border-collapse:collapse;font-size:.82rem;">
+          <table id="bulkTable" style="width:100%;border-collapse:collapse;font-size:.8rem;">
             <thead>
               <tr style="background:var(--gl);">
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:160px;">Title (English)</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:160px;">Title (Kurdish) — optional</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:120px;">Platform</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:100px;">Category</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:110px;">Price (IQD)</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:110px;">Old Price</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:80px;">Badge</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:80px;">Stock</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:50px;">Icon</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:200px;">Image URL</th>
-                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:40px;"></th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:150px;">Title (EN) *</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:150px;">Title (KD)</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:130px;">Platform</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:100px;">Category</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:100px;">Price IQD</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:100px;">Old Price</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:75px;">Badge</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:75px;">Stock</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:46px;">Icon</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:180px;">Image URL</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;background:#d1fae5;min-width:100px;">✅ Active PS5</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;background:#dbeafe;min-width:100px;">✅ Active PS4</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;background:#ede9fe;min-width:100px;">👤 In Account</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:120px;">🗓️ Expiry Date</th>
+                <th style="padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.65rem;text-transform:uppercase;min-width:40px;"></th>
               </tr>
             </thead>
             <tbody id="bulkTbody"></tbody>
           </table>
         </div>
-        <div style="padding:14px 20px;border-top:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:.8rem;color:var(--gray);">Fill in the rows above then click Save All</span>
+        <div style="padding:12px 18px;border-top:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:.78rem;color:var(--gray);">Fill rows then click Save All. Red rows = missing required fields.</span>
           <button class="btn btn-primary" onclick="saveBulkGames()">💾 Save All to Firebase</button>
         </div>
       </div>
@@ -1056,53 +1070,54 @@ function hideBulk(){
   document.getElementById('singlePanel').style.display='block';
 }
 
+function bInput(cls,placeholder,type='text',extra=''){
+  return `<input type="${type}" placeholder="${placeholder}" ${extra} style="width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:.78rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);" class="${cls}"/>`;
+}
+function bSelect(cls,opts,onchange=''){
+  return `<select ${onchange} style="width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:.78rem;background:var(--card);color:var(--text);outline:none;" class="${cls}">${opts}</select>`;
+}
+function bCell(content,bg=''){
+  return `<td style="padding:5px 7px;${bg?'background:'+bg+';':''}">${content}</td>`;
+}
+
 function addBulkRow(){
   const tbody = document.getElementById('bulkTbody');
-  const idx = tbody.children.length;
   const tr = document.createElement('tr');
   tr.style.borderBottom='1px solid var(--gl)';
-  tr.innerHTML=`
-    <td style="padding:6px 8px;"><input type="text" placeholder="e.g. God of War" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);" class="b-title"/></td>
-    <td style="padding:6px 8px;"><input type="text" placeholder="e.g. خودای شەڕ" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);" class="b-titlekd"/></td>
-    <td style="padding:6px 8px;">
-      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-platform" onchange="autoCat(this)">
-        <option value="PS5">PS5</option>
-        <option value="PS4">PS4</option>
-        <option value="PS4 & PS5">PS4 & PS5</option>
-        <option value="Xbox">Xbox</option>
-        <option value="Xbox One">Xbox One</option>
-        <option value="Xbox Series X|S">Xbox Series X|S</option>
-        <option value="Steam">Steam</option>
-        <option value="Nintendo">Nintendo</option>
-      </select>
-    </td>
-    <td style="padding:6px 8px;">
-      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-cat">
-        <option value="ps">PlayStation</option>
-        <option value="xbox">Xbox</option>
-        <option value="pc">PC/Steam</option>
-        <option value="nintendo">Nintendo</option>
-      </select>
-    </td>
-    <td style="padding:6px 8px;"><input type="number" placeholder="50000" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-price"/></td>
-    <td style="padding:6px 8px;"><input type="number" placeholder="(optional)" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-oldprice"/></td>
-    <td style="padding:6px 8px;">
-      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-badge">
-        <option value="">None</option>
-        <option value="new">NEW</option>
-        <option value="sale">SALE</option>
-      </select>
-    </td>
-    <td style="padding:6px 8px;">
-      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-stock">
-        <option value="true">✅ In Stock</option>
-        <option value="false">❌ Out of Stock</option>
-      </select>
-    </td>
-    <td style="padding:6px 8px;"><input type="text" placeholder="🎮" maxlength="4" style="width:52px;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;text-align:center;" class="b-icon"/></td>
-    <td style="padding:6px 8px;"><input type="text" placeholder="https://...jpg" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-img"/></td>
-    <td style="padding:6px 8px;text-align:center;"><button onclick="this.closest('tr').remove()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:.8rem;">✕</button></td>`;
+  tr.innerHTML=
+    bCell(bInput('b-title','e.g. God of War'))+
+    bCell(bInput('b-titlekd','e.g. خودای شەڕ'))+
+    bCell(bSelect('b-platform',
+      '<option value="PS5">PS5</option><option value="PS4">PS4</option><option value="PS4 & PS5">PS4 & PS5</option><option value="Xbox">Xbox</option><option value="Xbox One">Xbox One</option><option value="Xbox Series X|S">Xbox Series X|S</option><option value="Steam">Steam</option><option value="Nintendo">Nintendo</option>',
+      'onchange="autoCat(this)"'
+    ))+
+    bCell(bSelect('b-cat',
+      '<option value="ps">PlayStation</option><option value="xbox">Xbox</option><option value="pc">PC/Steam</option><option value="nintendo">Nintendo</option>'
+    ))+
+    bCell(bInput('b-price','e.g. 50000','number'))+
+    bCell(bInput('b-oldprice','optional','number'))+
+    bCell(bSelect('b-badge','<option value="">None</option><option value="new">NEW</option><option value="sale">SALE</option>'))+
+    bCell(bSelect('b-stock','<option value="true">✅ Yes</option><option value="false">❌ No</option>'))+
+    bCell(`<input type="text" placeholder="🎮" maxlength="4" style="width:46px;padding:6px 7px;border:1.5px solid var(--border);border-radius:7px;font-size:.78rem;background:var(--card);color:var(--text);outline:none;text-align:center;" class="b-icon"/>`)+
+    bCell(bInput('b-img','https://...jpg'))+
+    bCell(bInput('b-ps5','Active PS5 price','number'),'#f0fdf4')+
+    bCell(bInput('b-ps4','Active PS4 price','number'),'#eff6ff')+
+    bCell(bInput('b-ina','In Account price','number'),'#f5f3ff')+
+    bCell(`<input type="date" style="width:100%;padding:5px 7px;border:1.5px solid var(--border);border-radius:7px;font-size:.75rem;background:var(--card);color:var(--text);outline:none;" class="b-expiry"/>`)+
+    `<td style="padding:5px 7px;text-align:center;"><button onclick="this.closest('tr').remove()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:.8rem;">✕</button></td>`;
   tbody.appendChild(tr);
+}
+
+function applyGlobalExpiry(){
+  const date = document.getElementById('bulkGlobalExpiry').value;
+  if(!date){ showToast('⚠️ Please pick a date first!'); return; }
+  document.querySelectorAll('#bulkTbody .b-expiry').forEach(el=>el.value=date);
+  showToast('✅ Expiry date applied to all '+document.querySelectorAll('#bulkTbody tr').length+' rows!');
+}
+function clearAllExpiry(){
+  document.querySelectorAll('#bulkTbody .b-expiry').forEach(el=>el.value='');
+  document.getElementById('bulkGlobalExpiry').value='';
+  showToast('🗑️ All expiry dates cleared.');
 }
 
 function autoCat(sel){
@@ -1119,33 +1134,48 @@ async function saveBulkGames(){
   rows.forEach((row,i)=>{
     const title   = row.querySelector('.b-title').value.trim();
     const titleKd = row.querySelector('.b-titlekd').value.trim();
-    const price   = parseFloat(row.querySelector('.b-price').value);
+    const priceRaw = row.querySelector('.b-price').value;
+    const price   = parseFloat(priceRaw);
+    const ps5p    = parseFloat(row.querySelector('.b-ps5').value);
+    const ps4p    = parseFloat(row.querySelector('.b-ps4').value);
+    const inap    = parseFloat(row.querySelector('.b-ina').value);
+    const hasVariants = !isNaN(ps5p)||!isNaN(ps4p)||!isNaN(inap);
 
     // Skip completely empty rows
-    if(!title && !titleKd && isNaN(price)) return;
+    if(!title) return;
 
-    if(!title || isNaN(price)){
+    // Validate
+    if(!hasVariants && isNaN(price)){
       row.style.background='#fee2e2';
       errors++;
       return;
     }
     row.style.background='';
 
+    // Build variants array
+    const variants = [];
+    if(!isNaN(ps5p)) variants.push({type:'activeps5', label:'✅ Active PS5', desc:'PS5 primary account activation', price:ps5p});
+    if(!isNaN(ps4p)) variants.push({type:'activeps4', label:'✅ Active PS4', desc:'PS4 primary account activation', price:ps4p});
+    if(!isNaN(inap)) variants.push({type:'inaccount',  label:'👤 In Account', desc:'Play on our PS account',         price:inap});
+
+    // Use lowest variant price as display price if no main price
+    const displayPrice = !isNaN(price) ? price : Math.min(...variants.map(v=>v.price));
+
     const oldPriceRaw = row.querySelector('.b-oldprice').value;
     newGames.push({
       title,
-      titleKd: titleKd || title,  // fallback to English if Kurdish empty
+      titleKd: titleKd || title,
       platform : row.querySelector('.b-platform').value,
       category : row.querySelector('.b-cat').value,
-      price,
+      price    : displayPrice,
       oldPrice : oldPriceRaw ? parseFloat(oldPriceRaw) : null,
       badge    : row.querySelector('.b-badge').value || null,
       stock    : row.querySelector('.b-stock').value === 'true',
       icon     : row.querySelector('.b-icon').value.trim() || '🎮',
       img      : row.querySelector('.b-img').value.trim() || '',
-      expiryDate  : null,
+      expiryDate  : row.querySelector('.b-expiry').value || null,
       description : null,
-      variants    : null,
+      variants    : variants.length ? variants : null,
     });
   });
 
