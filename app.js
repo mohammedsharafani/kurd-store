@@ -174,6 +174,17 @@ async function submitOrder(){
   const msg=encodeURIComponent(`🛒 New Order — Kurd Store!\n\nName: ${name}\nEmail: ${email}\nItems: ${items}\nTotal: ${iqd(total)}\nPaid via: ${method}${d?'\nDiscount: '+d.code:''}`);
   window.open(`https://t.me/${s.telegram||'sharafaani'}?text=${msg}`,'_blank');
   saveCart([]); saveAppliedDisc(null); updateCartBadge();
+
+  // Fire bot notification + confirmation email in background
+  const orderPayload = {name,email,items,total:iqd(total),method,discount:d?.code||'',date:new Date().toISOString()};
+  if(typeof sendBotNotification === 'function')    sendBotNotification(orderPayload).catch(()=>{});
+  if(typeof sendConfirmationEmail === 'function')  sendConfirmationEmail({...orderPayload,email}).catch(()=>{});
+
+  // Google Analytics event
+  if(typeof gtag === 'function'){
+    gtag('event','purchase',{value:total,currency:'IQD',items:items});
+  }
+
   goStep(4); document.getElementById('modalTitle').textContent='🎉 Order Sent!';
 }
 function gameCardHTML(g){
@@ -227,6 +238,23 @@ async function buildNav(activePage){
     </div>
   </nav>`;
   updateCartBadge();
+
+  // Google Analytics — load if configured
+  (async ()=>{
+    try{
+      const s = await window._KS_DB.getSettings();
+      if(s.gaId && !document.getElementById('gaScript')){
+        const s1=document.createElement('script');
+        s1.id='gaScript';
+        s1.async=true;
+        s1.src=`https://www.googletagmanager.com/gtag/js?id=${s.gaId}`;
+        document.head.appendChild(s1);
+        const s2=document.createElement('script');
+        s2.textContent=`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${s.gaId}');`;
+        document.head.appendChild(s2);
+      }
+    }catch(e){}
+  })();
 
   // Inject mobile nav (once only)
   const mobileNavId = 'mobileNavEl';

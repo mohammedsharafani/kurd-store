@@ -123,11 +123,18 @@ body{padding-bottom:80px;}
 <script>
 (async function(){
   try {
-    // 1. Load Firebase
-    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-    const db  = getDatabase(app);
+    // 1. Load Firebase - always create fresh to avoid cross-page issues
+    const { initializeApp, getApps, deleteApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getDatabase, ref, get, push } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+
+    let app;
+    const existingApps = getApps();
+    if(existingApps.length > 0) {
+      app = existingApps[0];
+    } else {
+      app = initializeApp(FIREBASE_CONFIG);
+    }
+    const db = getDatabase(app);
 
     // 2. Get game ID from URL
     const params = new URLSearchParams(window.location.search);
@@ -499,8 +506,7 @@ body{padding-bottom:80px;}
       const d=getAppliedDisc(); const method=window._selMethod?PAYMENT_METHODS.find(x=>x.id===window._selMethod)?.name:'';
       const items=cart.map(i=>i.name).join(', ');
       try{
-        const { push, ref:dbRef } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-        await push(dbRef(db,'orders'),{name,email,items,total,method,discount:d?.code||'',date:new Date().toISOString(),status:'pending'});
+        await push(ref(db,'orders'),{name,email,items,total,method,discount:d?.code||'',date:new Date().toISOString(),status:'pending'});
       }catch(e){}
       const hist=JSON.parse(localStorage.getItem('ks_history')||'[]');
       hist.unshift({id:Date.now(),items:[...cart],total,method,name,date:new Date().toLocaleDateString(),status:'pending'});
@@ -508,6 +514,47 @@ body{padding-bottom:80px;}
       const msg=encodeURIComponent(`🛒 New Order — Kurd Store!\n\nName: ${name}\nEmail: ${email}\nItems: ${items}\nTotal: ${iqd(total)}\nPaid via: ${method}${d?'\nDiscount: '+d.code:''}`);
       window.open(`https://t.me/${settings.telegram||'sharafaani'}?text=${msg}`,'_blank');
       saveCart([]); localStorage.removeItem('ks_disc'); updateCartBadge();
+
+      // Telegram Bot notification
+      const orderPayload = {name,email,items,total:Number(total).toLocaleString()+' IQD',method,discount:d?.code||''};
+      if(settings.botToken && settings.botChatId){
+        const botMsg = `🛒 New Order — ${settings.storeName||'Kurd Store'}!
+
+👤 Name: ${name}
+📧 Email: ${email}
+🎮 Items: ${items}
+💰 Total: ${orderPayload.total}
+💳 Payment: ${method}${d?'
+🏷️ Discount: '+d.code:''}`;
+        fetch(`https://api.telegram.org/bot${settings.botToken}/sendMessage`,{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({chat_id:settings.botChatId, text:botMsg})
+        }).catch(()=>{});
+      }
+
+      // EmailJS confirmation email
+      if(settings.emailKey && settings.emailService && settings.emailTemplate && email){
+        try{
+          if(!window.emailjs){
+            await new Promise((res,rej)=>{
+              const sc=document.createElement('script');
+              sc.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+              sc.onload=res; sc.onerror=rej; document.head.appendChild(sc);
+            });
+          }
+          window.emailjs.init(settings.emailKey);
+          window.emailjs.send(settings.emailService, settings.emailTemplate, {
+            to_email:email, customer_name:name, order_items:items,
+            order_total:orderPayload.total, payment_method:method,
+            store_name:settings.storeName||'Kurd Store',
+            telegram:'@'+(settings.telegram||'sharafaani')
+          });
+        }catch(e){ console.log('Email error:',e); }
+      }
+
+      // Google Analytics
+      if(typeof gtag==='function') gtag('event','purchase',{value:total,currency:'IQD'});
+
       goStep(4); document.getElementById('modalTitle').textContent='🎉 Order Sent!';
     };
 
@@ -515,8 +562,9 @@ body{padding-bottom:80px;}
     console.error('Product page error:', err);
     document.getElementById('productPage').innerHTML=`<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--gray);">
       <div style="font-size:2rem;margin-bottom:12px;">❌</div>
-      <div>Error loading game. <a href="index.html" style="color:var(--p);">Go back home</a></div>
-      <div style="font-size:.75rem;margin-top:8px;opacity:.6;">${err.message}</div>
+      <p>Error loading game.</p>
+      <p style="font-size:.8rem;opacity:.6;margin:8px 0;">${err.message}</p>
+      <a href="index.html" style="color:var(--p);font-weight:700;">← Go back home</a>
     </div>`;
   }
 })();
