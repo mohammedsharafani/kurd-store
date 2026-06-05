@@ -257,29 +257,33 @@ function renderRelated(games, currentGame){
 async function initPage(){
   const id = getGameIdFromUrl();
   if(!id){ window.location.href='index.html'; return; }
-  await buildNav('');
-  applyLang();
-  waitForDB(async ()=>{
+  try {
+    await buildNav('');
+    applyLang();
     const [games, settings] = await Promise.all([
       window._KS_DB.getGames(),
       window._KS_DB.getSettings()
     ]);
-    // Auto expire games
-    const now = new Date();
-    const updated = games.map(g=>{
-      if(g.expiryDate && new Date(g.expiryDate) < now && g.stock){
-        return {...g, stock:false};
-      }
-      return g;
-    });
+    const updated = autoExpireGames(games);
     const game = updated.find(g=>g.id===id);
     if(!game){ window.location.href='index.html'; return; }
     renderProduct(game, settings);
     renderRelated(updated, game);
-  });
+  } catch(err){
+    console.error('Product page error:', err);
+    document.getElementById('productPage').innerHTML='<div style="padding:40px;text-align:center;color:var(--gray)">❌ Error loading game. <a href="index.html">Go back home</a></div>';
+  }
 }
 
-initPage();
+// Wait for both app.js functions AND db to be ready
+function startWhenReady(){
+  if(typeof waitForDB === 'function' && typeof buildNav === 'function'){
+    waitForDB(()=> initPage());
+  } else {
+    setTimeout(startWhenReady, 100);
+  }
+}
+startWhenReady();
 </script>
 </body>
 </html>
