@@ -124,9 +124,9 @@ body{padding-bottom:80px;}
 (async function(){
   try {
     // 1. Load Firebase
-    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    const app = initializeApp(FIREBASE_CONFIG);
+    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
     const db  = getDatabase(app);
 
     // 2. Get game ID from URL

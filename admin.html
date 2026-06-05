@@ -521,6 +521,75 @@ tr:hover td{background:var(--gl);}
         <span style="font-size:.8rem;color:var(--gray);">Changes the store theme for all visitors.</span>
       </div>
     </div>
+    <!-- TELEGRAM BOT -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">✈️ Telegram Bot Notifications</div><div style="font-size:.76rem;color:var(--gray);">Get instant message on every new order</div></div>
+      <div class="panel-body">
+        <div style="background:#e7f8ff;border-radius:10px;padding:14px;font-size:.8rem;color:#0369a1;margin-bottom:16px;line-height:1.7;">
+          <strong>How to get your Bot Token:</strong><br>
+          1. Open Telegram → search <strong>@BotFather</strong><br>
+          2. Send <code style="background:#fff;padding:1px 6px;border-radius:4px;">/newbot</code><br>
+          3. Name it <strong>Kurd Store Bot</strong><br>
+          4. BotFather gives you a token like: <code style="background:#fff;padding:1px 6px;border-radius:4px;">123456789:ABCdef...</code><br>
+          5. Paste it below and save ✅
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Bot Token (from @BotFather)</label><input id="sBotToken" type="text" placeholder="123456789:ABCdefGHI..."/></div>
+          <div class="form-group"><label>Your Telegram Chat ID</label><input id="sBotChatId" type="text" placeholder="e.g. 123456789"/><div style="font-size:.72rem;color:var(--gray);margin-top:4px;">Get your ID from @userinfobot on Telegram</div></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveBotSettings()">💾 Save Bot Settings</button>
+          <button class="btn btn-outline" onclick="testBot()">🧪 Send Test Message</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOOGLE ANALYTICS -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">📊 Google Analytics</div><div style="font-size:.76rem;color:var(--gray);">Track visitors and page views</div></div>
+      <div class="panel-body">
+        <div style="background:#f0fdf4;border-radius:10px;padding:14px;font-size:.8rem;color:#166534;margin-bottom:16px;line-height:1.7;">
+          <strong>How to set up:</strong><br>
+          1. Go to <strong>analytics.google.com</strong><br>
+          2. Create account → New Property → Web<br>
+          3. Enter your GitHub Pages URL<br>
+          4. Get your <strong>Measurement ID</strong> (looks like <code style="background:#fff;padding:1px 6px;border-radius:4px;">G-XXXXXXXXXX</code>)<br>
+          5. Paste it below and save ✅
+        </div>
+        <div class="form-group" style="max-width:400px;">
+          <label>Google Analytics Measurement ID</label>
+          <input id="sGaId" type="text" placeholder="G-XXXXXXXXXX"/>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="saveGaSettings()">💾 Save & Apply Analytics</button></div>
+      </div>
+    </div>
+
+    <!-- EMAILJS -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">📧 Order Confirmation Emails</div><div style="font-size:.76rem;color:var(--gray);">Auto-send email to customers after ordering</div></div>
+      <div class="panel-body">
+        <div style="background:#fdf4ff;border-radius:10px;padding:14px;font-size:.8rem;color:#6b21a8;margin-bottom:16px;line-height:1.7;">
+          <strong>How to set up (free):</strong><br>
+          1. Go to <strong>emailjs.com</strong> → Sign up free<br>
+          2. Add Email Service → Connect Gmail<br>
+          3. Create Email Template — use these variables:<br>
+          &nbsp;&nbsp;<code style="background:#fff;padding:1px 5px;border-radius:3px;">{{to_email}}</code> <code style="background:#fff;padding:1px 5px;border-radius:3px;">{{customer_name}}</code> <code style="background:#fff;padding:1px 5px;border-radius:3px;">{{order_items}}</code> <code style="background:#fff;padding:1px 5px;border-radius:3px;">{{order_total}}</code> <code style="background:#fff;padding:1px 5px;border-radius:3px;">{{payment_method}}</code><br>
+          4. Get your Service ID, Template ID, Public Key<br>
+          5. Paste them below ✅
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>EmailJS Public Key</label><input id="sEmailKey" type="text" placeholder="user_xxxx..."/></div>
+          <div class="form-group"><label>Service ID</label><input id="sEmailService" type="text" placeholder="service_xxxx"/></div>
+          <div class="form-group"><label>Template ID</label><input id="sEmailTemplate" type="text" placeholder="template_xxxx"/></div>
+          <div class="form-group"><label>Your Email (for test)</label><input id="sEmailTest" type="email" placeholder="you@gmail.com"/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveEmailSettings()">💾 Save Email Settings</button>
+          <button class="btn btn-outline" onclick="testEmail()">🧪 Send Test Email</button>
+        </div>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="panel-hd"><div class="panel-title" style="color:#dc2626;">⚠️ Danger Zone</div></div>
       <div class="panel-body" style="display:flex;gap:9px;flex-wrap:wrap;">
@@ -1029,6 +1098,13 @@ async function loadSettings(){
     document.getElementById('logoClearBtn').classList.add('vis');
   }
   loadBannerSettings(s);
+  // Load integration settings
+  document.getElementById('sBotToken').value    = s.botToken    || '';
+  document.getElementById('sBotChatId').value   = s.botChatId   || '';
+  document.getElementById('sGaId').value        = s.gaId        || '';
+  document.getElementById('sEmailKey').value     = s.emailKey    || '';
+  document.getElementById('sEmailService').value = s.emailService|| '';
+  document.getElementById('sEmailTemplate').value= s.emailTemplate||'';
 }
 
 function updateLP(){
