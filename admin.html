@@ -224,8 +224,14 @@ tr:hover td{background:var(--gl);}
             </select>
           </div>
           <div class="form-group"><label>Category</label><select id="gCat"><option value="ps">PlayStation</option><option value="xbox">Xbox</option><option value="pc">PC/Steam</option><option value="nintendo">Nintendo</option></select></div>
-          <div class="form-group"><label>Price (IQD)</label><input id="gPrice" type="number" min="0" placeholder="50000"/></div>
-          <div class="form-group"><label>Old Price (IQD) — leave empty if no sale</label><input id="gOldPrice" type="number" min="0" placeholder="70000"/></div>
+          <div class="form-group" id="priceFieldWrap">
+            <label>Price (IQD) <span style="color:#a78bfa;font-size:.72rem;">— not needed if using variants below</span></label>
+            <input id="gPrice" type="number" min="0" placeholder="50000" oninput="checkPriceNeeded()"/>
+          </div>
+          <div class="form-group" id="oldPriceFieldWrap">
+            <label>Old Price (IQD) — leave empty if no sale</label>
+            <input id="gOldPrice" type="number" min="0" placeholder="70000"/>
+          </div>
           <div class="form-group"><label>Badge</label><select id="gBadge"><option value="">None</option><option value="new">NEW</option><option value="sale">SALE</option></select></div>
           <div class="form-group"><label>Stock</label><select id="gStock"><option value="true">✅ In Stock</option><option value="false">❌ Out of Stock</option></select></div>
           <div class="form-group"><label>Emoji Icon</label><div class="emoji-row"><input id="gIcon" type="text" maxlength="4" placeholder="🎮" oninput="document.getElementById('gEP').textContent=this.value||'🎮'"/><div class="ep" id="gEP">🎮</div></div></div>
@@ -240,19 +246,19 @@ tr:hover td{background:var(--gl);}
 
                 <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
                   <div style="font-size:.78rem;font-weight:700;color:#059669;margin-bottom:8px;">✅ Active PS5</div>
-                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gActivePS5Price" type="number" min="0" placeholder="e.g. 40000"/></div>
+                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gActivePS5Price" type="number" min="0" placeholder="e.g. 40000" oninput="checkPriceNeeded()"/></div>
                   <div class="form-group" style="margin:0;"><label>Description</label><input id="gActivePS5Desc" type="text" placeholder="PS5 primary activation"/></div>
                 </div>
 
                 <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
                   <div style="font-size:.78rem;font-weight:700;color:#3b82f6;margin-bottom:8px;">✅ Active PS4</div>
-                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gActivePS4Price" type="number" min="0" placeholder="e.g. 35000"/></div>
+                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gActivePS4Price" type="number" min="0" placeholder="e.g. 35000" oninput="checkPriceNeeded()"/></div>
                   <div class="form-group" style="margin:0;"><label>Description</label><input id="gActivePS4Desc" type="text" placeholder="PS4 primary activation"/></div>
                 </div>
 
                 <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
                   <div style="font-size:.78rem;font-weight:700;color:#a78bfa;margin-bottom:8px;">👤 In Account</div>
-                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gInAccountPrice" type="number" min="0" placeholder="e.g. 20000"/></div>
+                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gInAccountPrice" type="number" min="0" placeholder="e.g. 20000" oninput="checkPriceNeeded()"/></div>
                   <div class="form-group" style="margin:0;"><label>Description</label><input id="gInAccountDesc" type="text" placeholder="Play on our PS account"/></div>
                 </div>
 
@@ -661,7 +667,24 @@ async function saveGame(){
   const title   = document.getElementById('gTitle').value.trim();
   const titleKd = document.getElementById('gTitleKd').value.trim();
   const price   = parseFloat(document.getElementById('gPrice').value);
-  if(!title||isNaN(price)){ showToast('⚠️ English title and price are required!'); return; }
+  // Price is only required if no variants are set
+  const hasVariants = (()=>{
+    const ap5 = parseFloat(document.getElementById('gActivePS5Price').value);
+    const ap4 = parseFloat(document.getElementById('gActivePS4Price').value);
+    const ip  = parseFloat(document.getElementById('gInAccountPrice').value);
+    return (!isNaN(ap5)||!isNaN(ap4)||!isNaN(ip));
+  })();
+  if(!title){ showToast('⚠️ English title is required!'); return; }
+  if(!hasVariants && isNaN(price)){ showToast('⚠️ Price is required when no variants are set!'); return; }
+  // If variants exist, use lowest variant price as the main price for display on cards
+  if(hasVariants && isNaN(price)){
+    const ap5 = parseFloat(document.getElementById('gActivePS5Price').value);
+    const ap4 = parseFloat(document.getElementById('gActivePS4Price').value);
+    const ip  = parseFloat(document.getElementById('gInAccountPrice').value);
+    const allPrices = [ap5,ap4,ip].filter(p=>!isNaN(p));
+    // set price to lowest variant price for card display
+    document.getElementById('gPrice').value = Math.min(...allPrices);
+  }
   const oldPriceRaw = document.getElementById('gOldPrice').value;
   const g = {
     title, titleKd: titleKd||title,
@@ -1144,6 +1167,24 @@ async function saveBulkGames(){
   showToast('✅ '+newGames.length+' game'+(newGames.length!==1?'s':'')+' added successfully!');
   hideBulk();
   renderGTable();
+}
+
+// Auto update price field when variants change
+function checkPriceNeeded(){
+  const ap5 = document.getElementById('gActivePS5Price').value;
+  const ap4 = document.getElementById('gActivePS4Price').value;
+  const ip  = document.getElementById('gInAccountPrice').value;
+  const hasVariants = ap5||ap4||ip;
+  const wrap = document.getElementById('priceFieldWrap');
+  const oldWrap = document.getElementById('oldPriceFieldWrap');
+  if(hasVariants){
+    wrap.style.opacity='.4';
+    wrap.querySelector('label').firstChild.nodeValue='Price (IQD) ';
+    oldWrap.style.opacity='.4';
+  } else {
+    wrap.style.opacity='1';
+    oldWrap.style.opacity='1';
+  }
 }
 
 // ══════════════════
