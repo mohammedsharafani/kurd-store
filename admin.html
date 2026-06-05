@@ -618,26 +618,39 @@ function db(){ return window._KS_DB; }
 // ── WAIT FOR FIREBASE ──
 let _dbReady = false;
 
+// DB ready handler - only runs AFTER password is entered
 function onDbReady() {
   if(_dbReady) return;
   _dbReady = true;
-  const overlay = document.getElementById('loadingOverlay');
-  if(!window._KS_DB) {
-    overlay.innerHTML = '<div style="text-align:center;color:#fca5a5;padding:20px;"><div style="font-size:2.5rem;margin-bottom:12px;">❌</div><div style="font-family:Rajdhani,sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:8px;">Firebase Connection Failed</div><div style="font-size:.85rem;margin-bottom:20px;opacity:.8;">Check your internet connection and try refreshing.</div><button onclick="location.reload()" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.9rem;font-weight:600;cursor:pointer;">🔄 Retry</button></div>';
+  document.getElementById('loadingOverlay').style.display='none';
+  if(!window._KS_DB){
+    showToast('❌ Firebase connection failed. Check internet and refresh.');
     return;
   }
-  overlay.style.display = 'none';
   init().then(() => showSec('games', document.getElementById('navGames')));
 }
 
-window.addEventListener('ks_db_ready', onDbReady);
-setTimeout(() => { if(!_dbReady) onDbReady(); }, 5000);
+// Listen for DB ready - but only act if password already entered
+window.addEventListener('ks_db_ready', ()=>{
+  if(sessionStorage.getItem('ks_admin_auth')==='1') onDbReady();
+});
 
-// Check if already authenticated this session
+// Check if already authenticated this session (page refresh)
 window.addEventListener('load', ()=>{
-  if(sessionStorage.getItem('ks_admin_auth')=='1'){
+  if(sessionStorage.getItem('ks_admin_auth')==='1'){
     document.getElementById('passwordScreen').style.display='none';
-    document.getElementById('loadingOverlay').style.display='flex';
+    // If DB already ready, init now
+    if(window._KS_DB){ onDbReady(); }
+    else {
+      document.getElementById('loadingOverlay').style.display='flex';
+      // Wait for DB
+      let t=0;
+      const iv=setInterval(()=>{
+        t++;
+        if(window._KS_DB){ clearInterval(iv); onDbReady(); }
+        else if(t>40){ clearInterval(iv); onDbReady(); }
+      },100);
+    }
   }
 });
 
@@ -1365,11 +1378,21 @@ function checkPw(){
   const val = document.getElementById('pwInput').value;
   const err = document.getElementById('pwError');
   if(val === ADMIN_PASSWORD){
-    document.getElementById('passwordScreen').style.display='none';
-    document.getElementById('loadingOverlay').style.display='flex';
     sessionStorage.setItem('ks_admin_auth','1');
-    // trigger DB connection
-    window.dispatchEvent(new Event('ks_start_db'));
+    document.getElementById('passwordScreen').style.display='none';
+    // If DB already connected, go straight in
+    if(window._KS_DB){
+      onDbReady();
+    } else {
+      // Show loading and wait for DB
+      document.getElementById('loadingOverlay').style.display='flex';
+      let t=0;
+      const iv=setInterval(()=>{
+        t++;
+        if(window._KS_DB){ clearInterval(iv); onDbReady(); }
+        else if(t>40){ clearInterval(iv); onDbReady(); }
+      },100);
+    }
   } else {
     err.style.display='block';
     document.getElementById('pwInput').value='';
