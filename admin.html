@@ -129,6 +129,7 @@ tr:hover td{background:var(--gl);}
   </div>
   <div class="sb-sec">Manage</div>
   <ul class="sb-nav">
+    <li><button id="navDash"   onclick="showSec('dashboard',this)"        >📊 Dashboard</button></li>
     <li><button id="navGames"  onclick="showSec('games',this)"   class="active">🎮 Games</button></li>
     <li><button id="navSubs"   onclick="showSec('subs',this)"            >📦 Subscriptions</button></li>
     <li><button id="navCodes"  onclick="showSec('codes',this)"           >🏷️ Discount Codes</button></li>
@@ -150,6 +151,33 @@ tr:hover td{background:var(--gl);}
 </aside>
 
 <main class="main">
+
+  <!-- DASHBOARD -->
+  <div id="sec-dashboard" style="display:none;">
+    <div class="topbar"><div><h1>📊 Dashboard</h1><p>Overview of your store performance</p></div><button class="btn btn-outline btn-sm" onclick="loadDashboard()">🔄 Refresh</button></div>
+    <div class="stat-cards" style="grid-template-columns:repeat(4,1fr);">
+      <div class="sc"><div class="sc-icon purple">📋</div><div><div class="sc-num" id="dashOrders">—</div><div class="sc-lbl">Total Orders</div></div></div>
+      <div class="sc"><div class="sc-icon green">💰</div><div><div class="sc-num" id="dashRevenue">—</div><div class="sc-lbl">Total Revenue</div></div></div>
+      <div class="sc"><div class="sc-icon orange">⏳</div><div><div class="sc-num" id="dashPending">—</div><div class="sc-lbl">Pending Orders</div></div></div>
+      <div class="sc"><div class="sc-icon blue">🎮</div><div><div class="sc-num" id="dashGames">—</div><div class="sc-lbl">Total Games</div></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="panel">
+        <div class="panel-hd"><div class="panel-title">📋 Recent Orders</div></div>
+        <div class="panel-body" style="padding:0;">
+          <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+            <thead><tr style="background:var(--gl);"><th style="padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.68rem;text-transform:uppercase;">Customer</th><th style="padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.68rem;text-transform:uppercase;">Items</th><th style="padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.68rem;text-transform:uppercase;">Total</th><th style="padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.68rem;text-transform:uppercase;">Status</th></tr></thead>
+            <tbody id="dashRecentOrders"></tbody>
+          </table>
+          <div class="empty-state" id="dashOrdersEmpty" style="display:none;"><div class="ei">📋</div><p>No orders yet</p></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><div class="panel-title">🎮 Top Games by Views</div></div>
+        <div class="panel-body" id="dashTopGames"><div style="color:var(--gray);font-size:.85rem;">Loading...</div></div>
+      </div>
+    </div>
+  </div>
 
   <!-- GAMES -->
   <div id="sec-games">
@@ -570,7 +598,7 @@ function updateSBrand(s){
 
 // ── NAVIGATION ──
 function showSec(name, btn){
-  ['games','subs','codes','reviews','orders','settings'].forEach(s=>{
+  ['dashboard','games','subs','codes','reviews','orders','settings'].forEach(s=>{
     const el=document.getElementById('sec-'+s);
     if(el) el.style.display = s===name ? 'block' : 'none';
   });
@@ -581,6 +609,7 @@ function showSec(name, btn){
   if(name==='codes')    renderCodes();
   if(name==='reviews')  renderRvTable();
   if(name==='orders')   renderOrders();
+  if(name==='dashboard') loadDashboard();
   if(name==='settings') loadSettings();
 }
 
@@ -604,8 +633,8 @@ async function renderGTable(search=''){
   const em = document.getElementById('gEmpty');
   if(!list.length){ tb.innerHTML=''; em.style.display='block'; return; }
   em.style.display='none';
-  tb.innerHTML = list.map(g=>`<tr>
-    <td><div style="width:56px;height:34px;border-radius:6px;overflow:hidden;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${g.img?`<img src="${g.img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>`:''}<span>${g.icon}</span></div></td>
+  tb.innerHTML = list.map(g=>`<tr draggable="true" data-id="${g.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropGame(event)" style="cursor:grab;">
+    <td><div style="display:flex;align-items:center;gap:7px;"><span style="color:var(--gray);font-size:1rem;cursor:grab;" title="Drag to reorder">⠿</span><div style="width:56px;height:34px;border-radius:6px;overflow:hidden;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${g.img?`<img src="${g.img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>`:''}${g.icon}</div></div></td>
     <td><strong>${g.title}</strong></td>
     <td style="color:#a78bfa;">${g.titleKd}</td>
     <td><span class="badge b-${g.category}">${g.platform}</span></td>

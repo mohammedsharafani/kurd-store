@@ -21,6 +21,16 @@
   </div>
 </div>
 
+<!-- CUSTOMER COUNTER -->
+<div class="counter-section">
+  <div class="counter-grid">
+    <div class="counter-item"><div class="counter-num" id="ctrGames">—</div><div class="counter-lbl">Games Available</div></div>
+    <div class="counter-item"><div class="counter-num">500+</div><div class="counter-lbl">Happy Customers</div></div>
+    <div class="counter-item"><div class="counter-num">⚡ 1-2h</div><div class="counter-lbl">Delivery Time</div></div>
+    <div class="counter-item"><div class="counter-num">100%</div><div class="counter-lbl">Genuine Keys</div></div>
+  </div>
+</div>
+
 <div class="statsbar">
   <div class="stat"><div class="stat-num" id="stGames">—</div><div class="stat-lbl">Games</div></div>
   <div class="stat"><div class="stat-num" id="stSubs">—</div><div class="stat-lbl">Subscriptions</div></div>
@@ -66,6 +76,27 @@
     <a class="cat-card" href="subscriptions.html"><div class="cat-icon">📦</div><div class="cat-name">Subscriptions</div><div class="cat-count" id="cSubs">—</div></a>
     <a class="cat-card" href="discounts.html"><div class="cat-icon">🏷️</div><div class="cat-name">Discounts</div><div class="cat-count" id="cDisc">—</div></a>
   </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-it-works">
+  <div class="section-hd"><div><div class="section-title">📖 <em>How it Works</em></div><div class="section-sub">Get your game in 3 simple steps</div></div></div>
+  <div class="hiw-grid">
+    <div class="hiw-card"><div class="hiw-num">1</div><div class="hiw-icon">🎮</div><div class="hiw-title">Choose Your Game</div><div class="hiw-desc">Browse our collection and click on the game you want. Choose your preferred format.</div></div>
+    <div class="hiw-arrow">›</div>
+    <div class="hiw-card"><div class="hiw-num">2</div><div class="hiw-icon">💳</div><div class="hiw-title">Pay Securely</div><div class="hiw-desc">Pay via FIB, Qi Card, or Fastpay. Send the exact amount and screenshot your transfer.</div></div>
+    <div class="hiw-arrow">›</div>
+    <div class="hiw-card"><div class="hiw-num">3</div><div class="hiw-icon">📧</div><div class="hiw-title">Receive Your Key</div><div class="hiw-desc">We verify your payment and send your game key to your email within 1-2 hours.</div></div>
+  </div>
+</div>
+
+<!-- PAYMENT METHODS -->
+<div class="payment-logos">
+  <div style="font-size:.85rem;font-weight:700;color:var(--gray);margin-right:8px;">We Accept:</div>
+  <div class="pay-logo-item"><div class="pay-logo-icon">🏦</div><span>FIB</span></div>
+  <div class="pay-logo-item"><div class="pay-logo-icon">💳</div><span>Qi Card</span></div>
+  <div class="pay-logo-item"><div class="pay-logo-icon">⚡</div><span>Fastpay</span></div>
+  <div class="pay-logo-item"><div class="pay-logo-icon">✈️</div><span>Telegram</span></div>
 </div>
 
 <div class="section">
@@ -248,6 +279,7 @@ function clearSearch(){
 async function initPage(){
   await buildNav('home');
   applyLang();
+  initBackToTop();
 
   // Load banner settings
   window._KS_DB.listenSettings(s=>{ renderBanner(s); });
@@ -257,6 +289,8 @@ async function initPage(){
     const games = autoExpireGames(rawGames);
     _allGames = games;
     document.getElementById('stGames').textContent=games.length;
+    const ctr = document.getElementById('ctrGames');
+    if(ctr) ctr.textContent = games.length+'+';
     document.getElementById('cPs').textContent=games.filter(g=>g.category==='ps').length+' games';
     document.getElementById('cXbox').textContent=games.filter(g=>g.category==='xbox').length+' games';
     document.getElementById('cPc').textContent=games.filter(g=>g.category==='pc').length+' games';

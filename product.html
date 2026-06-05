@@ -43,6 +43,7 @@
 .tg-contact-btn{background:var(--gl);color:var(--p);border:2px solid var(--border);border-radius:12px;padding:13px 18px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:var(--fb);text-decoration:none;display:flex;align-items:center;gap:7px;transition:background .2s;white-space:nowrap;}
 .tg-contact-btn:hover{background:var(--ps);}
 .related-sec{padding:0 4vw 56px;position:relative;z-index:1;}
+body{padding-bottom:80px;}
 @media(max-width:768px){
   .product-page{grid-template-columns:1fr;gap:24px;}
   .product-title{font-size:1.55rem;}
@@ -101,6 +102,16 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- STICKY CART BAR -->
+<div class="sticky-cart-bar" id="stickyCartBar">
+  <div class="sticky-game-info">
+    <div class="sticky-game-title" id="stickyTitle">Game</div>
+    <div class="sticky-game-price" id="stickyPrice">0 IQD</div>
+  </div>
+  <button class="sticky-add-btn" id="stickyAddBtn" onclick="doAddToCart()">🛒 Add to Cart</button>
+</div>
+<button class="back-to-top" id="backToTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- Load Firebase config first -->
 <script src="firebase-config.js"></script>
@@ -254,6 +265,14 @@
             ${isOos?'❌ Out of Stock':'🛒 Add to Cart'}
           </button>
           <a class="tg-contact-btn" href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank">✈️ Telegram</a>
+        <div class="share-wrap">
+          <button class="share-btn" onclick="toggleShareMenu(event)">🔗 Share</button>
+          <div class="share-menu" id="shareMenu">
+            <div class="share-menu-item" onclick="shareVia('telegram')">✈️ Share on Telegram</div>
+            <div class="share-menu-item" onclick="shareVia('whatsapp')">💬 Share on WhatsApp</div>
+            <div class="share-menu-item" onclick="shareVia('copy')">📋 Copy Link</div>
+          </div>
+        </div>
         </div>
       </div>`;
 
@@ -263,6 +282,58 @@
       el.classList.add('sel'); el.querySelector('.variant-check').textContent='✓';
       selectedVariantIdx = idx;
       document.getElementById('displayPrice').textContent = iqd(game.variants[idx].price);
+    };
+
+    // 9b. Setup sticky cart bar
+    const stickyBar = document.getElementById('stickyCartBar');
+    const stickyTitle = document.getElementById('stickyTitle');
+    const stickyPrice = document.getElementById('stickyPrice');
+    const stickyBtn   = document.getElementById('stickyAddBtn');
+    const addCartBtnEl = document.getElementById('addCartBtn');
+
+    function updateStickyPrice(){
+      const v = game.variants&&game.variants.length ? game.variants[selectedVariantIdx] : null;
+      const p = v ? v.price : game.price;
+      stickyPrice.textContent = iqd(p);
+    }
+
+    stickyTitle.textContent = title;
+    updateStickyPrice();
+    if(isOos){ stickyBtn.disabled=true; stickyBtn.textContent='❌ Out of Stock'; }
+
+    // Show sticky bar when add-to-cart button scrolls out of view
+    const observer = new IntersectionObserver(entries=>{
+      stickyBar.classList.toggle('visible', !entries[0].isIntersecting);
+    }, {threshold:0});
+    if(addCartBtnEl) observer.observe(addCartBtnEl);
+
+    // Back to top button
+    const bttBtn = document.getElementById('backToTopBtn');
+    window.addEventListener('scroll',()=>{
+      if(bttBtn) bttBtn.classList.toggle('visible', window.scrollY>400);
+    });
+
+    // Share functionality
+    window.toggleShareMenu = function(e){
+      e.stopPropagation();
+      document.getElementById('shareMenu').classList.toggle('open');
+    };
+    document.addEventListener('click',()=>{ const m=document.getElementById('shareMenu'); if(m) m.classList.remove('open'); });
+    window.shareVia = function(platform){
+      const url = window.location.href;
+      const text = encodeURIComponent('🎮 Check out '+title+' on Kurd Store!
+'+url);
+      if(platform==='telegram')  window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent('🎮 '+title+' — Kurd Store'),'_blank');
+      else if(platform==='whatsapp') window.open('https://wa.me/?text='+text,'_blank');
+      else { navigator.clipboard.writeText(url).then(()=>showToast('✅ Link copied!')); }
+      document.getElementById('shareMenu').classList.remove('open');
+    };
+
+    // Update sticky price when variant changes
+    const origPickVariant = window.pickVariant;
+    window.pickVariant = function(el,idx){
+      origPickVariant(el,idx);
+      updateStickyPrice();
     };
 
     // 10. Add to cart

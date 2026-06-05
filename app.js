@@ -29,7 +29,18 @@ function showToast(msg){
 }
 function getCart(){ try{return JSON.parse(localStorage.getItem('ks_cart'))||[];}catch(e){return[];} }
 function saveCart(c){ localStorage.setItem('ks_cart',JSON.stringify(c)); }
-function updateCartBadge(){ document.querySelectorAll('.cart-count').forEach(el=>el.textContent=getCart().length); }
+function updateCartBadge(animate){
+  const n = getCart().length;
+  document.querySelectorAll('.cart-count').forEach(el=>{
+    el.textContent = n;
+    if(animate){
+      el.classList.remove('bounce');
+      void el.offsetWidth; // reflow
+      el.classList.add('bounce');
+      setTimeout(()=>el.classList.remove('bounce'), 600);
+    }
+  });
+}
 function getAppliedDisc(){ try{return JSON.parse(localStorage.getItem('ks_disc'));}catch(e){return null;} }
 function saveAppliedDisc(d){ localStorage.setItem('ks_disc',JSON.stringify(d)); }
 function calcDisc(sub, cart){
@@ -55,13 +66,13 @@ function addGameToCart(g){
   if(!g.stock){showToast('Out of stock!');return;}
   const cart=getCart();
   cart.push({uid:Date.now(),gameId:g.id,name:getLang()==='en'?g.title:g.titleKd,platform:g.platform,price:g.price,icon:g.icon,type:'game'});
-  saveCart(cart); updateCartBadge();
+  saveCart(cart); updateCartBadge(true);
   showToast((getLang()==='en'?g.title:g.titleKd)+' added!');
 }
 function addSubToCart(s,label,price){
   const cart=getCart();
   cart.push({uid:Date.now(),subId:s.id,name:(getLang()==='en'?s.name:s.nameKd)+' — '+label,platform:'Subscription',price,icon:s.icon,type:'sub'});
-  saveCart(cart); updateCartBadge();
+  saveCart(cart); updateCartBadge(true);
   showToast('Subscription added!');
 }
 function removeFromCart(uid){
@@ -216,6 +227,42 @@ async function buildNav(activePage){
     </div>
   </nav>`;
   updateCartBadge();
+
+  // Inject mobile nav
+  const mobileNavId = 'mobileNavEl';
+  if(!document.getElementById(mobileNavId)){
+    const mobileNav = document.createElement('div');
+    mobileNav.id = mobileNavId;
+    mobileNav.className = 'mobile-nav';
+    mobileNav.innerHTML = `
+      <a href="index.html">🏠 Home</a>
+      <a href="playstation.html">🎮 PlayStation</a>
+      <a href="xbox.html">🟢 Xbox</a>
+      <a href="pc.html">💻 PC/Steam</a>
+      <a href="nintendo.html">🔴 Nintendo</a>
+      <a href="subscriptions.html">📦 Subscriptions</a>
+      <a href="discounts.html">🏷️ Discounts</a>`;
+    document.body.insertBefore(mobileNav, document.body.firstChild.nextSibling);
+  }
+
+  // Add hamburger to nav
+  const navRight = document.querySelector('.nav-right');
+  if(navRight && !document.getElementById('hamburgerBtn')){
+    const hbtn = document.createElement('button');
+    hbtn.className = 'hamburger'; hbtn.id = 'hamburgerBtn';
+    hbtn.innerHTML = '<span></span><span></span><span></span>';
+    hbtn.onclick = function(){
+      this.classList.toggle('open');
+      document.getElementById(mobileNavId).classList.toggle('open');
+    };
+    navRight.insertBefore(hbtn, navRight.firstChild);
+  }
+
+  // Mark active link in mobile nav
+  document.querySelectorAll('#'+mobileNavId+' a').forEach(a=>{
+    if(a.href === window.location.href) a.classList.add('active');
+  });
+
   if(document.getElementById('payMethodsEl')){
     document.getElementById('payMethodsEl').innerHTML=PAYMENT_METHODS.map(m=>`
       <div class="pay-method" onclick="selMethod('${m.id}')" id="pm-${m.id}">
@@ -263,22 +310,39 @@ function autoExpireGames(games){
   });
 }
 
+// ── PAGE LOADER ──
+function showLoader(emoji){
+  if(document.getElementById('pageLoader')) return;
+  const el = document.createElement('div');
+  el.id = 'pageLoader'; el.className = 'page-loader';
+  el.innerHTML = `<div class="loader-logo">${emoji||'🎮'}</div><div class="loader-ring"></div><div class="loader-text">Loading<span class="loader-dots"></span></div>`;
+  document.body.appendChild(el);
+}
+function hideLoader(){
+  const el = document.getElementById('pageLoader');
+  if(el){ el.classList.add('hidden'); setTimeout(()=>el.remove(), 500); }
+}
+
+// ── BACK TO TOP ──
+function initBackToTop(){
+  const btn = document.createElement('button');
+  btn.className = 'back-to-top'; btn.innerHTML = '↑'; btn.title = 'Back to top';
+  btn.onclick = ()=>window.scrollTo({top:0,behavior:'smooth'});
+  document.body.appendChild(btn);
+  window.addEventListener('scroll',()=>{
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+}
+
 // ── KEY FIX: Poll for _KS_DB instead of relying on events ──
 function waitForDB(callback){
-  if(window._KS_DB){
-    callback();
-    return;
-  }
+  showLoader('🎮');
+  const run = ()=>{ hideLoader(); callback(); };
+  if(window._KS_DB){ run(); return; }
   let tries=0;
   const interval=setInterval(()=>{
     tries++;
-    if(window._KS_DB){
-      clearInterval(interval);
-      callback();
-    } else if(tries>50){ // 5 seconds max
-      clearInterval(interval);
-      console.error('Firebase took too long');
-      callback(); // run anyway with defaults
-    }
+    if(window._KS_DB){ clearInterval(interval); run(); }
+    else if(tries>50){ clearInterval(interval); console.error('Firebase timeout'); run(); }
   },100);
 }
