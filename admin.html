@@ -630,16 +630,7 @@ function startAdmin(){
   }, 100);
 }
 
-// Auto-login if already authenticated this session
-window.addEventListener('load', ()=>{
-  if(sessionStorage.getItem('ks_admin_auth') === '1'){
-    document.getElementById('passwordScreen').style.display = 'none';
-    startAdmin();
-  } else {
-    // Focus password input
-    setTimeout(()=>{ const p=document.getElementById('pwInput'); if(p) p.focus(); }, 100);
-  }
-});
+// Auth handled by inline script above
 
 // ── INIT ──
 async function init(){
@@ -1359,22 +1350,7 @@ function toggleDark(){
 // ══════════════════
 //  PASSWORD
 // ══════════════════
-const ADMIN_PASSWORD = 'kurd2024'; // ← Change this to your password!
-
-function checkPw(){
-  const val = document.getElementById('pwInput').value.trim();
-  const err = document.getElementById('pwError');
-  if(val === ADMIN_PASSWORD){
-    sessionStorage.setItem('ks_admin_auth','1');
-    document.getElementById('passwordScreen').style.display = 'none';
-    startAdmin();
-  } else {
-    err.style.display = 'block';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
-    setTimeout(()=> err.style.display='none', 3000);
-  }
-}
+// Password check handled by inline script above
 
 // ══════════════════
 //  ORDERS
