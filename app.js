@@ -48,6 +48,10 @@ function calcDisc(sub, cart){
   return d.type==='percent'?Math.round(sub*d.value/100):Math.min(d.value,sub);
 }
 function addGameToCart(g){
+  // Check game expiry
+  if(g.expiryDate && new Date(g.expiryDate) < new Date()){
+    showToast('❌ This deal has expired!'); return;
+  }
   if(!g.stock){showToast('Out of stock!');return;}
   const cart=getCart();
   cart.push({uid:Date.now(),gameId:g.id,name:getLang()==='en'?g.title:g.titleKd,platform:g.platform,price:g.price,icon:g.icon,type:'game'});
@@ -163,7 +167,7 @@ async function submitOrder(){
 }
 function gameCardHTML(g){
   const l=getLang();
-  return `<div class="pcard${g.stock?'':' oos'}">
+  return `<div class="pcard${g.stock?'':' oos'}" onclick="window.location.href='product.html?id=${g.id}'" style="cursor:pointer;">
     ${g.badge&&g.stock?`<div class="pcard-badges"><span class="pbadge pb-${g.badge}">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
     ${!g.stock?'<div class="pcard-badges"><span class="pbadge pb-oos">OUT OF STOCK</span></div>':''}
     <div class="pcard-img">
@@ -175,7 +179,7 @@ function gameCardHTML(g){
       <div class="pcard-title">${l==='en'?g.title:g.titleKd}</div>
       <div class="pcard-footer">
         <div><span class="pcard-price">${iqd(g.price)}</span>${g.oldPrice?`<span class="pcard-old">${iqd(g.oldPrice)}</span>`:''}</div>
-        ${g.stock?`<button class="add-btn" onclick='addGameToCart(${JSON.stringify(g)})'>+</button>`:'<span class="oos-tag">Unavailable</span>'}
+        ${g.stock?(g.variants&&g.variants.length?`<span class="add-btn" style="background:var(--p);color:#fff;font-size:.55rem;padding:0 5px;width:auto;border-radius:7px;white-space:nowrap;">Choose</span>`:`<button class="add-btn" onclick='event.stopPropagation();addGameToCart(${JSON.stringify(g)})'>+</button>`):'<span class="oos-tag">Unavailable</span>'}
       </div>
     </div>
   </div>`;
@@ -246,6 +250,17 @@ async function buildNav(activePage){
       <div class="footer-bottom"><span>© 2024 ${s.storeName||'Kurd Store'}.</span><span>Made with ❤️ for Kurdish gamers</span></div>
     </footer>`;
   }
+}
+
+// ── AUTO EXPIRE GAMES ──
+function autoExpireGames(games){
+  const now = new Date();
+  return games.map(g=>{
+    if(g.expiryDate && new Date(g.expiryDate) < now && g.stock){
+      return {...g, stock:false, badge:null};
+    }
+    return g;
+  });
 }
 
 // ── KEY FIX: Poll for _KS_DB instead of relying on events ──

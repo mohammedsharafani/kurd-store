@@ -253,7 +253,8 @@ async function initPage(){
   window._KS_DB.listenSettings(s=>{ renderBanner(s); });
 
   // Live listeners — auto update when admin saves
-  window._KS_DB.listenGames(games=>{
+  window._KS_DB.listenGames(rawGames=>{
+    const games = autoExpireGames(rawGames);
     _allGames = games;
     document.getElementById('stGames').textContent=games.length;
     document.getElementById('cPs').textContent=games.filter(g=>g.category==='ps').length+' games';

@@ -155,8 +155,9 @@ tr:hover td{background:var(--gl);}
   <div id="sec-games">
     <div class="topbar">
       <div><h1>🎮 Games</h1><p>Save to Firebase → customers see changes instantly worldwide</p></div>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;align-items:center;">
         <input type="text" placeholder="🔍 Search games..." oninput="renderGTable(this.value)" style="padding:6px 12px;font-size:.8rem;width:180px;border-radius:99px;border:1.5px solid var(--border);background:var(--card);color:var(--text);outline:none;"/>
+        <button class="btn btn-primary btn-sm" onclick="showBulk()">⚡ Bulk Add</button>
       </div>
     </div>
     <div class="stat-cards">
@@ -165,13 +166,63 @@ tr:hover td{background:var(--gl);}
       <div class="sc"><div class="sc-icon blue">🆕</div><div><div class="sc-num" id="stNew">0</div><div class="sc-lbl">New</div></div></div>
       <div class="sc"><div class="sc-icon red">📦</div><div><div class="sc-num" id="stOos">0</div><div class="sc-lbl">Out of Stock</div></div></div>
     </div>
-    <div class="panel">
+    <!-- BULK ADD PANEL -->
+    <div class="panel" id="bulkPanel" style="display:none;">
+      <div class="panel-hd">
+        <div class="panel-title">⚡ Bulk Add Games</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="addBulkRow()">+ Add Row</button>
+          <button class="btn btn-primary btn-sm" onclick="saveBulkGames()">💾 Save All to Firebase</button>
+          <button class="btn btn-danger btn-sm" onclick="hideBulk()">✕ Close</button>
+        </div>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <div style="overflow-x:auto;">
+          <table id="bulkTable" style="width:100%;border-collapse:collapse;font-size:.82rem;">
+            <thead>
+              <tr style="background:var(--gl);">
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:160px;">Title (English)</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:160px;">Title (Kurdish) — optional</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:120px;">Platform</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:100px;">Category</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:110px;">Price (IQD)</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:110px;">Old Price</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:80px;">Badge</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:80px;">Stock</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:50px;">Icon</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:200px;">Image URL</th>
+                <th style="padding:10px 12px;text-align:left;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.7rem;text-transform:uppercase;min-width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="bulkTbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:14px 20px;border-top:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.8rem;color:var(--gray);">Fill in the rows above then click Save All</span>
+          <button class="btn btn-primary" onclick="saveBulkGames()">💾 Save All to Firebase</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SINGLE ADD PANEL -->
+    <div class="panel" id="singlePanel">
       <div class="panel-hd"><div class="panel-title" id="gFormTitle">➕ Add New Game</div><button class="btn btn-outline btn-sm" onclick="resetGForm()">↩ Reset</button></div>
       <div class="panel-body">
         <div class="form-grid">
           <div class="form-group"><label>Title (English)</label><input id="gTitle" type="text" placeholder="e.g. GTA 6"/></div>
-          <div class="form-group"><label>Title (Kurdish / کوردی)</label><input id="gTitleKd" type="text" placeholder="e.g. جی تی ئەی ٦"/></div>
-          <div class="form-group"><label>Platform</label><select id="gPlatform" onchange="syncCat()"><option>PS5</option><option>PS4</option><option>Xbox</option><option>Steam</option><option>Nintendo</option></select></div>
+          <div class="form-group"><label>Title (Kurdish / کوردی) — optional</label><input id="gTitleKd" type="text" placeholder="e.g. جی تی ئەی ٦"/></div>
+          <div class="form-group"><label>Platform(s) — hold Ctrl to select multiple</label>
+            <select id="gPlatform" multiple onchange="syncCatMulti()" style="height:90px;">
+              <option value="PS5">PS5</option>
+              <option value="PS4">PS4</option>
+              <option value="PS4 & PS5">PS4 & PS5</option>
+              <option value="Xbox">Xbox</option>
+              <option value="Xbox One">Xbox One</option>
+              <option value="Xbox Series X|S">Xbox Series X|S</option>
+              <option value="Steam">Steam</option>
+              <option value="Nintendo">Nintendo</option>
+            </select>
+          </div>
           <div class="form-group"><label>Category</label><select id="gCat"><option value="ps">PlayStation</option><option value="xbox">Xbox</option><option value="pc">PC/Steam</option><option value="nintendo">Nintendo</option></select></div>
           <div class="form-group"><label>Price (IQD)</label><input id="gPrice" type="number" min="0" placeholder="50000"/></div>
           <div class="form-group"><label>Old Price (IQD) — leave empty if no sale</label><input id="gOldPrice" type="number" min="0" placeholder="70000"/></div>
@@ -179,6 +230,35 @@ tr:hover td{background:var(--gl);}
           <div class="form-group"><label>Stock</label><select id="gStock"><option value="true">✅ In Stock</option><option value="false">❌ Out of Stock</option></select></div>
           <div class="form-group"><label>Emoji Icon</label><div class="emoji-row"><input id="gIcon" type="text" maxlength="4" placeholder="🎮" oninput="document.getElementById('gEP').textContent=this.value||'🎮'"/><div class="ep" id="gEP">🎮</div></div></div>
           <div class="form-group"><label>Image URL</label><input id="gImgUrl" type="text" placeholder="https://...jpg" oninput="previewImgUrl(this.value,'gPreview','gClearBtn')"/></div>
+          <div class="form-group"><label>🗓️ Expiry Date (auto out-of-stock after this date)</label><input id="gExpiry" type="date"/></div>
+          <div class="form-group"><label>Description (shown on product page)</label><textarea id="gDesc" placeholder="Describe the game..."></textarea></div>
+          <div class="form-group full">
+            <label>🎮 PS Account Variants (3 options)</label>
+            <div style="background:var(--gl);border-radius:10px;padding:14px;margin-top:4px;">
+              <div style="font-size:.76rem;color:var(--text2);margin-bottom:12px;">Leave all empty if not needed. When filled, customers choose on the product page.</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+
+                <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
+                  <div style="font-size:.78rem;font-weight:700;color:#059669;margin-bottom:8px;">✅ Active PS5</div>
+                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gActivePS5Price" type="number" min="0" placeholder="e.g. 40000"/></div>
+                  <div class="form-group" style="margin:0;"><label>Description</label><input id="gActivePS5Desc" type="text" placeholder="PS5 primary activation"/></div>
+                </div>
+
+                <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
+                  <div style="font-size:.78rem;font-weight:700;color:#3b82f6;margin-bottom:8px;">✅ Active PS4</div>
+                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gActivePS4Price" type="number" min="0" placeholder="e.g. 35000"/></div>
+                  <div class="form-group" style="margin:0;"><label>Description</label><input id="gActivePS4Desc" type="text" placeholder="PS4 primary activation"/></div>
+                </div>
+
+                <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
+                  <div style="font-size:.78rem;font-weight:700;color:#a78bfa;margin-bottom:8px;">👤 In Account</div>
+                  <div class="form-group" style="margin-bottom:8px;"><label>Price (IQD)</label><input id="gInAccountPrice" type="number" min="0" placeholder="e.g. 20000"/></div>
+                  <div class="form-group" style="margin:0;"><label>Description</label><input id="gInAccountDesc" type="text" placeholder="Play on our PS account"/></div>
+                </div>
+
+              </div>
+            </div>
+          </div>
           <div class="form-group full"><label>Or Upload Cover Image</label>
             <div class="img-zone" id="gZone">
               <input type="file" accept="image/*" onchange="handleImgUpload(this,'gPreview','gClearBtn','gImgUrl')" onclick="event.stopPropagation()"/>
@@ -245,6 +325,7 @@ tr:hover td{background:var(--gl);}
           <div class="form-group"><label>Type</label><select id="cType" onchange="toggleCType()"><option value="percent">Percentage (%) off</option><option value="fixed">Fixed Amount (IQD) off</option></select></div>
           <div class="form-group"><label id="cValLbl">Discount % (e.g. 20 for 20% off)</label><input id="cValue" type="number" min="1" placeholder="20"/></div>
           <div class="form-group"><label>Description shown to customer</label><input id="cDesc" type="text" placeholder="20% off everything"/></div>
+          <div class="form-group"><label>🗓️ Expiry Date (code stops working after this)</label><input id="cExpiry" type="date"/></div>
           <div class="form-group full"><label>Applies To</label>
             <select id="cAppliesTo">
               <option value="all">🌍 Everything (all products)</option>
@@ -510,7 +591,7 @@ async function renderGTable(search=''){
     <td><span class="badge b-${g.category}">${g.platform}</span></td>
     <td class="td-price">${iqd(g.price)}${g.oldPrice?`<br><span style="font-size:.68rem;color:var(--gray);text-decoration:line-through;">${iqd(g.oldPrice)}</span>`:''}</td>
     <td>${g.badge?`<span class="badge b-${g.badge}">${g.badge}</span>`:'—'}</td>
-    <td>${g.stock?'<span style="color:#059669;font-size:.8rem;font-weight:700;">✅</span>':'<span style="color:#dc2626;font-size:.8rem;font-weight:700;">❌</span>'}</td>
+    <td>${g.stock?'<span style="color:#059669;font-size:.8rem;font-weight:700;">✅</span>':'<span style="color:#dc2626;font-size:.8rem;font-weight:700;">❌</span>'}${g.expiryDate?'<br><span style="font-size:.68rem;color:#b45309;">⏰ '+new Date(g.expiryDate).toLocaleDateString()+'</span>':''}</td>
     <td class="td-act">
       <button class="btn btn-outline btn-sm" onclick="editGame(${g.id})">✏️ Edit</button>
       <button class="btn btn-danger btn-sm" onclick="deleteGame(${g.id})">🗑️</button>
@@ -518,10 +599,14 @@ async function renderGTable(search=''){
   </tr>`).join('');
 }
 
-function syncCat(){
-  const map={PS5:'ps',PS4:'ps',Xbox:'xbox',Steam:'pc',Nintendo:'nintendo'};
-  document.getElementById('gCat').value = map[document.getElementById('gPlatform').value]||'pc';
+function syncCatMulti(){
+  const sel = document.getElementById('gPlatform');
+  const selected = Array.from(sel.selectedOptions).map(o=>o.value);
+  const map={PS5:'ps',PS4:'ps','PS4 & PS5':'ps',Xbox:'xbox','Xbox One':'xbox','Xbox Series X|S':'xbox',Steam:'pc',Nintendo:'nintendo'};
+  // pick category based on first selected
+  document.getElementById('gCat').value = map[selected[0]]||'pc';
 }
+function syncCat(){ syncCatMulti(); }
 
 function previewImgUrl(url, prevId, clearId){
   const p=document.getElementById(prevId), c=document.getElementById(clearId);
@@ -559,17 +644,28 @@ function resetGForm(){
   document.getElementById('gEP').textContent='🎮';
   document.getElementById('gPreview').classList.remove('vis');
   document.getElementById('gClearBtn').classList.remove('vis');
+  document.getElementById('gExpiry').value='';
+  document.getElementById('gDesc').value='';
+  document.getElementById('gActivePS5Price').value='';
+  document.getElementById('gActivePS4Price').value='';
+  document.getElementById('gInAccountPrice').value='';
+  document.getElementById('gActivePS5Desc').value='';
+  document.getElementById('gActivePS4Desc').value='';
+  document.getElementById('gInAccountDesc').value='';
+  // reset multi-select
+  Array.from(document.getElementById('gPlatform').options).forEach(o=>o.selected=false);
+  document.getElementById('gPlatform').options[0].selected=true;
 }
 
 async function saveGame(){
   const title   = document.getElementById('gTitle').value.trim();
   const titleKd = document.getElementById('gTitleKd').value.trim();
   const price   = parseFloat(document.getElementById('gPrice').value);
-  if(!title||!titleKd||isNaN(price)){ showToast('⚠️ English title, Kurdish title, and price are required!'); return; }
+  if(!title||isNaN(price)){ showToast('⚠️ English title and price are required!'); return; }
   const oldPriceRaw = document.getElementById('gOldPrice').value;
   const g = {
-    title, titleKd,
-    platform: document.getElementById('gPlatform').value,
+    title, titleKd: titleKd||title,
+    platform: Array.from(document.getElementById('gPlatform').selectedOptions).map(o=>o.value).join(' / ') || 'PS5',
     category: document.getElementById('gCat').value,
     price,
     oldPrice: oldPriceRaw ? parseFloat(oldPriceRaw) : null,
@@ -577,6 +673,18 @@ async function saveGame(){
     badge:    document.getElementById('gBadge').value||null,
     stock:    document.getElementById('gStock').value==='true',
     img:      document.getElementById('gImgUrl').value.trim(),
+    expiryDate: document.getElementById('gExpiry').value || null,
+    description: document.getElementById('gDesc').value.trim() || null,
+    variants: (()=>{
+      const ap5 = parseFloat(document.getElementById('gActivePS5Price').value);
+      const ap4 = parseFloat(document.getElementById('gActivePS4Price').value);
+      const ip  = parseFloat(document.getElementById('gInAccountPrice').value);
+      const variants = [];
+      if(!isNaN(ap5)) variants.push({type:'activeps5',  label:'✅ Active PS5',  desc: document.getElementById('gActivePS5Desc').value.trim() || 'PS5 primary account activation', price: ap5});
+      if(!isNaN(ap4)) variants.push({type:'activeps4',  label:'✅ Active PS4',  desc: document.getElementById('gActivePS4Desc').value.trim() || 'PS4 primary account activation', price: ap4});
+      if(!isNaN(ip))  variants.push({type:'inaccount',  label:'👤 In Account', desc: document.getElementById('gInAccountDesc').value.trim()  || 'Play on our PS account',         price: ip});
+      return variants.length ? variants : null;
+    })(),
   };
   showSaving();
   const games = await db().getGames();
@@ -608,6 +716,22 @@ async function editGame(id){
   document.getElementById('gEP').textContent = g.icon;
   document.getElementById('gBadge').value    = g.badge||'';
   document.getElementById('gStock').value    = g.stock?'true':'false';
+  document.getElementById('gExpiry').value   = g.expiryDate||'';
+  document.getElementById('gDesc').value     = g.description||'';
+  // Load variants
+  if(g.variants && g.variants.length){
+    const ap5 = g.variants.find(v=>v.type==='activeps5'||v.type==='active');
+    const ap4 = g.variants.find(v=>v.type==='activeps4');
+    const ina = g.variants.find(v=>v.type==='inaccount');
+    if(ap5){ document.getElementById('gActivePS5Price').value=ap5.price; document.getElementById('gActivePS5Desc').value=ap5.desc||''; }
+    if(ap4){ document.getElementById('gActivePS4Price').value=ap4.price; document.getElementById('gActivePS4Desc').value=ap4.desc||''; }
+    if(ina){ document.getElementById('gInAccountPrice').value=ina.price; document.getElementById('gInAccountDesc').value=ina.desc||''; }
+  }
+  // Load multi-platform
+  const platforms = g.platform.split(' / ');
+  Array.from(document.getElementById('gPlatform').options).forEach(o=>{
+    o.selected = platforms.includes(o.value) || o.value===g.platform;
+  });
   document.getElementById('gImgUrl').value   = g.img||'';
   if(g.img){
     document.getElementById('gPreview').src = g.img;
@@ -735,6 +859,7 @@ function resetCForm(){
   ['cCode','cValue','cDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cType').value='percent';
   document.getElementById('cAppliesTo').value='all';
+  document.getElementById('cExpiry').value='';
   toggleCType();
 }
 
@@ -746,8 +871,9 @@ async function saveCode(){
   if(!code||isNaN(value)||value<=0){ showToast('⚠️ Code and value are required!'); return; }
   showSaving();
   const appliesTo = document.getElementById('cAppliesTo').value;
+  const expiry = document.getElementById('cExpiry').value || null;
   const codes=await db().getCodes();
-  codes[code]={type,value,desc:desc||code,appliesTo};
+  codes[code]={type,value,desc:desc||code,appliesTo,expiry};
   await db().saveCodes(codes);
   showToast('✅ Code "'+code+'" saved!'); resetCForm(); renderCodes();
 }
@@ -889,6 +1015,135 @@ async function saveSettings(){
   };
   showSaving(); await db().saveSettings(s);
   updateSBrand(s); showToast('✅ Settings saved! All store pages updated.');
+}
+
+// ══════════════════
+//  BULK ADD
+// ══════════════════
+function showBulk(){
+  document.getElementById('bulkPanel').style.display='block';
+  document.getElementById('singlePanel').style.display='none';
+  document.getElementById('bulkTbody').innerHTML='';
+  // Add 5 empty rows to start
+  for(let i=0;i<5;i++) addBulkRow();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function hideBulk(){
+  document.getElementById('bulkPanel').style.display='none';
+  document.getElementById('singlePanel').style.display='block';
+}
+
+function addBulkRow(){
+  const tbody = document.getElementById('bulkTbody');
+  const idx = tbody.children.length;
+  const tr = document.createElement('tr');
+  tr.style.borderBottom='1px solid var(--gl)';
+  tr.innerHTML=`
+    <td style="padding:6px 8px;"><input type="text" placeholder="e.g. God of War" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);" class="b-title"/></td>
+    <td style="padding:6px 8px;"><input type="text" placeholder="e.g. خودای شەڕ" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);" class="b-titlekd"/></td>
+    <td style="padding:6px 8px;">
+      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-platform" onchange="autoCat(this)">
+        <option value="PS5">PS5</option>
+        <option value="PS4">PS4</option>
+        <option value="PS4 & PS5">PS4 & PS5</option>
+        <option value="Xbox">Xbox</option>
+        <option value="Xbox One">Xbox One</option>
+        <option value="Xbox Series X|S">Xbox Series X|S</option>
+        <option value="Steam">Steam</option>
+        <option value="Nintendo">Nintendo</option>
+      </select>
+    </td>
+    <td style="padding:6px 8px;">
+      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-cat">
+        <option value="ps">PlayStation</option>
+        <option value="xbox">Xbox</option>
+        <option value="pc">PC/Steam</option>
+        <option value="nintendo">Nintendo</option>
+      </select>
+    </td>
+    <td style="padding:6px 8px;"><input type="number" placeholder="50000" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-price"/></td>
+    <td style="padding:6px 8px;"><input type="number" placeholder="(optional)" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-oldprice"/></td>
+    <td style="padding:6px 8px;">
+      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-badge">
+        <option value="">None</option>
+        <option value="new">NEW</option>
+        <option value="sale">SALE</option>
+      </select>
+    </td>
+    <td style="padding:6px 8px;">
+      <select style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-stock">
+        <option value="true">✅ In Stock</option>
+        <option value="false">❌ Out of Stock</option>
+      </select>
+    </td>
+    <td style="padding:6px 8px;"><input type="text" placeholder="🎮" maxlength="4" style="width:52px;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;text-align:center;" class="b-icon"/></td>
+    <td style="padding:6px 8px;"><input type="text" placeholder="https://...jpg" style="width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;" class="b-img"/></td>
+    <td style="padding:6px 8px;text-align:center;"><button onclick="this.closest('tr').remove()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:.8rem;">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function autoCat(sel){
+  const map={'PS5':'ps','PS4':'ps','PS4 & PS5':'ps','Xbox':'xbox','Xbox One':'xbox','Xbox Series X|S':'xbox','Steam':'pc','Nintendo':'nintendo'};
+  const row = sel.closest('tr');
+  row.querySelector('.b-cat').value = map[sel.value]||'pc';
+}
+
+async function saveBulkGames(){
+  const rows = document.querySelectorAll('#bulkTbody tr');
+  const newGames = [];
+  let errors = 0;
+
+  rows.forEach((row,i)=>{
+    const title   = row.querySelector('.b-title').value.trim();
+    const titleKd = row.querySelector('.b-titlekd').value.trim();
+    const price   = parseFloat(row.querySelector('.b-price').value);
+
+    // Skip completely empty rows
+    if(!title && !titleKd && isNaN(price)) return;
+
+    if(!title || isNaN(price)){
+      row.style.background='#fee2e2';
+      errors++;
+      return;
+    }
+    row.style.background='';
+
+    const oldPriceRaw = row.querySelector('.b-oldprice').value;
+    newGames.push({
+      title,
+      titleKd: titleKd || title,  // fallback to English if Kurdish empty
+      platform : row.querySelector('.b-platform').value,
+      category : row.querySelector('.b-cat').value,
+      price,
+      oldPrice : oldPriceRaw ? parseFloat(oldPriceRaw) : null,
+      badge    : row.querySelector('.b-badge').value || null,
+      stock    : row.querySelector('.b-stock').value === 'true',
+      icon     : row.querySelector('.b-icon').value.trim() || '🎮',
+      img      : row.querySelector('.b-img').value.trim() || '',
+      expiryDate  : null,
+      description : null,
+      variants    : null,
+    });
+  });
+
+  if(errors > 0){
+    showToast('⚠️ '+errors+' row(s) highlighted in red — fix them first!');
+    return;
+  }
+  if(!newGames.length){
+    showToast('⚠️ No games to save — fill in at least one row!');
+    return;
+  }
+
+  showSaving();
+  const existing = await db().getGames();
+  let nextId = existing.length ? Math.max(...existing.map(g=>g.id))+1 : 1;
+  const withIds = newGames.map(g=>({...g, id: nextId++}));
+  const combined = [...existing, ...withIds];
+  await db().saveGames(combined);
+  showToast('✅ '+newGames.length+' game'+(newGames.length!==1?'s':'')+' added successfully!');
+  hideBulk();
+  renderGTable();
 }
 
 // ══════════════════

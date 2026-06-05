@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kurd Store — Game</title>
+<link rel="stylesheet" href="shared.css"/>
+<script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
+<style>
+.product-page{padding:32px 4vw;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1100px;margin:0 auto;}
+.product-img-wrap{border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;background:linear-gradient(135deg,#ede9fe,#ddd6fe);position:relative;}
+.product-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.product-emoji-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:5rem;}
+.product-info{display:flex;flex-direction:column;gap:16px;}
+.product-platform{font-size:.75rem;font-weight:700;letter-spacing:1px;color:var(--pl);text-transform:uppercase;}
+.product-title{font-family:var(--fd);font-size:2.2rem;font-weight:700;color:var(--text);line-height:1.1;}
+.product-title-kd{font-size:1rem;color:#a78bfa;margin-top:2px;}
+.product-badges{display:flex;gap:8px;flex-wrap:wrap;}
+.product-price-wrap{display:flex;align-items:baseline;gap:12px;}
+.product-price{font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--p);}
+.product-old-price{font-size:1rem;color:var(--gray);text-decoration:line-through;}
+.product-discount-tag{background:#059669;color:#fff;border-radius:99px;padding:3px 12px;font-size:.8rem;font-weight:700;}
+.product-desc{font-size:.9rem;color:var(--text2);line-height:1.7;background:var(--gl);border-radius:12px;padding:16px;}
+.product-meta{display:flex;flex-direction:column;gap:8px;}
+.product-meta-row{display:flex;align-items:center;gap:10px;font-size:.85rem;}
+.product-meta-label{color:var(--gray);min-width:100px;font-weight:600;}
+.product-meta-value{color:var(--text);font-weight:600;}
+.product-expiry{background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 14px;font-size:.82rem;color:#b45309;display:none;}
+.product-expiry.expired{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+.product-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.add-to-cart-big{flex:1;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:12px;padding:15px;font-size:1rem;font-weight:700;cursor:pointer;font-family:var(--fb);box-shadow:0 4px 18px #7c3aed33;transition:opacity .2s,transform .18s;}
+.add-to-cart-big:hover{opacity:.92;transform:translateY(-1px);}
+.add-to-cart-big:disabled{background:#9ca3af;cursor:not-allowed;box-shadow:none;transform:none;}
+.tg-contact{background:var(--gl);color:var(--p);border:2px solid var(--border);border-radius:12px;padding:13px 20px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:var(--fb);text-decoration:none;display:flex;align-items:center;gap:8px;transition:background .2s;}
+.tg-contact:hover{background:var(--ps);}
+.related-section{padding:0 4vw 60px;position:relative;z-index:1;}
+.variant-select{display:flex;flex-direction:column;gap:10px;}
+.variant-opt{border:2px solid var(--border);border-radius:13px;padding:14px 16px;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.variant-opt:hover{border-color:var(--p);background:var(--ps);}
+.variant-opt.selected{border-color:var(--p);background:var(--ps);}
+.variant-opt-left{display:flex;flex-direction:column;gap:3px;}
+.variant-opt-label{font-weight:700;font-size:.95rem;color:var(--text);}
+.variant-opt-desc{font-size:.78rem;color:var(--gray);}
+.variant-opt-price{font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--p);white-space:nowrap;}
+.variant-check{width:22px;height:22px;border-radius:99px;border:2px solid var(--border);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:.75rem;}
+.variant-opt.selected .variant-check{background:var(--p);border-color:var(--p);color:#fff;}
+@media(max-width:768px){
+  .product-page{grid-template-columns:1fr;}
+  .product-title{font-size:1.6rem;}
+}
+</style>
+</head>
+<body>
+<div id="navMount"></div>
+
+<div class="page-hd" style="background:linear-gradient(135deg,var(--p),var(--pl));">
+  <div class="bc"><a href="index.html">🏠 Home</a> › <a id="bcCat" href="playstation.html">Games</a> › <span id="bcTitle">Loading...</span></div>
+  <h1 id="pageTitle">Loading...</h1>
+</div>
+
+<div class="product-page" id="productPage">
+  <div style="text-align:center;color:var(--gray);grid-column:1/-1;padding:60px;">Loading game...</div>
+</div>
+
+<div class="related-section">
+  <div class="section-hd">
+    <div><div class="section-title">🎮 <em>Related Games</em></div><div class="section-sub">More games you might like</div></div>
+  </div>
+  <div class="grid-4" id="relatedGrid"></div>
+</div>
+
+<div id="footerMount"></div>
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-hd"><h2>🛒 Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyCartDisc()">Apply</button></div>
+  <div class="disc-msg" id="discMsg"></div>
+  <div class="cart-ft" id="cartFt" style="display:none;">
+    <div class="cart-disc-line" id="cartDiscLine"><span>🏷️ Discount</span><span id="cartDiscAmt"></span></div>
+    <div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-price" id="cartTotalPrice">0 IQD</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">Checkout →</button>
+  </div>
+</div>
+<div class="modal-overlay" id="checkoutModal" onclick="if(event.target===this)closeCheckout()">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title" id="modalTitle">Complete Order</div><button class="close-btn" onclick="closeCheckout()">✕</button></div>
+    <div class="order-sum"><div class="order-sum-title">📋 Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div>
+    <div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Confirm</div></div>
+    <div class="step-panel active" id="sp1"><p style="font-size:.82rem;color:var(--text2);margin-bottom:12px;">Choose payment method:</p><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
+    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><div style="font-size:.7rem;color:#a78bfa;">Tap to copy</div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr"><strong>How to pay:</strong><br>1. Open your <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong> to the number above<br>3. Screenshot the transfer<br><br><strong>چۆن پارەبدەیت:</strong><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
+    <div class="step-panel" id="sp3"><div class="form-group"><label class="form-label">Name / ناوت</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div><div class="form-group"><label class="form-label">Email / ئیمەیڵ</label><input class="form-input" id="custEmail" type="email" placeholder="you@email.com"/></div><div id="tgLinkWrap"></div><div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div></div>
+    <div class="step-panel" id="sp4"><div class="success-box"><div class="success-icon">🎉</div><div class="success-title">Order Received!</div><div class="success-desc">Key within <strong>1–2 hours</strong>.<br><br>کیلێکەکەت دەنێرین ژێر <strong>١-٢ کاتژمێر</strong>.</div><div id="tgFollowWrap"></div><button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button></div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script type="module" src="db.js"></script>
+<script src="app.js"></script>
+<script>
+initTheme();
+
+function getGameIdFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return parseInt(params.get('id'));
+}
+
+function checkExpiry(g){
+  if(!g.expiryDate) return {expired:false, soon:false, label:''};
+  const expiry = new Date(g.expiryDate);
+  const now = new Date();
+  const diffDays = Math.ceil((expiry - now) / (1000*60*60*24));
+  if(diffDays <= 0) return {expired:true, soon:false, label:'This deal has expired'};
+  if(diffDays <= 3) return {expired:false, soon:true, label:`⏰ Deal expires in ${diffDays} day${diffDays!==1?'s':''}!`};
+  return {expired:false, soon:false, label:`Valid until ${expiry.toLocaleDateString()}`};
+}
+
+function renderProduct(g, settings){
+  const l = getLang();
+  const title = l==='en' ? g.title : g.titleKd;
+  const expiry = checkExpiry(g);
+  const isOos = !g.stock || expiry.expired;
+
+  // Update page title and breadcrumb
+  document.title = `Kurd Store — ${title}`;
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('bcTitle').textContent = title;
+  const catLinks = {ps:'playstation.html',xbox:'xbox.html',pc:'pc.html',nintendo:'nintendo.html'};
+  const bcCat = document.getElementById('bcCat');
+  bcCat.href = catLinks[g.category]||'index.html';
+  bcCat.textContent = g.platform;
+
+  // Discount percent
+  const discPct = g.oldPrice ? Math.round((1 - g.price/g.oldPrice)*100) : 0;
+
+  _currentGame = g;
+  document.getElementById('productPage').innerHTML = `
+    <div>
+      <div class="product-img-wrap">
+        ${g.img ? `<img src="${g.img}" alt="${g.title}" onerror="this.style.display='none'"/>` : ''}
+        <div class="product-emoji-fallback" ${g.img?'style="display:none"':''}>${g.icon}</div>
+        ${g.badge&&g.stock?`<div style="position:absolute;top:12px;left:12px;z-index:3;"><span class="pbadge pb-${g.badge}" style="font-size:.8rem;padding:4px 13px;">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
+        ${isOos?`<div style="position:absolute;inset:0;background:#00000066;display:flex;align-items:center;justify-content:center;z-index:3;"><span style="background:#6b7280;color:#fff;border-radius:99px;padding:8px 20px;font-weight:700;font-size:.9rem;">OUT OF STOCK</span></div>`:''}
+      </div>
+    </div>
+    <div class="product-info">
+      <div class="product-platform">${g.platform}</div>
+      <div class="product-title">${title}</div>
+      ${g.titleKd && l==='en' ? `<div class="product-title-kd">${g.titleKd}</div>` : ''}
+      <div class="product-badges">
+        ${g.badge&&g.stock?`<span class="pbadge pb-${g.badge}" style="font-size:.78rem;padding:4px 13px;">${g.badge==='sale'?'🏷️ ON SALE':'🆕 NEW'}</span>`:''}
+        ${g.stock&&!expiry.expired?'<span class="pbadge" style="background:#059669;font-size:.78rem;padding:4px 13px;">✅ In Stock</span>':'<span class="pbadge pb-oos" style="font-size:.78rem;padding:4px 13px;">❌ Out of Stock</span>'}
+      </div>
+      <div class="product-price-wrap">
+        <div class="product-price">${iqd(g.price)}</div>
+        ${g.oldPrice?`<div class="product-old-price">${iqd(g.oldPrice)}</div>`:''}
+        ${discPct>0?`<div class="product-discount-tag">${discPct}% OFF</div>`:''}
+      </div>
+      ${expiry.label ? `<div class="product-expiry ${expiry.expired?'expired':''}" style="display:block;">${expiry.expired?'❌':'⏰'} ${expiry.label}</div>` : ''}
+      ${g.description ? `<div class="product-desc">${g.description}</div>` : `<div class="product-desc">🎮 Digital game key — delivered instantly to your email after payment confirmation.<br><br>📧 پاش پشتڕاستکردنەوەی پارەدان، کیلێکەکەت دەنێردرێت بۆ ئیمەیڵەکەت.</div>`}
+      <div class="product-meta">
+        <div class="product-meta-row"><span class="product-meta-label">Platform:</span><span class="product-meta-value">${g.platform}</span></div>
+        <div class="product-meta-row"><span class="product-meta-label">Format:</span><span class="product-meta-value">Digital Key 🔑</span></div>
+        <div class="product-meta-row"><span class="product-meta-label">Delivery:</span><span class="product-meta-value">⚡ Instant (1-2 hours)</span></div>
+        <div class="product-meta-row"><span class="product-meta-label">Payment:</span><span class="product-meta-value">FIB · Qi Card · Fastpay</span></div>
+      </div>
+      ${g.variants && g.variants.length && !isOos ? `
+      <div>
+        <div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:10px;">🎮 Choose your option / هەڵبژاردنەکەت بکە:</div>
+        <div class="variant-select" id="variantSelect">
+          ${g.variants.map((v,i)=>{
+            const colors = {activeps5:'#059669', activeps4:'#3b82f6', inaccount:'#7c3aed', active:'#059669'};
+            const bgs    = {activeps5:'#d1fae5', activeps4:'#dbeafe', inaccount:'#ede9fe', active:'#d1fae5'};
+            const color  = colors[v.type]||'#7c3aed';
+            const bg     = bgs[v.type]||'#ede9fe';
+            return `<div class="variant-opt${i===0?' selected':''}" onclick="selectVariant(this,${i})" data-price="${v.price}" data-label="${v.label}" data-type="${v.type}">
+              <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                <div style="width:40px;height:40px;border-radius:10px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${v.type==='inaccount'?'👤':'✅'}</div>
+                <div class="variant-opt-left">
+                  <div class="variant-opt-label" style="color:${color};">${v.label}</div>
+                  <div class="variant-opt-desc">${v.desc}</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="variant-opt-price">${iqd(v.price)}</div>
+                <div class="variant-check">${i===0?'✓':''}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
+      <div class="product-actions">
+        <button class="add-to-cart-big" ${isOos?'disabled':''} id="addToCartBtn" onclick="addToCartWithVariant()">
+          ${isOos ? '❌ Out of Stock' : '🛒 Add to Cart'}
+        </button>
+        <a class="tg-contact" href="https://t.me/${settings.telegram||'sharafaani'}" target="_blank">✈️ Ask on Telegram</a>
+      </div>
+    </div>`;
+}
+
+let _currentGame = null;
+let _selectedVariant = null;
+
+function selectVariant(el, idx){
+  document.querySelectorAll('.variant-opt').forEach(o=>{
+    o.classList.remove('selected');
+    o.querySelector('.variant-check').textContent='';
+  });
+  el.classList.add('selected');
+  el.querySelector('.variant-check').textContent='✓';
+  _selectedVariant = {
+    price: parseInt(el.dataset.price),
+    label: el.dataset.label,
+    type:  el.dataset.type
+  };
+}
+
+function addToCartWithVariant(){
+  if(!_currentGame) return;
+  if(_currentGame.variants && _currentGame.variants.length){
+    // use selected variant
+    const sel = document.querySelector('.variant-opt.selected');
+    if(!sel){ showToast('Please choose an option!'); return; }
+    const price = parseInt(sel.dataset.price);
+    const label = sel.dataset.label;
+    const cart = getCart();
+    cart.push({
+      uid: Date.now(),
+      gameId: _currentGame.id,
+      name: (getLang()==='en'?_currentGame.title:_currentGame.titleKd) + ' — ' + label,
+      platform: _currentGame.platform,
+      price,
+      icon: _currentGame.icon,
+      type: 'game',
+      variant: sel.dataset.type
+    });
+    saveCart(cart); updateCartBadge();
+    showToast(label + ' added to cart!');
+  } else {
+    addGameToCart(_currentGame);
+  }
+}
+
+function renderRelated(games, currentGame){
+  const related = games.filter(g =>
+    g.id !== currentGame.id &&
+    (g.category === currentGame.category || g.platform === currentGame.platform) &&
+    g.stock
+  ).slice(0, 4);
+  const grid = document.getElementById('relatedGrid');
+  if(!related.length){ grid.closest('.related-section').style.display='none'; return; }
+  grid.innerHTML = related.map(gameCardHTML).join('');
+}
+
+async function initPage(){
+  const id = getGameIdFromUrl();
+  if(!id){ window.location.href='index.html'; return; }
+  await buildNav('');
+  applyLang();
+  waitForDB(async ()=>{
+    const [games, settings] = await Promise.all([
+      window._KS_DB.getGames(),
+      window._KS_DB.getSettings()
+    ]);
+    // Auto expire games
+    const now = new Date();
+    const updated = games.map(g=>{
+      if(g.expiryDate && new Date(g.expiryDate) < now && g.stock){
+        return {...g, stock:false};
+      }
+      return g;
+    });
+    const game = updated.find(g=>g.id===id);
+    if(!game){ window.location.href='index.html'; return; }
+    renderProduct(game, settings);
+    renderRelated(updated, game);
+  });
+}
+
+initPage();
+</script>
+</body>
+</html>
