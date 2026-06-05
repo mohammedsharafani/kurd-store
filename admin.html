@@ -115,10 +115,7 @@ tr:hover td{background:var(--gl);}
 </div>
 
 <!-- Loading overlay shown until Firebase is ready -->
-<div class="loading-overlay" id="loadingOverlay" style="display:none;">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">🔥 Connecting to Firebase...</div>
-</div>
+
 
 <div class="saving-bar" id="savingBar">💾 Saving to Firebase...</div>
 
@@ -616,41 +613,31 @@ function showSaving(){ const b=document.getElementById('savingBar'); b.classList
 function db(){ return window._KS_DB; }
 
 // ── WAIT FOR FIREBASE ──
-let _dbReady = false;
 
-// DB ready handler - only runs AFTER password is entered
-function onDbReady() {
-  if(_dbReady) return;
-  _dbReady = true;
-  document.getElementById('loadingOverlay').style.display='none';
-  if(!window._KS_DB){
-    showToast('❌ Firebase connection failed. Check internet and refresh.');
-    return;
-  }
-  init().then(() => showSec('games', document.getElementById('navGames')));
+// ── SIMPLE INIT after password ──
+function startAdmin(){
+  let tries = 0;
+  const iv = setInterval(()=>{
+    tries++;
+    if(window._KS_DB){
+      clearInterval(iv);
+      init().then(()=> showSec('games', document.getElementById('navGames')));
+    } else if(tries > 60){
+      clearInterval(iv);
+      showToast('⚠️ Firebase slow - check internet');
+      init().then(()=> showSec('games', document.getElementById('navGames')));
+    }
+  }, 100);
 }
 
-// Listen for DB ready - but only act if password already entered
-window.addEventListener('ks_db_ready', ()=>{
-  if(sessionStorage.getItem('ks_admin_auth')==='1') onDbReady();
-});
-
-// Check if already authenticated this session (page refresh)
+// Auto-login if already authenticated this session
 window.addEventListener('load', ()=>{
-  if(sessionStorage.getItem('ks_admin_auth')==='1'){
-    document.getElementById('passwordScreen').style.display='none';
-    // If DB already ready, init now
-    if(window._KS_DB){ onDbReady(); }
-    else {
-      document.getElementById('loadingOverlay').style.display='flex';
-      // Wait for DB
-      let t=0;
-      const iv=setInterval(()=>{
-        t++;
-        if(window._KS_DB){ clearInterval(iv); onDbReady(); }
-        else if(t>40){ clearInterval(iv); onDbReady(); }
-      },100);
-    }
+  if(sessionStorage.getItem('ks_admin_auth') === '1'){
+    document.getElementById('passwordScreen').style.display = 'none';
+    startAdmin();
+  } else {
+    // Focus password input
+    setTimeout(()=>{ const p=document.getElementById('pwInput'); if(p) p.focus(); }, 100);
   }
 });
 
@@ -1372,32 +1359,20 @@ function toggleDark(){
 // ══════════════════
 //  PASSWORD
 // ══════════════════
-const ADMIN_PASSWORD = 'kurd2024'; // ← Change this to your own password!
+const ADMIN_PASSWORD = 'kurd2024'; // ← Change this to your password!
 
 function checkPw(){
-  const val = document.getElementById('pwInput').value;
+  const val = document.getElementById('pwInput').value.trim();
   const err = document.getElementById('pwError');
   if(val === ADMIN_PASSWORD){
     sessionStorage.setItem('ks_admin_auth','1');
-    document.getElementById('passwordScreen').style.display='none';
-    // If DB already connected, go straight in
-    if(window._KS_DB){
-      onDbReady();
-    } else {
-      // Show loading and wait for DB
-      document.getElementById('loadingOverlay').style.display='flex';
-      let t=0;
-      const iv=setInterval(()=>{
-        t++;
-        if(window._KS_DB){ clearInterval(iv); onDbReady(); }
-        else if(t>40){ clearInterval(iv); onDbReady(); }
-      },100);
-    }
+    document.getElementById('passwordScreen').style.display = 'none';
+    startAdmin();
   } else {
-    err.style.display='block';
-    document.getElementById('pwInput').value='';
+    err.style.display = 'block';
+    document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
-    setTimeout(()=>err.style.display='none',3000);
+    setTimeout(()=> err.style.display='none', 3000);
   }
 }
 
