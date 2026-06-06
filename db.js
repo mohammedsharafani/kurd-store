@@ -41,7 +41,9 @@
     async function saveSettings(d){ _invalidate('store/settings'); await _set('store/settings',d); }
     async function saveCodes(c)   { _invalidate('store/codes');    await _set('store/codes',   {codes:c}); }
     async function saveReviews(l) { _invalidate('store/reviews');  await _set('store/reviews', {list:l}); }
-    async function saveOrder(o)   { await push(ref(db,'orders'),o); }
+    async function saveOrder(o)      { await push(ref(db,'orders'),o); }
+    async function saveNotification(n){ await push(ref(db,'notifications'),n); }
+    async function getNotifications() { const d=await _get('notifications'); return d?Object.values(d):[]; }
 
     // Use one-time fetch for store pages (faster than persistent listener)
     // Listeners only keep ONE connection open per path
@@ -78,6 +80,7 @@
     window._KS_DB = {
       getGames,getSubs,getSettings,getCodes,getReviews,
       saveGames,saveSubs,saveSettings,saveCodes,saveReviews,saveOrder,
+      saveNotification,getNotifications,
       listenGames,listenSubs,listenSettings,listenReviews
     };
 

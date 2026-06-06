@@ -24,6 +24,9 @@ function renderGrid(){
   else{document.getElementById('noResults').style.display='none';document.getElementById('subsGrid').innerHTML=list.map(subCardHTML).join('');}
 }
 function doSearch(v){ searchQ=v.toLowerCase().trim(); renderGrid(); }
+function doSort(v){
+  sortMode=v; renderGrid();
+}
 async function initPage(){
   await buildNav('subs'); applyLang();
   window._KS_DB.listenSubs(subs=>{ allSubs=subs; renderGrid(); });

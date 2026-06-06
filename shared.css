@@ -382,3 +382,13 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 ══════════════════════════════════════ */
 .back-to-top{position:fixed;bottom:80px;right:20px;width:42px;height:42px;background:var(--p);color:#fff;border:none;border-radius:99px;font-size:1.2rem;cursor:pointer;z-index:140;box-shadow:0 4px 14px #7c3aed44;transition:opacity .3s,transform .3s;opacity:0;transform:translateY(10px);pointer-events:none;}
 .back-to-top.visible{opacity:1;transform:translateY(0);pointer-events:all;}
+
+/* ══ OUT OF STOCK NOTIFY ══ */
+.oos-notify-btn{background:var(--gl);border:1.5px solid var(--border);color:var(--p);border-radius:8px;padding:4px 8px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap;transition:.2s;}
+.oos-notify-btn:hover{background:var(--ps);border-color:var(--p);}
+
+/* ══ SORT GAMES ══ */
+.sort-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.sort-label{font-size:.78rem;font-weight:600;color:var(--text2);}
+.sort-select{padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;background:var(--card);color:var(--text);outline:none;cursor:pointer;font-family:var(--fb);}
+.sort-select:focus{border-color:var(--p);}

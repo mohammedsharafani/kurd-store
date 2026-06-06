@@ -26,6 +26,17 @@
     <button class="tab" onclick="filterTab(this,'sale')">🏷️ On Sale</button>
     <button class="tab" onclick="filterTab(this,'instock')">✅ In Stock</button>
   </div>
+  <div class="sort-wrap">
+    <span class="sort-label">Sort by:</span>
+    <select class="sort-select" id="sortSelect" onchange="doSort(this.value)">
+      <option value="default">Default</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="name-az">Name: A to Z</option>
+      <option value="new">Newest First</option>
+      <option value="sale">On Sale First</option>
+    </select>
+  </div>
   <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;" id="resultCount"></div>
 </div>
 <div class="section" style="padding-top:0;">
@@ -67,7 +78,7 @@
 
 <script>
 initTheme();
-let allGames=[], activeFilter='all', searchQ='';
+let allGames=[], activeFilter='all', searchQ='', sortMode='default';
 
 function getFiltered(){
   return allGames.filter(g=>{

@@ -200,7 +200,12 @@ function gameCardHTML(g){
       <div class="pcard-plat">${g.platform}</div>
       <div class="pcard-title">${l==='en'?g.title:g.titleKd}</div>
       <div class="pcard-footer">
-        <div><span class="pcard-price">${iqd(g.price)}</span>${g.oldPrice?`<span class="pcard-old">${iqd(g.oldPrice)}</span>`:''}</div>
+        <div>
+          ${g.variants&&g.variants.length
+            ? `<span style="font-size:.7rem;color:var(--gray);font-weight:600;">From</span> <span class="pcard-price">${iqd(Math.min(...g.variants.map(v=>v.price)))}</span>`
+            : `<span class="pcard-price">${iqd(g.price)}</span>${g.oldPrice?`<span class="pcard-old">${iqd(g.oldPrice)}</span>`:''}`
+          }
+        </div>
         ${g.stock?(g.variants&&g.variants.length?`<span class="add-btn" style="background:var(--p);color:#fff;font-size:.55rem;padding:0 5px;width:auto;border-radius:7px;white-space:nowrap;">Choose</span>`:`<button class="add-btn" onclick='event.stopPropagation();addGameToCart(${JSON.stringify(g)})'>+</button>`):'<span class="oos-tag">Unavailable</span>'}
       </div>
     </div>
@@ -291,6 +296,9 @@ async function buildNav(activePage){
     navRight.insertBefore(hbtn, navRight.firstChild);
   }
 
+  // Auto-apply referral code from URL
+  checkReferralCode();
+
   if(document.getElementById('payMethodsEl')){
     document.getElementById('payMethodsEl').innerHTML=PAYMENT_METHODS.map(m=>`
       <div class="pay-method" onclick="selMethod('${m.id}')" id="pm-${m.id}">
@@ -338,6 +346,24 @@ function autoExpireGames(games){
   });
 }
 
+// ── OUT OF STOCK NOTIFICATION ──
+function notifyMe(gameId, gameTitle){
+  const email = prompt('Enter your email to be notified when "'+gameTitle+'" is back in stock:');
+  if(!email || !email.includes('@')){ if(email!==null) showToast('⚠️ Please enter a valid email!'); return; }
+  // Save to Firebase
+  if(window._KS_DB){
+    window._KS_DB.saveNotification({gameId, gameTitle, email, date:new Date().toISOString()}).then(()=>{
+      showToast('✅ We will notify you at '+email+' when it's back!');
+    }).catch(()=>{
+      // Fallback - save to localStorage
+      const notifs = JSON.parse(localStorage.getItem('ks_notifs')||'[]');
+      notifs.push({gameId,gameTitle,email,date:new Date().toISOString()});
+      localStorage.setItem('ks_notifs',JSON.stringify(notifs));
+      showToast('✅ We will notify you at '+email+'!');
+    });
+  }
+}
+
 // ── PAGE LOADER ──
 function showLoader(emoji){
   if(document.getElementById('pageLoader')) return;
@@ -349,6 +375,26 @@ function showLoader(emoji){
 function hideLoader(){
   const el = document.getElementById('pageLoader');
   if(el){ el.classList.add('hidden'); setTimeout(()=>el.remove(), 500); }
+}
+
+// ── REFERRAL CODE AUTO-APPLY ──
+async function checkReferralCode(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if(!ref) return;
+  if(!window._KS_DB) return;
+  try{
+    const codes = await window._KS_DB.getCodes();
+    const code = ref.toUpperCase();
+    const c = codes[code];
+    if(c){
+      // Check expiry
+      if(c.expiry && new Date(c.expiry) < new Date()) return;
+      // Auto-apply discount
+      localStorage.setItem('ks_disc', JSON.stringify({code,...c}));
+      showToast('🎉 Referral discount "'+code+'" applied automatically! '+c.desc);
+    }
+  }catch(e){}
 }
 
 // ── BACK TO TOP ──
