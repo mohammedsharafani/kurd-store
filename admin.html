@@ -240,7 +240,13 @@ tr:hover td{background:var(--gl);}
         <div class="form-group"><label>Stock</label><select id="gStock"><option value="true">✅ In Stock</option><option value="false">❌ Out of Stock</option></select></div>
         <div class="form-group"><label>Emoji Icon</label><div class="emoji-row"><input id="gIcon" type="text" maxlength="4" placeholder="🎮" oninput="document.getElementById('gEP').textContent=this.value||'🎮'"/><div class="ep" id="gEP">🎮</div></div></div>
         <div class="form-group"><label>🗓️ Expiry Date (auto out-of-stock after)</label><input id="gExpiry" type="date"/></div>
-        <div class="form-group"><label>Image URL</label><input id="gImgUrl" type="text" placeholder="https://...jpg"/></div>
+        <div class="form-group full">
+          <label>🖼️ Game Cover Image <span style="background:#059669;color:#fff;border-radius:99px;padding:1px 8px;font-size:.68rem;font-weight:700;">RECOMMENDED</span></label>
+          <input id="gImgUrl" type="text" placeholder="Paste image URL here e.g. https://...jpg" oninput="previewUrlImg(this.value)"/>
+          <div style="font-size:.72rem;color:var(--gray);margin-top:4px;">
+            💡 <strong>Best way:</strong> Right-click any game image on Google → "Copy image address" → paste here. URLs always work perfectly.
+          </div>
+        </div>
         <div class="form-group"><label>Description (shown on product page)</label><textarea id="gDesc" placeholder="Describe the game..."></textarea></div>
         <div class="form-group full">
           <label>🎮 PS Account Variants — leave empty if not needed</label>
@@ -592,12 +598,34 @@ async function saveGame(){
   if(!isNaN(ps4p)) variants.push({type:'activeps4',label:'✅ Active PS4',desc:document.getElementById('gPS4Desc').value.trim()||'PS4 primary account activation',price:ps4p});
   if(!isNaN(inap)) variants.push({type:'inaccount', label:'👤 In Account',desc:document.getElementById('gInaDesc').value.trim()||'Play on our PS account',          price:inap});
   
-  // FIX: Explicitly prioritize manual Image URL text box first, fall back to upload preview element src if empty
+  // Get image - URL input takes priority, then uploaded file
   let finalImg = document.getElementById('gImgUrl').value.trim();
   if(!finalImg) {
     const previewEl = document.getElementById('gPreview');
-    if(previewEl && previewEl.src && previewEl.classList.contains('vis')) {
+    if(previewEl && previewEl.src && previewEl.classList.contains('vis') && previewEl.src !== window.location.href) {
       finalImg = previewEl.src;
+    }
+  }
+  // If image is base64 and too large (>500KB), warn and compress more
+  if(finalImg && finalImg.startsWith('data:')) {
+    const sizeKB = Math.round(finalImg.length * 0.75 / 1024);
+    if(sizeKB > 500) {
+      showToast('⚠️ Image too large ('+sizeKB+'KB). Re-compressing...');
+      // Extra compression
+      try {
+        const img2 = new Image();
+        img2.src = finalImg;
+        await new Promise(r => img2.onload = r);
+        const canvas2 = document.createElement('canvas');
+        const maxW2 = 400;
+        const scale2 = img2.width > maxW2 ? maxW2/img2.width : 1;
+        canvas2.width = Math.round(img2.width * scale2);
+        canvas2.height = Math.round(img2.height * scale2);
+        canvas2.getContext('2d').drawImage(img2, 0, 0, canvas2.width, canvas2.height);
+        finalImg = canvas2.toDataURL('image/jpeg', 0.60);
+        const newKB = Math.round(finalImg.length * 0.75 / 1024);
+        showToast('✅ Compressed to '+newKB+'KB');
+      } catch(e) { finalImg = ''; showToast('❌ Image too large — use a URL instead'); }
     }
   }
 
@@ -744,6 +772,12 @@ function handleImgUpload(input){
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+function previewUrlImg(url){
+  if(!url) return;
+  document.getElementById('gPreview').src = url;
+  document.getElementById('gPreview').classList.add('vis');
+  document.getElementById('gClearBtn').classList.add('vis');
 }
 function clearImg(e){e.stopPropagation();document.getElementById('gPreview').classList.remove('vis');document.getElementById('gClearBtn').classList.remove('vis');document.getElementById('gImgUrl').value='';}
 
