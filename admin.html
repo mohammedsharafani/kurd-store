@@ -574,22 +574,56 @@ async function saveGame(){
   const inap=parseFloat(document.getElementById('gInaPrice').value);
   const hasVariants=!isNaN(ps5p)||!isNaN(ps4p)||!isNaN(inap);
   let price=parseFloat(document.getElementById('gPrice').value);
+  
   if(!title){showToast('⚠️ Title is required!');return;}
   if(!hasVariants&&isNaN(price)){showToast('⚠️ Price is required (or fill variant prices)!');return;}
   if(hasVariants&&isNaN(price)){
     const all=[ps5p,ps4p,inap].filter(p=>!isNaN(p));
     price=Math.min(...all);
   }
+  
   const variants=[];
   if(!isNaN(ps5p)) variants.push({type:'activeps5',label:'✅ Active PS5',desc:document.getElementById('gPS5Desc').value.trim()||'PS5 primary account activation',price:ps5p});
   if(!isNaN(ps4p)) variants.push({type:'activeps4',label:'✅ Active PS4',desc:document.getElementById('gPS4Desc').value.trim()||'PS4 primary account activation',price:ps4p});
   if(!isNaN(inap)) variants.push({type:'inaccount', label:'👤 In Account',desc:document.getElementById('gInaDesc').value.trim()||'Play on our PS account',          price:inap});
-  const g={title,titleKd:document.getElementById('gTitleKd').value.trim()||title,platform:document.getElementById('gPlatform').value,category:document.getElementById('gCat').value,price,oldPrice:document.getElementById('gOldPrice').value?parseFloat(document.getElementById('gOldPrice').value):null,badge:document.getElementById('gBadge').value||null,stock:document.getElementById('gStock').value==='true',icon:document.getElementById('gIcon').value.trim()||'🎮',img:document.getElementById('gImgUrl').value.trim(),expiryDate:document.getElementById('gExpiry').value||null,description:document.getElementById('gDesc').value.trim()||null,variants:variants.length?variants:null};
+  
+  const g={
+    title,
+    titleKd:document.getElementById('gTitleKd').value.trim()||title,
+    platform:document.getElementById('gPlatform').value,
+    category:document.getElementById('gCat').value,
+    price,
+    oldPrice:document.getElementById('gOldPrice').value?parseFloat(document.getElementById('gOldPrice').value):null,
+    badge:document.getElementById('gBadge').value||null,
+    stock:document.getElementById('gStock').value==='true',
+    icon:document.getElementById('gIcon').value.trim()||'🎮',
+    img:document.getElementById('gImgUrl').value.trim(), 
+    expiryDate:document.getElementById('gExpiry').value||null,
+    description:document.getElementById('gDesc').value.trim()||null,
+    variants:variants.length?variants:null
+  };
+  
   showSaving();
-  const games=await db().getGames();
-  if(editGId!==null){const idx=games.findIndex(x=>x.id===editGId);if(idx>-1)games[idx]={...games[idx],...g};showToast('✅ Game updated!');}
-  else{g.id=games.length?Math.max(...games.map(x=>x.id))+1:1;games.push(g);showToast('✅ Game added!');}
-  await db().saveGames(games); resetGForm(); renderGTable();
+  const games=await db().getGames() || [];
+  
+  if(editGId!==null){
+    const idx=games.findIndex(x=>Number(x.id)===Number(editGId));
+    if(idx>-1) {
+      games[idx]={...games[idx],...g};
+      showToast('✅ Game updated!');
+    } else {
+      showToast('⚠️ Error finding game!');
+      return;
+    }
+  } else {
+    g.id = Date.now(); 
+    games.push(g);
+    showToast('✅ Game added!');
+  }
+  
+  await db().saveGames(games); 
+  resetGForm(); 
+  renderGTable();
 }
 
 async function editGame(id){
