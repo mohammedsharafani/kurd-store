@@ -587,6 +587,15 @@ async function saveGame(){
   if(!isNaN(ps4p)) variants.push({type:'activeps4',label:'✅ Active PS4',desc:document.getElementById('gPS4Desc').value.trim()||'PS4 primary account activation',price:ps4p});
   if(!isNaN(inap)) variants.push({type:'inaccount', label:'👤 In Account',desc:document.getElementById('gInaDesc').value.trim()||'Play on our PS account',          price:inap});
   
+  // FIX: Explicitly prioritize manual Image URL text box first, fall back to upload preview element src if empty
+  let finalImg = document.getElementById('gImgUrl').value.trim();
+  if(!finalImg) {
+    const previewEl = document.getElementById('gPreview');
+    if(previewEl && previewEl.src && previewEl.classList.contains('vis')) {
+      finalImg = previewEl.src;
+    }
+  }
+
   const g={
     title,
     titleKd:document.getElementById('gTitleKd').value.trim()||title,
@@ -597,23 +606,32 @@ async function saveGame(){
     badge:document.getElementById('gBadge').value||null,
     stock:document.getElementById('gStock').value==='true',
     icon:document.getElementById('gIcon').value.trim()||'🎮',
-    img:document.getElementById('gImgUrl').value.trim(), 
+    img:finalImg, 
     expiryDate:document.getElementById('gExpiry').value||null,
     description:document.getElementById('gDesc').value.trim()||null,
     variants:variants.length?variants:null
   };
   
   showSaving();
-  const games=await db().getGames() || [];
+  
+  let games = [];
+  try {
+    games = await db().getGames();
+    if(!games || !Array.isArray(games)) games = [];
+  } catch(e) {
+    games = [];
+  }
   
   if(editGId!==null){
-    const idx=games.findIndex(x=>Number(x.id)===Number(editGId));
+    // Match directly by the secure Unique ID key
+    const idx=games.findIndex(x=>x.id==editGId || Number(x.id)===Number(editGId));
     if(idx>-1) {
-      games[idx]={...games[idx],...g};
+      games[idx]={...games[idx],...g, id: games[idx].id}; // Retain original tracking ID safely
       showToast('✅ Game updated!');
     } else {
-      showToast('⚠️ Error finding game!');
-      return;
+      showToast('⚠️ Index missing! Adding as new game instead.');
+      g.id = Date.now();
+      games.push(g);
     }
   } else {
     g.id = Date.now(); 
@@ -623,7 +641,13 @@ async function saveGame(){
   
   await db().saveGames(games); 
   resetGForm(); 
-  renderGTable();
+  
+  // Re-pull and force complete redraw of table rows to see changes instantly
+  if(typeof renderGTable === 'function') {
+     renderGTable();
+  } else {
+     window.location.reload();
+  }
 }
 
 async function editGame(id){
