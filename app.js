@@ -353,7 +353,7 @@ function notifyMe(gameId, gameTitle){
   // Save to Firebase
   if(window._KS_DB){
     window._KS_DB.saveNotification({gameId, gameTitle, email, date:new Date().toISOString()}).then(()=>{
-      showToast('✅ We will notify you at '+email+' when it's back!');
+      showToast('✅ We will notify you at '+email+' when available!');
     }).catch(()=>{
       // Fallback - save to localStorage
       const notifs = JSON.parse(localStorage.getItem('ks_notifs')||'[]');
