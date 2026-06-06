@@ -717,7 +717,33 @@ async function dropGame(e){
 // IMAGE UPLOAD
 function handleImgUpload(input){
   if(!input.files[0]) return;
-  const r=new FileReader(); r.onload=e=>{const src=e.target.result;document.getElementById('gPreview').src=src;document.getElementById('gPreview').classList.add('vis');document.getElementById('gClearBtn').classList.add('vis');document.getElementById('gImgUrl').value=src;};r.readAsDataURL(input.files[0]);
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    // Compress image using canvas before saving
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      // Resize to max 600px wide (good for game covers)
+      const maxW = 600;
+      const scale = img.width > maxW ? maxW / img.width : 1;
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Convert to JPEG with 80% quality — much smaller than PNG
+      const compressed = canvas.toDataURL('image/jpeg', 0.80);
+      const kb = Math.round(compressed.length * 0.75 / 1024);
+      console.log('Image compressed to ~'+kb+'KB');
+      document.getElementById('gPreview').src = compressed;
+      document.getElementById('gPreview').classList.add('vis');
+      document.getElementById('gClearBtn').classList.add('vis');
+      document.getElementById('gImgUrl').value = compressed;
+      showToast('🖼️ Image ready (~'+kb+'KB)');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 function clearImg(e){e.stopPropagation();document.getElementById('gPreview').classList.remove('vis');document.getElementById('gClearBtn').classList.remove('vis');document.getElementById('gImgUrl').value='';}
 
