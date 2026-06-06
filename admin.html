@@ -354,11 +354,9 @@ tr:hover td{background:var(--gl);}
 <!-- ══════════ ORDERS ══════════ -->
 <div id="sec-orders" style="display:none;">
   <div class="topbar"><div><h1>📋 Orders</h1><p>All customer orders</p></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <input type="text" id="orderSearch" placeholder="🔍 Search by name or email..." oninput="renderOrders()" style="padding:6px 12px;font-size:.8rem;width:210px;border-radius:99px;border:1.5px solid var(--border);background:var(--card);color:var(--text);outline:none;"/>
+    <div style="display:flex;gap:8px;">
       <select id="orderFilter" onchange="renderOrders()" style="padding:6px 12px;font-size:.82rem;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--text);outline:none;"><option value="all">All Orders</option><option value="pending">⏳ Pending</option><option value="delivered">✅ Delivered</option></select>
       <button class="btn btn-outline btn-sm" onclick="renderOrders()">🔄 Refresh</button>
-      <button class="btn btn-primary btn-sm" onclick="exportOrders()">📥 Export Excel</button>
     </div>
   </div>
   <div class="stat-cards" style="grid-template-columns:repeat(3,1fr);">
@@ -458,52 +456,6 @@ tr:hover td{background:var(--gl);}
     <div class="panel-hd"><div class="panel-title">🌙 Dark Mode</div></div>
     <div class="panel-body" style="display:flex;align-items:center;gap:14px;">
       <button class="btn btn-outline" id="darkModeBtn" onclick="toggleDark()">🌙 Enable Dark Mode</button>
-    </div>
-  </div>
-
-  <!-- REFERRAL LINKS -->
-  <div class="panel">
-    <div class="panel-hd"><div class="panel-title">🔗 Referral Links</div><div style="font-size:.76rem;color:var(--gray);">Generate discount links to share with customers</div></div>
-    <div class="panel-body">
-      <div style="background:var(--gl);border-radius:10px;padding:14px;font-size:.8rem;color:var(--text2);margin-bottom:16px;line-height:1.7;">
-        <strong>How it works:</strong><br>
-        1. Enter a discount code you already created (e.g. KURD20)<br>
-        2. Click "Generate Link"<br>
-        3. Share the link — when customers open it, the discount is applied automatically ✅
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Discount Code to use</label><input id="refCode" type="text" placeholder="e.g. KURD20" oninput="this.value=this.value.toUpperCase()"/></div>
-        <div class="form-group"><label>Page to send them to</label>
-          <select id="refPage">
-            <option value="index.html">🏠 Home</option>
-            <option value="playstation.html">🎮 PlayStation</option>
-            <option value="xbox.html">🟢 Xbox</option>
-            <option value="pc.html">💻 PC/Steam</option>
-            <option value="nintendo.html">🔴 Nintendo</option>
-            <option value="subscriptions.html">📦 Subscriptions</option>
-            <option value="discounts.html">🏷️ Discounts</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-actions"><button class="btn btn-primary" onclick="generateReferral()">🔗 Generate Link</button></div>
-      <div id="refResult" style="display:none;margin-top:16px;background:var(--gl);border-radius:10px;padding:14px;">
-        <div style="font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:8px;">📋 Your referral link:</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input id="refLink" type="text" readonly style="flex:1;background:var(--card);font-size:.8rem;cursor:pointer;" onclick="this.select()"/>
-          <button class="btn btn-primary btn-sm" onclick="copyRefLink()">📋 Copy</button>
-          <a id="refTgShare" href="#" target="_blank" class="btn btn-outline btn-sm">✈️ Share on Telegram</a>
-          <a id="refWaShare" href="#" target="_blank" class="btn btn-outline btn-sm">💬 WhatsApp</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOTIFICATIONS (Out of Stock) -->
-  <div class="panel">
-    <div class="panel-hd"><div class="panel-title">🔔 Out of Stock Notifications</div><div style="font-size:.76rem;color:var(--gray);">Customers who want to be notified</div></div>
-    <div class="panel-body">
-      <button class="btn btn-outline btn-sm" onclick="loadNotifications()" style="margin-bottom:14px;">🔄 Load Notifications</button>
-      <div id="notifList"><div style="color:var(--gray);font-size:.85rem;">Click "Load" to see notifications.</div></div>
     </div>
   </div>
 
@@ -837,9 +789,7 @@ async function renderOrders(){
     if(!snap.exists()){tb.innerHTML='';em.style.display='block';['ordTotal','ordPending','ordDelivered'].forEach(id=>document.getElementById(id).textContent='0');return;}
     const raw=snap.val();let orders=Object.entries(raw).map(([id,o])=>({_id:id,...o})).sort((a,b)=>new Date(b.date)-new Date(a.date));
     const filter=document.getElementById('orderFilter').value;
-    const search=(document.getElementById('orderSearch')?.value||'').toLowerCase().trim();
-    let filtered=filter==='all'?orders:orders.filter(o=>o.status===filter);
-    if(search) filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(search)||(o.email||'').toLowerCase().includes(search)||(o.items||'').toLowerCase().includes(search));
+    const filtered=filter==='all'?orders:orders.filter(o=>o.status===filter);
     document.getElementById('ordTotal').textContent=orders.length;
     document.getElementById('ordPending').textContent=orders.filter(o=>o.status==='pending').length;
     document.getElementById('ordDelivered').textContent=orders.filter(o=>o.status==='delivered').length;
@@ -926,86 +876,6 @@ async function loadDashboard(){
     const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
     document.getElementById('dashTopGames').innerHTML=sorted.length?sorted.map(([name,count],i)=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--gl);"><div style="width:26px;height:26px;background:var(--ps);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:var(--p);font-size:.85rem;">${i+1}</div><div style="flex:1;font-size:.83rem;font-weight:600;">${name.substring(0,35)}</div><div style="font-family:var(--fd);font-weight:700;color:var(--p);">${count}x</div></div>`).join(''):'<div style="color:var(--gray);font-size:.85rem;padding:10px;">No data yet</div>';
   }catch(e){console.error(e);showToast('❌ Error loading dashboard');}
-}
-
-// ══════════════════════════════════════
-//  EXPORT ORDERS TO EXCEL
-// ══════════════════════════════════════
-async function exportOrders(){
-  try{
-    const {getDatabase,ref,get}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    const {getApps,initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
-    const db2=getDatabase(app); const snap=await get(ref(db2,'orders'));
-    if(!snap.exists()){showToast('⚠️ No orders to export!');return;}
-    const raw=snap.val();
-    const orders=Object.entries(raw).map(([id,o])=>({_id:id,...o})).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    // Build CSV
-    const headers=['#','Name','Email','Items','Total (IQD)','Payment Method','Discount Code','Date','Status'];
-    const rows=orders.map((o,i)=>[
-      i+1,
-      o.name||'',
-      o.email||'',
-      '"'+(o.items||'').replace(/"/g,'""')+'"',
-      o.total||0,
-      o.method||'',
-      o.discount||'',
-      o.date?new Date(o.date).toLocaleDateString():'',
-      o.status||'pending'
-    ]);
-    const csv=[headers,...rows].map(r=>r.join(',')).join('
-');
-    // Download
-    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url;
-    a.download='kurd-store-orders-'+new Date().toLocaleDateString().replace(/\//g,'-')+'.csv';
-    a.click(); URL.revokeObjectURL(url);
-    showToast('✅ '+orders.length+' orders exported!');
-  }catch(e){showToast('❌ Export failed: '+e.message);console.error(e);}
-}
-
-// ══════════════════════════════════════
-//  REFERRAL LINKS
-// ══════════════════════════════════════
-function generateReferral(){
-  const code=document.getElementById('refCode').value.trim().toUpperCase();
-  const page=document.getElementById('refPage').value;
-  if(!code){showToast('⚠️ Enter a discount code first!');return;}
-  // Get current store URL
-  const baseUrl=window.location.href.replace('admin.html','').replace(/\/$/, '');
-  const link=baseUrl+'/'+page+'?ref='+code;
-  document.getElementById('refLink').value=link;
-  document.getElementById('refResult').style.display='block';
-  const text=encodeURIComponent('🎮 Shop on Kurd Store and get a discount!
-Use this link: '+link);
-  document.getElementById('refTgShare').href='https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent('🎮 Kurd Store — Special Discount!');
-  document.getElementById('refWaShare').href='https://wa.me/?text='+text;
-  showToast('✅ Link generated!');
-}
-function copyRefLink(){
-  const link=document.getElementById('refLink').value;
-  navigator.clipboard.writeText(link).then(()=>showToast('✅ Link copied!'));
-}
-
-// ══════════════════════════════════════
-//  LOAD OUT OF STOCK NOTIFICATIONS
-// ══════════════════════════════════════
-async function loadNotifications(){
-  try{
-    const notifs=await db().getNotifications();
-    const el=document.getElementById('notifList');
-    if(!notifs||!notifs.length){el.innerHTML='<div style="color:var(--gray);font-size:.85rem;">No notifications yet.</div>';return;}
-    // Group by game
-    const grouped={};
-    notifs.forEach(n=>{if(!grouped[n.gameTitle])grouped[n.gameTitle]=[];grouped[n.gameTitle].push(n.email);});
-    el.innerHTML=Object.entries(grouped).map(([game,emails])=>`
-      <div style="background:var(--gl);border-radius:9px;padding:11px 14px;margin-bottom:8px;">
-        <div style="font-weight:700;font-size:.88rem;color:var(--text);margin-bottom:6px;">🎮 ${game} <span style="background:var(--p);color:#fff;border-radius:99px;padding:1px 9px;font-size:.7rem;margin-left:6px;">${emails.length}</span></div>
-        <div style="font-size:.78rem;color:var(--text2);">${emails.join(', ')}</div>
-      </div>`).join('');
-    showToast('✅ '+notifs.length+' notification'+(notifs.length!==1?'s':'')+' loaded!');
-  }catch(e){document.getElementById('notifList').innerHTML='<div style="color:#dc2626;font-size:.85rem;">Error loading notifications.</div>';}
 }
 
 // ══════════════════════════════════════
