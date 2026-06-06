@@ -85,9 +85,11 @@
     };
 
     console.log('✅ Firebase connected!');
+    window.dispatchEvent(new Event('ks_db_ready'));
 
   } catch(err) {
     console.error('❌ Firebase error:', err.message);
     window._KS_DB = null;
+    window.dispatchEvent(new Event('ks_db_ready'));
   }
 })();

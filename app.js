@@ -410,15 +410,17 @@ function initBackToTop(){
 
 // ── KEY FIX: Poll for _KS_DB instead of relying on events ──
 function waitForDB(callback){
-  // Only show loader if DB not ready yet
   const needsLoader = !window._KS_DB;
   if(needsLoader) showLoader('🎮');
-  const run = ()=>{ if(needsLoader) hideLoader(); callback(); };
+  const run = (()=>{ let done=false; return ()=>{ if(done) return; done=true; if(needsLoader) hideLoader(); callback(); }; })();
   if(window._KS_DB){ run(); return; }
+  // Listen for event from db.js
+  window.addEventListener('ks_db_ready', run, {once:true});
+  // Fallback poll
   let tries=0;
   const interval=setInterval(()=>{
     tries++;
     if(window._KS_DB){ clearInterval(interval); run(); }
-    else if(tries>40){ clearInterval(interval); run(); } // 4 second max
+    else if(tries>40){ clearInterval(interval); run(); }
   },100);
 }

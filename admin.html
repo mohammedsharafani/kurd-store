@@ -484,10 +484,15 @@ function showSaving(){ const b=document.getElementById('savingBar'); b.classList
 // ── WAIT FOR DB ──
 function waitForDB(cb){
   if(window._KS_DB){ cb(); return; }
+  // Listen for db ready event (fired by db.js)
+  let done = false;
+  function run(){ if(done) return; done=true; cb(); }
+  window.addEventListener('ks_db_ready', run, {once:true});
+  // Also poll as fallback
   let t=0;
   const iv=setInterval(()=>{ t++;
-    if(window._KS_DB){ clearInterval(iv); cb(); }
-    else if(t>60){ clearInterval(iv); showToast('⚠️ Firebase slow — check internet'); cb(); }
+    if(window._KS_DB){ clearInterval(iv); run(); }
+    else if(t>80){ clearInterval(iv); run(); }
   },100);
 }
 
