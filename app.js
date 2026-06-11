@@ -201,6 +201,82 @@ function goStep(n){
   if(n<=3) document.getElementById('modalTitle').textContent=titles[n];
 }
 function copyPayNum(){ navigator.clipboard.writeText(document.getElementById('pdbNum').textContent).then(()=>showToast('✅ Copied!')); }
+// ── EMAIL VERIFICATION ──
+async function sendVerifyCode(){
+  const email = document.getElementById('custEmail').value.trim();
+  if(!email || !email.includes('@') || !email.includes('.')){
+    showToast('⚠️ Enter a valid email first!'); return;
+  }
+  _verifyCode = String(Math.floor(1000 + Math.random()*9000));
+  _emailVerified = false;
+
+  // Show code input immediately
+  const vw = document.getElementById('verifyCodeWrap');
+  const sb = document.getElementById('sendCodeBtn');
+  if(vw) vw.style.display='block';
+  if(sb){ sb.textContent='🔄 Resend Code'; sb.disabled=true; }
+
+  // Try EmailJS if configured
+  let sent = false;
+  try{
+    const s = await window._KS_DB.getSettings();
+    if(s.emailKey && s.emailService && s.emailTemplate){
+      if(!window.emailjs){
+        await new Promise((res,rej)=>{
+          const sc=document.createElement('script');
+          sc.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+          sc.onload=res; sc.onerror=rej;
+          document.head.appendChild(sc);
+        });
+      }
+      window.emailjs.init(s.emailKey);
+      await window.emailjs.send(s.emailService, s.emailTemplate, {
+        to_email: email,
+        customer_name: document.getElementById('custName')?.value||'Customer',
+        order_items: 'Your verification code: ' + _verifyCode,
+        order_total: '—',
+        payment_method: '—',
+        store_name: s.storeName||'Kurd Store',
+        telegram: '@'+(s.telegram||'sharafaani')
+      });
+      sent = true;
+      showToast('📧 Code sent to ' + email + '!');
+    }
+  } catch(e){ console.log('EmailJS error:', e); }
+
+  // If EmailJS not configured or failed — show code on screen
+  if(!sent){
+    const codeDisplay = document.getElementById('verifyCodeDisplay');
+    if(codeDisplay){
+      codeDisplay.textContent = _verifyCode;
+      codeDisplay.parentElement.style.display='block';
+    }
+    showToast('🔑 Your code is shown below (EmailJS not configured)');
+  }
+
+  if(sb) sb.disabled=false;
+}
+
+function checkVerifyCode(){
+  const entered = document.getElementById('verifyCodeInput')?.value.trim();
+  if(!entered){ showToast('⚠️ Enter the 4-digit code!'); return; }
+  if(entered === _verifyCode){
+    _emailVerified = true;
+    const vw = document.getElementById('verifyCodeWrap');
+    const badge = document.getElementById('emailVerifiedBadge');
+    const sb = document.getElementById('sendCodeBtn');
+    const cd = document.getElementById('codeDisplayWrap');
+    if(vw) vw.style.display='none';
+    if(badge) badge.style.display='flex';
+    if(sb) sb.style.display='none';
+    if(cd) cd.style.display='none';
+    showToast('✅ Email verified!');
+  } else {
+    showToast('❌ Wrong code! Try again.');
+    if(document.getElementById('verifyCodeInput')) document.getElementById('verifyCodeInput').value='';
+  }
+}
+
 async function submitOrder(){
   const name=document.getElementById('custName').value.trim();
   const email=document.getElementById('custEmail').value.trim();
@@ -540,10 +616,17 @@ async function buildNav(activePage){
     <div class="nav-right">
       <button class="nav-icon-btn" id="darkBtn" onclick="toggleTheme()">${getTheme()==='dark'?'☀️':'🌙'}</button>
       <button class="nav-icon-btn" id="langBtn" onclick="toggleLang()">${getLang()==='en'?'🌐 عربي/کوردی':getLang()==='kd'?'🌐 العربية/EN':'🌐 English/KD'}</button>
+      <a href="card.html" style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:99px;padding:6px 13px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;">🏆 My Card</a>
       <button class="cart-btn" onclick="openCart()">🛒 ${getLang()==='ar'?'السلة':getLang()==='kd'?'سەبەتە':'Cart'} <span class="cart-count">0</span></button>
     </div>
   </nav>`;
   updateCartBadge();
+} // end _renderNav
+
+// ── STANDALONE NAV (call anytime, no Firebase needed) ──
+function buildNavImmediate(activePage){
+  _renderNav(activePage, DEFAULT_SETTINGS);
+}
 
   // Google Analytics — load if configured
   (async ()=>{

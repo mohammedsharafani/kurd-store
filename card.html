@@ -2,254 +2,277 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>My Loyalty Card — Kurd Store</title>
+<title>My Cards — Kurd Store</title>
 <link rel="stylesheet" href="shared.css"/>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#7c3aed"/>
 <script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
 <style>
-.card-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 16px;background:var(--bg);}
-.loyalty-card{width:min(420px,100%);border-radius:22px;padding:28px;position:relative;overflow:hidden;color:#fff;margin-bottom:24px;box-shadow:0 20px 60px #7c3aed44;}
-.loyalty-card.bronze {background:linear-gradient(135deg,#92400e,#d97706);}
-.loyalty-card.silver {background:linear-gradient(135deg,#374151,#9ca3af);}
-.loyalty-card.gold   {background:linear-gradient(135deg,#b45309,#f59e0b);}
-.loyalty-card.diamond{background:linear-gradient(135deg,#0e7490,#06b6d4);}
-.loyalty-card.vip    {background:linear-gradient(135deg,#4c1d95,#7c3aed,#a855f7);}
-.card-bg{position:absolute;inset:0;opacity:.08;font-size:8rem;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;pointer-events:none;line-height:1;}
-.card-store{font-size:.72rem;font-weight:700;letter-spacing:2px;opacity:.8;margin-bottom:16px;}
-.card-name{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:4px;}
-.card-email{font-size:.75rem;opacity:.7;margin-bottom:20px;}
-.card-tier{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
-.card-tier-badge{background:rgba(255,255,255,.2);border-radius:99px;padding:4px 14px;font-size:.8rem;font-weight:700;}
-.card-vip-badge{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:99px;padding:4px 14px;font-size:.8rem;font-weight:700;}
-.card-progress-label{font-size:.72rem;opacity:.8;margin-bottom:6px;display:flex;justify-content:space-between;}
-.card-progress-bar{background:rgba(255,255,255,.2);border-radius:99px;height:10px;overflow:hidden;margin-bottom:16px;}
-.card-progress-fill{height:100%;background:#fff;border-radius:99px;transition:width .8s ease;}
-.card-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
-.card-stat{background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center;}
-.card-stat-num{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;}
-.card-stat-lbl{font-size:.62rem;opacity:.8;margin-top:2px;}
-.card-code-box{background:rgba(0,0,0,.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.card-code{font-family:monospace;font-size:1rem;font-weight:700;letter-spacing:2px;}
-.card-copy-btn{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:.75rem;cursor:pointer;font-weight:700;}
-.card-code-lbl{font-size:.68rem;opacity:.7;margin-bottom:6px;}
-/* Lookup form */
-.lookup-card{width:min(420px,100%);background:var(--card);border:1.5px solid var(--border);border-radius:22px;padding:28px;text-align:center;}
-.lookup-icon{font-size:3rem;margin-bottom:12px;}
+.cards-page{min-height:100vh;background:var(--bg);padding:28px 4vw 60px;}
+.cards-max{max-width:820px;margin:0 auto;}
+/* Lookup */
+.lookup-box{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:28px;text-align:center;margin-bottom:24px;}
+.lookup-icon{font-size:2.8rem;margin-bottom:10px;}
 .lookup-title{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-.lookup-sub{font-size:.82rem;color:var(--gray);margin-bottom:20px;}
-.lookup-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;background:var(--card);color:var(--text);outline:none;margin-bottom:12px;font-family:var(--fb);}
+.lookup-sub{font-size:.82rem;color:var(--gray);margin-bottom:18px;}
+.lookup-row{display:flex;gap:10px;max-width:440px;margin:0 auto;}
+.lookup-input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);}
 .lookup-input:focus{border-color:var(--p);}
-.lookup-btn{width:100%;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:10px;padding:13px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:var(--fb);}
-/* Benefits */
-.benefits-card{width:min(420px,100%);background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;}
-.benefits-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.benefit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:.84rem;color:var(--text2);}
-.benefit-check{color:#059669;font-weight:700;flex-shrink:0;}
-/* Spin history */
-.spin-history{width:min(420px,100%);background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:22px;}
-.spin-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gl);font-size:.82rem;}
-.spin-item:last-child{border-bottom:none;}
-.spin-prize{font-weight:700;color:var(--p);}
-.spin-date{color:var(--gray);font-size:.72rem;}
+.lookup-btn{background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap;}
+/* Cards Grid */
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+/* LOYALTY CARD */
+.loyalty-card-wrap{border-radius:20px;overflow:hidden;}
+.loyalty-card{border-radius:20px;padding:26px;position:relative;overflow:hidden;color:#fff;min-height:200px;}
+.loyalty-card.bronze  {background:linear-gradient(135deg,#78350f,#d97706);}
+.loyalty-card.silver  {background:linear-gradient(135deg,#1f2937,#9ca3af);}
+.loyalty-card.gold    {background:linear-gradient(135deg,#92400e,#f59e0b);}
+.loyalty-card.diamond {background:linear-gradient(135deg,#0c4a6e,#06b6d4);}
+.loyalty-card.default {background:linear-gradient(135deg,#4c1d95,#7c3aed);}
+.lc-bg-icon{position:absolute;right:-10px;bottom:-16px;font-size:7rem;opacity:.1;line-height:1;}
+.lc-store{font-size:.6rem;font-weight:700;letter-spacing:2px;opacity:.7;margin-bottom:12px;}
+.lc-name{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:3px;}
+.lc-email{font-size:.68rem;opacity:.65;margin-bottom:14px;word-break:break-all;}
+.lc-tier{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border-radius:99px;padding:3px 12px;font-size:.76rem;font-weight:700;margin-bottom:12px;}
+.lc-prog-label{font-size:.66rem;opacity:.75;margin-bottom:4px;display:flex;justify-content:space-between;}
+.lc-prog-bar{background:rgba(255,255,255,.2);border-radius:99px;height:7px;overflow:hidden;margin-bottom:14px;}
+.lc-prog-fill{height:100%;background:#fff;border-radius:99px;transition:width .8s;}
+.lc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.lc-stat{background:rgba(255,255,255,.13);border-radius:9px;padding:8px;text-align:center;}
+.lc-stat-num{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;}
+.lc-stat-lbl{font-size:.56rem;opacity:.75;margin-top:2px;}
+.lc-code-label{font-size:.62rem;opacity:.7;margin-bottom:4px;}
+.lc-code-row{background:rgba(0,0,0,.22);border-radius:8px;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;}
+.lc-code{font-family:monospace;font-size:.9rem;font-weight:700;letter-spacing:1px;}
+.lc-copy{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:6px;padding:4px 10px;font-size:.7rem;cursor:pointer;font-weight:700;}
+/* VIP CARD */
+.vip-card{background:linear-gradient(135deg,#1a0533,#4c1d95,#7c3aed);border-radius:20px;padding:26px;position:relative;overflow:hidden;color:#fff;min-height:200px;}
+.vip-card::before{content:'👑';position:absolute;right:-8px;bottom:-12px;font-size:7rem;opacity:.1;line-height:1;}
+.vip-card-inactive{background:linear-gradient(135deg,#374151,#6b7280);}
+.vc-store{font-size:.6rem;font-weight:700;letter-spacing:2px;opacity:.7;margin-bottom:12px;}
+.vc-vip-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:99px;padding:4px 14px;font-size:.8rem;font-weight:700;margin-bottom:12px;}
+.vc-name{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:3px;}
+.vc-email{font-size:.68rem;opacity:.65;margin-bottom:14px;word-break:break-all;}
+.vc-plan{display:inline-block;background:rgba(255,255,255,.15);border-radius:99px;padding:3px 12px;font-size:.74rem;font-weight:600;margin-bottom:10px;}
+.vc-expiry{font-size:.72rem;opacity:.8;margin-bottom:14px;}
+.vc-benefits{display:flex;flex-direction:column;gap:5px;}
+.vc-benefit{display:flex;align-items:center;gap:7px;font-size:.75rem;opacity:.9;}
 /* Next tier */
-.next-tier-box{background:var(--gl);border-radius:12px;padding:14px;margin-bottom:14px;font-size:.82rem;color:var(--text2);text-align:center;}
-.next-tier-box strong{color:var(--text);}
+.next-tier-box{background:var(--gl);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-size:.82rem;color:var(--text2);text-align:center;margin-top:14px;}
+/* Spin History */
+.spin-hist-box{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-top:14px;}
+.spin-hist-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:12px;}
+.spin-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--gl);font-size:.8rem;}
+.spin-item:last-child{border-bottom:none;}
+/* Actions */
+.card-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.card-action-btn{flex:1;padding:11px;border-radius:10px;font-size:.84rem;font-weight:700;cursor:pointer;border:none;font-family:var(--fb);text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;}
+@media(max-width:620px){.cards-grid{grid-template-columns:1fr;}.lookup-row{flex-direction:column;}}
 </style>
 </head>
 <body>
-<div class="card-page">
-  <div style="width:min(420px,100%);margin-bottom:20px;display:flex;align-items:center;gap:12px;">
-    <a href="index.html" style="background:var(--gl);border:1.5px solid var(--border);border-radius:99px;padding:6px 14px;font-size:.82rem;font-weight:600;color:var(--text);text-decoration:none;">← Back</a>
-    <div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text);">🏆 My Loyalty Card</div>
-  </div>
+<div id="navMount"></div>
+<div class="page-hd" style="background:linear-gradient(135deg,var(--p),var(--pl));">
+  <h1>🏆 My Cards</h1>
+  <p style="font-size:.85rem;opacity:.85;margin-top:4px;">Check your Loyalty Card and VIP status</p>
+</div>
 
-  <!-- LOOKUP FORM -->
-  <div class="lookup-card" id="lookupForm">
-    <div class="lookup-icon">🏆</div>
-    <div class="lookup-title">Check Your Loyalty Card</div>
-    <div class="lookup-sub">Enter the email you use when ordering to see your card, points and rewards.</div>
-    <input class="lookup-input" id="lookupEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')lookupCard()"/>
-    <button class="lookup-btn" onclick="lookupCard()">🔍 View My Card</button>
-    <div id="lookupError" style="color:#dc2626;font-size:.8rem;margin-top:10px;display:none;"></div>
-  </div>
-
-  <!-- CARD DISPLAY -->
-  <div id="cardDisplay" style="display:none;width:100%;display:none;flex-direction:column;align-items:center;gap:16px;">
-    <!-- The loyalty card -->
-    <div class="loyalty-card" id="loyaltyCardEl">
-      <div class="card-bg" id="cardBg">🎮</div>
-      <div class="card-store">🎮 KURD STORE</div>
-      <div class="card-name" id="cardName">—</div>
-      <div class="card-email" id="cardEmail">—</div>
-      <div class="card-tier">
-        <span id="cardTierBadge" class="card-tier-badge">🥉 Bronze</span>
-        <span id="cardVIPBadge" class="card-vip-badge" style="display:none;">👑 VIP</span>
+<div class="cards-page">
+  <div class="cards-max">
+    <!-- LOOKUP -->
+    <div class="lookup-box" id="lookupBox">
+      <div class="lookup-icon">🎴</div>
+      <div class="lookup-title">View Your Cards</div>
+      <div class="lookup-sub">Enter the email you use when ordering</div>
+      <div class="lookup-row">
+        <input class="lookup-input" id="lookupEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')lookupCards()"/>
+        <button class="lookup-btn" onclick="lookupCards()">🔍 View</button>
       </div>
-      <div class="card-progress-label">
-        <span id="cardPtsLabel">0 points</span>
-        <span id="cardNextLabel">Next: Silver at 10 pts</span>
-      </div>
-      <div class="card-progress-bar"><div class="card-progress-fill" id="cardProgressFill" style="width:0%"></div></div>
-      <div class="card-stats">
-        <div class="card-stat"><div class="card-stat-num" id="cardPts">0</div><div class="card-stat-lbl">Points</div></div>
-        <div class="card-stat"><div class="card-stat-num" id="cardOrders">0</div><div class="card-stat-lbl">Orders</div></div>
-        <div class="card-stat"><div class="card-stat-num" id="cardSpent">0K</div><div class="card-stat-lbl">IQD Spent</div></div>
-      </div>
-      <div class="card-code-lbl">Your discount code:</div>
-      <div class="card-code-box">
-        <span class="card-code" id="cardCode">—</span>
-        <button class="card-copy-btn" onclick="copyCode()">📋 Copy</button>
+      <div id="lookupError" style="color:#dc2626;font-size:.8rem;margin-top:10px;display:none;"></div>
+      <div style="margin-top:16px;font-size:.78rem;color:var(--gray);">
+        Don't have a card yet? <a href="index.html" style="color:var(--p);font-weight:700;">Place your first order →</a>
       </div>
     </div>
 
-    <!-- Next tier info -->
-    <div class="next-tier-box" id="nextTierBox"></div>
+    <!-- CARDS DISPLAY -->
+    <div id="cardsDisplay" style="display:none;">
+      <div class="cards-grid">
+        <!-- LOYALTY CARD -->
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;color:var(--text2);margin-bottom:10px;text-align:center;">🏆 LOYALTY CARD</div>
+          <div class="loyalty-card default" id="loyaltyCardEl">
+            <div class="lc-bg-icon" id="lcBgIcon">🎮</div>
+            <div class="lc-store">🎮 KURD STORE</div>
+            <div class="lc-name" id="lcName">—</div>
+            <div class="lc-email" id="lcEmail">—</div>
+            <div class="lc-tier" id="lcTier">🥉 Bronze</div>
+            <div class="lc-prog-label">
+              <span id="lcPtsLabel">0 pts</span>
+              <span id="lcNextLabel">Next tier</span>
+            </div>
+            <div class="lc-prog-bar"><div class="lc-prog-fill" id="lcProgFill" style="width:0%"></div></div>
+            <div class="lc-stats">
+              <div class="lc-stat"><div class="lc-stat-num" id="lcPts">0</div><div class="lc-stat-lbl">Points</div></div>
+              <div class="lc-stat"><div class="lc-stat-num" id="lcOrders">0</div><div class="lc-stat-lbl">Orders</div></div>
+              <div class="lc-stat"><div class="lc-stat-num" id="lcSpent">0K</div><div class="lc-stat-lbl">IQD Spent</div></div>
+            </div>
+            <div class="lc-code-label">Discount code:</div>
+            <div class="lc-code-row">
+              <span class="lc-code" id="lcCode">—</span>
+              <button class="lc-copy" onclick="copyCode('lcCode')">Copy</button>
+            </div>
+          </div>
+          <div class="next-tier-box" id="nextTierBox" style="display:none;"></div>
+        </div>
 
-    <!-- Benefits -->
-    <div class="benefits-card" id="benefitsCard">
-      <div class="benefits-title">🎁 Your Current Benefits</div>
-      <div id="benefitsList"></div>
+        <!-- VIP CARD -->
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;color:var(--text2);margin-bottom:10px;text-align:center;">👑 VIP CARD</div>
+          <div class="vip-card" id="vipCardEl">
+            <div class="vc-store">🎮 KURD STORE</div>
+            <div id="vcVIPBadge" class="vc-vip-badge">👑 VIP Member</div>
+            <div class="vc-name" id="vcName">—</div>
+            <div class="vc-email" id="vcEmail">—</div>
+            <div class="vc-plan" id="vcPlan">—</div>
+            <div class="vc-expiry" id="vcExpiry">—</div>
+            <div class="vc-benefits" id="vcBenefits"></div>
+          </div>
+          <div id="notVIPBox" style="display:none;background:var(--gl);border:1.5px solid var(--border);border-radius:14px;padding:20px;text-align:center;margin-top:8px;">
+            <div style="font-size:1.5rem;margin-bottom:8px;">👑</div>
+            <div style="font-weight:700;color:var(--text);margin-bottom:6px;">Not a VIP member yet</div>
+            <div style="font-size:.8rem;color:var(--gray);margin-bottom:14px;">Join VIP for exclusive discounts, 2 spins per purchase, and more!</div>
+            <a href="vip.html" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:10px;padding:10px 22px;font-weight:700;text-decoration:none;font-size:.85rem;">👑 Join VIP Club</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spin History -->
+      <div class="spin-hist-box" id="spinHistBox" style="display:none;">
+        <div class="spin-hist-title">🎰 Recent Spins</div>
+        <div id="spinHistList"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-actions">
+        <a href="index.html" class="card-action-btn" style="background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;">🛒 Shop Now</a>
+        <a href="vip.html" class="card-action-btn" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;">👑 VIP Club</a>
+        <button onclick="resetLookup()" class="card-action-btn" style="background:var(--gl);color:var(--text);border:1.5px solid var(--border);">🔄 New Lookup</button>
+      </div>
     </div>
-
-    <!-- Spin history -->
-    <div class="spin-history" id="spinHistoryCard" style="display:none;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px;">🎰 Recent Spins</div>
-      <div id="spinHistoryList"></div>
-    </div>
-
-    <a href="index.html" style="background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border-radius:12px;padding:13px 28px;font-weight:700;text-decoration:none;font-size:.9rem;text-align:center;width:min(420px,100%);">🛒 Shop Now</a>
-    <button onclick="document.getElementById('lookupForm').style.display='block';document.getElementById('cardDisplay').style.display='none';" style="background:var(--gl);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:.8rem;color:var(--gray);cursor:pointer;width:min(420px,100%);">🔄 Look up different email</button>
   </div>
 </div>
 
+<div id="footerMount"></div>
 <div class="toast" id="toast"></div>
+
 <script src="firebase-config.js"></script>
 <script type="module" src="db.js"></script>
+<script src="app.js"></script>
 <script>
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
-function emailKey(email){ return email.toLowerCase().replace(/[.#$[\]]/g,'_'); }
-function copyCode(){ navigator.clipboard.writeText(document.getElementById('cardCode').textContent).then(()=>showToast('✅ Code copied!')); }
+function ek(email){ return email.toLowerCase().replace(/[.#$[\]]/g,'_'); }
+function copyCode(id){ navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('✅ Code copied!')); }
+function resetLookup(){ document.getElementById('lookupBox').style.display='block'; document.getElementById('cardsDisplay').style.display='none'; document.getElementById('lookupEmail').value=''; }
 
-// Check URL for email param
-window.addEventListener('load', ()=>{
-  const params = new URLSearchParams(window.location.search);
-  const email = params.get('email');
-  if(email){
-    document.getElementById('lookupEmail').value = email;
-    setTimeout(lookupCard, 500);
-  }
+// Auto-fill from URL
+window.addEventListener('load',()=>{
+  const p=new URLSearchParams(window.location.search);
+  const e=p.get('email');
+  if(e){ document.getElementById('lookupEmail').value=e; setTimeout(lookupCards,800); }
+  initPage();
 });
 
-async function lookupCard(){
+async function initPage(){
+  initTheme();
+  await buildNav('');
+  applyLang();
+}
+
+async function lookupCards(){
   const email = document.getElementById('lookupEmail').value.trim().toLowerCase();
   const errEl = document.getElementById('lookupError');
-  if(!email || !email.includes('@')){ errEl.textContent='Please enter a valid email.'; errEl.style.display='block'; return; }
+  if(!email||!email.includes('@')){ errEl.textContent='Please enter a valid email.'; errEl.style.display='block'; return; }
   errEl.style.display='none';
 
-  // Wait for DB
-  let t=0;
-  while(!window._KS_DB && t<50){ await new Promise(r=>setTimeout(r,100)); t++; }
+  let t=0; while(!window._KS_DB_READY&&t<60){await new Promise(r=>setTimeout(r,100));t++;}
   if(!window._KS_DB){ errEl.textContent='Connection failed. Please refresh.'; errEl.style.display='block'; return; }
 
-  const key = emailKey(email);
-  const [profile, loySettings, vipSettings, spinSettings, vipMember] = await Promise.all([
+  const key=ek(email);
+  const [profile, loySettings, vipSettings, vipMember] = await Promise.all([
     window._KS_DB.getLoyalty(key),
     window._KS_DB.getLoyaltySettings(),
     window._KS_DB.getVIPSettings(),
-    window._KS_DB.getSpinSettings(),
     window._KS_DB.getVIPMember(key)
   ]);
 
-  if(!profile){
-    errEl.textContent='No account found for this email. Make sure you have placed an order first.';
-    errEl.style.display='block';
-    return;
-  }
+  if(!profile){ errEl.textContent='No account found. Make sure you placed an order with this email.'; errEl.style.display='block'; return; }
 
-  const tiers = loySettings.tiers || [];
-  const pts = profile.points || 0;
-  const isVIP = vipMember && vipMember.active && (!vipMember.expiryDate || new Date(vipMember.expiryDate) > new Date());
+  // ── LOYALTY CARD ──
+  const tiers=loySettings.tiers||[];
+  const pts=profile.points||0;
+  let tier=tiers[0]||{name:'Bronze',icon:'🥉',min:0,discount:5,color:'#7c3aed'};
+  let nextTier=null;
+  for(const t of tiers){ if(pts>=t.min) tier=t; }
+  nextTier=tiers.find(t=>t.min>pts)||null;
 
-  // Find current tier
-  let currentTier = tiers[0];
-  let nextTier = null;
-  for(let i=0;i<tiers.length;i++){
-    if(pts >= tiers[i].min) currentTier = tiers[i];
-    if(pts < tiers[i].min && !nextTier) nextTier = tiers[i];
-  }
+  const cardEl=document.getElementById('loyaltyCardEl');
+  cardEl.className='loyalty-card '+tier.name.toLowerCase();
+  document.getElementById('lcBgIcon').textContent=tier.icon;
+  document.getElementById('lcName').textContent=profile.name||'—';
+  document.getElementById('lcEmail').textContent=email;
+  document.getElementById('lcTier').textContent=tier.icon+' '+tier.name;
+  document.getElementById('lcPts').textContent=pts;
+  document.getElementById('lcOrders').textContent=profile.orders||0;
+  document.getElementById('lcSpent').textContent=Number(Math.round((profile.totalSpent||0)/1000)).toLocaleString()+'K';
+  const prog=nextTier?Math.min(100,((pts-tier.min)/(nextTier.min-tier.min))*100):100;
+  document.getElementById('lcProgFill').style.width=prog+'%';
+  document.getElementById('lcPtsLabel').textContent=pts+' points';
+  document.getElementById('lcNextLabel').textContent=nextTier?'Next: '+nextTier.icon+' '+nextTier.name+' ('+nextTier.min+')':'🏆 Max tier!';
+  const code=tier.name.toUpperCase()+'-'+(profile.name||'').split(' ')[0].toUpperCase()+'-'+tier.discount;
+  document.getElementById('lcCode').textContent=code;
 
-  // Set card class
-  const tierClass = currentTier.name.toLowerCase();
-  const cardEl = document.getElementById('loyaltyCardEl');
-  cardEl.className = 'loyalty-card ' + (isVIP ? 'vip' : tierClass);
-  document.getElementById('cardBg').textContent = isVIP ? '👑' : currentTier.icon;
-
-  // Fill card data
-  document.getElementById('cardName').textContent = profile.name || '—';
-  document.getElementById('cardEmail').textContent = email;
-  document.getElementById('cardTierBadge').textContent = currentTier.icon + ' ' + currentTier.name;
-  if(isVIP) document.getElementById('cardVIPBadge').style.display='inline-block';
-  else document.getElementById('cardVIPBadge').style.display='none';
-
-  // Progress bar
-  const nextMin = nextTier ? nextTier.min : currentTier.min;
-  const prevMin = currentTier.min;
-  const progress = nextTier ? Math.min(100, ((pts-prevMin)/(nextMin-prevMin))*100) : 100;
-  document.getElementById('cardProgressFill').style.width = progress+'%';
-  document.getElementById('cardPtsLabel').textContent = pts + ' points';
-  document.getElementById('cardNextLabel').textContent = nextTier ? 'Next: '+nextTier.icon+' '+nextTier.name+' at '+nextTier.min+' pts' : '🏆 Max tier reached!';
-
-  // Stats
-  document.getElementById('cardPts').textContent = pts;
-  document.getElementById('cardOrders').textContent = profile.orders || 0;
-  document.getElementById('cardSpent').textContent = Number(Math.round((profile.totalSpent||0)/1000)).toLocaleString()+'K';
-
-  // Discount code
-  const discCode = (isVIP ? 'VIP' : currentTier.name.toUpperCase()) + '-' + (profile.name||'').split(' ')[0].toUpperCase() + '-' + (isVIP ? vipSettings.discount : currentTier.discount);
-  document.getElementById('cardCode').textContent = discCode;
-
-  // Next tier box
-  const ntb = document.getElementById('nextTierBox');
+  const ntb=document.getElementById('nextTierBox');
   if(nextTier){
-    const ptsNeeded = nextTier.min - pts;
-    ntb.innerHTML = `<strong>${ptsNeeded} more point${ptsNeeded!==1?'s':''}</strong> to reach ${nextTier.icon} ${nextTier.name} and unlock <strong>${nextTier.discount}% discount</strong>!`;
     ntb.style.display='block';
-  } else {
-    ntb.innerHTML = `🏆 <strong>Congratulations! You've reached the highest tier.</strong> Enjoy your ${currentTier.discount}% permanent discount!`;
+    ntb.innerHTML='<strong>'+(nextTier.min-pts)+' more point'+(nextTier.min-pts!==1?'s':'')+' to reach '+nextTier.icon+' '+nextTier.name+'</strong> — unlock <strong>'+nextTier.discount+'% discount</strong>!';
   }
 
-  // Benefits
-  const benefitsEl = document.getElementById('benefitsList');
-  if(isVIP && vipSettings.benefits){
-    benefitsEl.innerHTML = vipSettings.benefits.map(b=>`<div class="benefit-item"><span class="benefit-check">✅</span><span>${b}</span></div>`).join('');
+  // ── VIP CARD ──
+  const isVIP=vipMember&&vipMember.active&&(!vipMember.expiryDate||new Date(vipMember.expiryDate)>new Date());
+  if(isVIP){
+    document.getElementById('vipCardEl').style.display='block';
+    document.getElementById('notVIPBox').style.display='none';
+    document.getElementById('vcName').textContent=vipMember.name||profile.name||'—';
+    document.getElementById('vcEmail').textContent=email;
+    document.getElementById('vcPlan').textContent='👑 '+vipMember.plan.charAt(0).toUpperCase()+vipMember.plan.slice(1)+' Member';
+    document.getElementById('vcExpiry').textContent=vipMember.plan==='lifetime'?'♾️ Lifetime — Never expires':'⏰ Valid until: '+(vipMember.expiryDate?new Date(vipMember.expiryDate).toLocaleDateString():'—');
+    const benefits=(vipSettings.benefits||[]).slice(0,5);
+    document.getElementById('vcBenefits').innerHTML=benefits.map(b=>`<div class="vc-benefit"><span>✅</span><span>${b}</span></div>`).join('');
   } else {
-    const disc = isVIP ? vipSettings.discount : currentTier.discount;
-    benefitsEl.innerHTML = [
-      `${disc}% discount on all purchases`,
-      `Use code: ${discCode} at checkout`,
-      pts < (tiers[tiers.length-1]?.min||50) ? `Keep earning points to unlock better rewards!` : `You have the best discount available!`
-    ].map(b=>`<div class="benefit-item"><span class="benefit-check">✅</span><span>${b}</span></div>`).join('');
+    document.getElementById('vipCardEl').style.display='none';
+    document.getElementById('notVIPBox').style.display='block';
   }
 
-  // Spin history - load from Firebase
+  // ── SPIN HISTORY ──
   try{
     const {getDatabase,ref,get}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
     const {getApps,initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
-    const db2=getDatabase(app);
-    const spinSnap=await get(ref(db2,'spinHistory/'+key));
-    if(spinSnap.exists()){
-      const spins=Object.values(spinSnap.val()).slice(-5).reverse();
-      document.getElementById('spinHistoryCard').style.display='block';
-      document.getElementById('spinHistoryList').innerHTML=spins.map(s=>`<div class="spin-item"><span class="spin-prize">${s.prize}</span><span class="spin-date">${new Date(s.date).toLocaleDateString()}</span></div>`).join('');
+    const snap=await get(ref(getDatabase(app),'spinHistory/'+key));
+    if(snap.exists()){
+      const spins=Object.values(snap.val()).slice(-6).reverse();
+      document.getElementById('spinHistBox').style.display='block';
+      document.getElementById('spinHistList').innerHTML=spins.map(s=>`
+        <div class="spin-item">
+          <span style="font-weight:700;color:var(--p);">${s.prize}</span>
+          ${s.code?`<span style="font-family:monospace;font-size:.76rem;background:var(--ps);color:var(--p);border-radius:6px;padding:2px 8px;">${s.code}</span>`:''}
+          <span style="color:var(--gray);font-size:.72rem;">${s.date?new Date(s.date).toLocaleDateString():''}</span>
+        </div>`).join('');
     }
   }catch(e){}
 
-  // Show card
-  document.getElementById('lookupForm').style.display='none';
-  const cd=document.getElementById('cardDisplay');
-  cd.style.display='flex';
+  document.getElementById('lookupBox').style.display='none';
+  document.getElementById('cardsDisplay').style.display='block';
 }
 </script>
 </body>

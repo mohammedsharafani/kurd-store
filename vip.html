@@ -8,188 +8,196 @@
 <meta name="theme-color" content="#7c3aed"/>
 <script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
 <style>
-.vip-hero{background:linear-gradient(135deg,#4c1d95,#7c3aed,#a855f7);padding:56px 4vw;text-align:center;position:relative;overflow:hidden;}
-.vip-hero::before{content:'👑';position:absolute;font-size:20rem;opacity:.05;top:-4rem;right:-4rem;line-height:1;}
-.vip-hero-badge{display:inline-block;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:99px;padding:5px 18px;font-size:.8rem;font-weight:700;margin-bottom:16px;}
-.vip-hero-title{font-family:'Rajdhani',sans-serif;font-size:2.8rem;font-weight:700;color:#fff;margin-bottom:10px;}
-.vip-hero-sub{font-size:1rem;color:rgba(255,255,255,.8);max-width:500px;margin:0 auto 28px;}
-.vip-value{background:rgba(255,255,255,.1);border-radius:16px;padding:18px 24px;display:inline-block;color:#fff;font-size:.85rem;line-height:1.8;}
-.vip-value strong{color:#fbbf24;font-size:1.1rem;}
+.vip-hero{background:linear-gradient(135deg,#2d0a5e,#7c3aed,#a855f7);padding:56px 4vw 40px;text-align:center;position:relative;overflow:hidden;}
+.vip-hero::before{content:'👑';position:absolute;font-size:18rem;opacity:.05;top:-3rem;right:-2rem;line-height:1;pointer-events:none;}
+.vip-hero-badge{display:inline-block;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:99px;padding:5px 20px;font-size:.82rem;font-weight:700;margin-bottom:16px;}
+.vip-hero-title{font-family:'Rajdhani',sans-serif;font-size:2.6rem;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.1;}
+.vip-hero-sub{font-size:.95rem;color:rgba(255,255,255,.8);max-width:480px;margin:0 auto 28px;}
+.vip-value-box{background:rgba(255,255,255,.1);border-radius:14px;padding:16px 22px;display:inline-block;color:#fff;font-size:.84rem;line-height:1.8;text-align:left;max-width:400px;}
+.vip-value-box strong{color:#fbbf24;font-size:1rem;}
 /* Plans */
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:40px 4vw;max-width:960px;margin:0 auto;}
-.plan-card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:24px;text-align:center;transition:.2s;position:relative;}
-.plan-card:hover{border-color:var(--p);transform:translateY(-3px);}
+.plans-wrap{padding:40px 4vw;max-width:960px;margin:0 auto;}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.plan-card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:26px 20px;text-align:center;transition:.2s;position:relative;cursor:pointer;}
+.plan-card:hover{border-color:var(--p);transform:translateY(-3px);box-shadow:0 8px 32px #7c3aed22;}
 .plan-card.featured{border-color:var(--p);box-shadow:0 8px 40px #7c3aed22;}
-.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--p);color:#fff;border-radius:99px;padding:3px 16px;font-size:.72rem;font-weight:700;white-space:nowrap;}
-.plan-name{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:4px;}
-.plan-price{font-family:'Rajdhani',sans-serif;font-size:2.2rem;font-weight:700;color:var(--p);}
-.plan-period{font-size:.78rem;color:var(--gray);}
-.plan-btn{width:100%;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:18px;font-family:var(--fb);}
+.plan-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--p);color:#fff;border-radius:99px;padding:3px 16px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.plan-name{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.plan-price{font-family:'Rajdhani',sans-serif;font-size:2.4rem;font-weight:700;color:var(--p);line-height:1;}
+.plan-period{font-size:.78rem;color:var(--gray);margin-bottom:18px;}
+.plan-btn{width:100%;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:10px;padding:13px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:var(--fb);transition:.2s;}
+.plan-btn:hover{opacity:.9;transform:translateY(-1px);}
 /* Benefits */
-.benefits-section{padding:0 4vw 48px;max-width:960px;margin:0 auto;}
+.benefits-wrap{padding:0 4vw 48px;max-width:960px;margin:0 auto;}
 .benefits-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-.benefit-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;display:flex;align-items:flex-start;gap:14px;}
-.benefit-icon{width:42px;height:42px;border-radius:12px;background:var(--ps);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-.benefit-title{font-weight:700;font-size:.9rem;color:var(--text);margin-bottom:3px;}
-.benefit-desc{font-size:.78rem;color:var(--gray);}
-/* Value calc */
-.value-section{background:var(--gl);border-radius:18px;padding:28px;margin:0 4vw 40px;max-width:920px;margin-left:auto;margin-right:auto;}
+.benefit-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:12px;}
+.benefit-icon{width:40px;height:40px;border-radius:11px;background:var(--ps);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.benefit-title{font-weight:700;font-size:.88rem;color:var(--text);}
 /* How to join */
-.join-section{padding:0 4vw 60px;max-width:720px;margin:0 auto;}
-.join-steps{display:flex;flex-direction:column;gap:14px;}
-.join-step{display:flex;align-items:flex-start;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;}
-.join-step-num{width:32px;height:32px;background:var(--p);color:#fff;border-radius:99px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;flex-shrink:0;}
-/* Payment modal */
-.vip-modal{position:fixed;inset:0;background:#1a053380;z-index:500;display:none;align-items:center;justify-content:center;padding:18px;}
+.join-wrap{padding:0 4vw 56px;max-width:680px;margin:0 auto;}
+.join-step{display:flex;align-items:flex-start;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+.join-num{width:34px;height:34px;background:var(--p);color:#fff;border-radius:99px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;flex-shrink:0;}
+/* Payment Modal */
+.vip-modal{position:fixed;inset:0;background:#1a053380;z-index:999;display:none;align-items:center;justify-content:center;padding:16px;}
 .vip-modal.open{display:flex;}
-.vip-modal-inner{background:var(--card);border-radius:18px;padding:28px;width:min(420px,100%);max-height:90vh;overflow-y:auto;}
-.vip-modal-title{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:16px;}
-@media(max-width:768px){.plans-grid{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}}
+.vip-modal-box{background:var(--card);border-radius:18px;padding:26px;width:min(400px,100%);max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px #00000066;}
+.vip-modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.vip-modal-title{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--text);}
+.vip-close-btn{background:var(--gl);border:none;border-radius:99px;width:30px;height:30px;cursor:pointer;font-size:.9rem;color:var(--text);}
+.vip-amount-box{background:linear-gradient(135deg,#4c1d95,#7c3aed);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px;text-align:center;}
+.vip-amount-label{font-size:.78rem;opacity:.8;margin-bottom:4px;}
+.vip-amount-price{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;}
+@media(max-width:640px){.plans-grid{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 <div id="navMount"></div>
 
-<!-- HERO -->
 <div class="vip-hero">
   <div class="vip-hero-badge">👑 VIP MEMBERSHIP</div>
   <div class="vip-hero-title">Unlock the Full Experience</div>
-  <div class="vip-hero-sub" id="vipHeroSub">Get exclusive discounts, priority service, and rewards that regular customers never see.</div>
-  <div class="vip-value" id="vipValueBox">
+  <div class="vip-hero-sub">Exclusive discounts, priority service, and rewards that regular customers never see.</div>
+  <div class="vip-value-box">
     Buy 3 games/month × 50,000 IQD avg = 150,000 IQD<br>
     <strong>15% VIP discount = 22,500 IQD saved/month</strong><br>
-    Annual VIP pays for itself in the <strong>first month!</strong>
+    Annual VIP pays for itself in the <strong>first month! ✅</strong>
   </div>
 </div>
 
-<!-- PLANS -->
-<div class="plans-grid" id="plansGrid">
-  <div class="plan-card">
-    <div class="plan-name">Monthly</div>
-    <div class="plan-price" id="monthlyPrice">5,000</div>
-    <div class="plan-period">IQD / month</div>
-    <button class="plan-btn" onclick="openPayModal('monthly')">Get Monthly VIP</button>
-  </div>
-  <div class="plan-card featured">
-    <div class="plan-badge">⭐ Most Popular</div>
-    <div class="plan-name">Annual</div>
-    <div class="plan-price" id="annualPrice">25,000</div>
-    <div class="plan-period">IQD / year — Best Value</div>
-    <button class="plan-btn" onclick="openPayModal('annual')">Get Annual VIP</button>
-  </div>
-  <div class="plan-card">
-    <div class="plan-name">Lifetime</div>
-    <div class="plan-price" id="lifetimePrice">80,000</div>
-    <div class="plan-period">IQD — One Time</div>
-    <button class="plan-btn" onclick="openPayModal('lifetime')">Get Lifetime VIP</button>
+<div class="plans-wrap">
+  <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:24px;">Choose Your Plan</div>
+  <div class="plans-grid" id="plansGrid">
+    <div class="plan-card">
+      <div class="plan-name">Monthly</div>
+      <div class="plan-price" id="monthlyPrice">5,000</div>
+      <div class="plan-period">IQD / month</div>
+      <button class="plan-btn" id="btnMonthly">Get Monthly VIP</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">⭐ Most Popular</div>
+      <div class="plan-name">Annual</div>
+      <div class="plan-price" id="annualPrice">25,000</div>
+      <div class="plan-period">IQD / year — Best Value</div>
+      <button class="plan-btn" id="btnAnnual">Get Annual VIP</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Lifetime</div>
+      <div class="plan-price" id="lifetimePrice">80,000</div>
+      <div class="plan-period">IQD — One Time</div>
+      <button class="plan-btn" id="btnLifetime">Get Lifetime VIP</button>
+    </div>
   </div>
 </div>
 
-<!-- BENEFITS -->
-<div class="benefits-section">
-  <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:20px;text-align:center;">👑 VIP Benefits</div>
-  <div class="benefits-grid" id="benefitsGrid"></div>
+<div class="benefits-wrap">
+  <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:20px;">👑 VIP Benefits</div>
+  <div class="benefits-grid" id="benefitsGrid">
+    <div class="benefit-card"><div class="benefit-icon">⏳</div><div><div class="benefit-title">Loading benefits...</div></div></div>
+  </div>
 </div>
 
-<!-- HOW TO JOIN -->
-<div class="join-section">
-  <div style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:18px;text-align:center;">How to Join</div>
-  <div class="join-steps">
-    <div class="join-step"><div class="join-step-num">1</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Choose your plan</div><div style="font-size:.82rem;color:var(--gray);">Pick Monthly, Annual, or Lifetime below</div></div></div>
-    <div class="join-step"><div class="join-step-num">2</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Send payment</div><div style="font-size:.82rem;color:var(--gray);">Pay via FIB, Qi Card, or Fastpay and take a screenshot</div></div></div>
-    <div class="join-step"><div class="join-step-num">3</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Contact us on Telegram</div><div style="font-size:.82rem;color:var(--gray);">Send screenshot + your email to our Telegram — activated within 1 hour</div></div></div>
-    <div class="join-step"><div class="join-step-num">4</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Enjoy VIP forever</div><div style="font-size:.82rem;color:var(--gray);">Your card is upgraded instantly. All benefits apply to your next purchase!</div></div></div>
-  </div>
-  <a id="tgContactBtn" href="https://t.me/sharafaani" target="_blank" style="display:block;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;font-size:.95rem;text-align:center;margin-top:20px;">✈️ Contact on Telegram to Join</a>
+<div class="join-wrap">
+  <div style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:18px;">How to Join</div>
+  <div class="join-step"><div class="join-num">1</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Choose your plan above</div><div style="font-size:.82rem;color:var(--gray);">Monthly, Annual, or Lifetime</div></div></div>
+  <div class="join-step"><div class="join-num">2</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Send payment</div><div style="font-size:.82rem;color:var(--gray);">Pay via FIB, Qi Card, or Fastpay and screenshot it</div></div></div>
+  <div class="join-step"><div class="join-num">3</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Send screenshot to our Telegram</div><div style="font-size:.82rem;color:var(--gray);">Include your email — we activate within 1 hour ✅</div></div></div>
+  <div class="join-step"><div class="join-num">4</div><div><div style="font-weight:700;color:var(--text);margin-bottom:3px;">Enjoy VIP</div><div style="font-size:.82rem;color:var(--gray);">All benefits apply instantly to your next purchase</div></div></div>
+  <a id="tgBtn" href="https://t.me/sharafaani" target="_blank" style="display:block;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border-radius:12px;padding:14px;font-weight:700;text-decoration:none;font-size:.95rem;text-align:center;margin-top:18px;">✈️ Contact on Telegram to Activate</a>
 </div>
 
 <!-- PAYMENT MODAL -->
-<div class="vip-modal" id="vipPayModal" onclick="if(event.target===this)closePayModal()">
-  <div class="vip-modal-inner">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div class="vip-modal-title" id="payModalTitle">Get VIP</div>
-      <button onclick="closePayModal()" style="background:var(--gl);border:none;border-radius:99px;width:28px;height:28px;cursor:pointer;font-size:.85rem;">✕</button>
+<div class="vip-modal" id="vipModal">
+  <div class="vip-modal-box">
+    <div class="vip-modal-hd">
+      <div class="vip-modal-title" id="vipModalTitle">👑 Get VIP</div>
+      <button class="vip-close-btn" id="vipCloseBtn">✕</button>
     </div>
-    <div style="background:linear-gradient(135deg,#4c1d95,#7c3aed);border-radius:12px;padding:16px;color:#fff;margin-bottom:18px;">
-      <div style="font-size:.8rem;opacity:.8;margin-bottom:4px;">Amount to pay:</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;" id="payAmount">25,000 IQD</div>
+    <div class="vip-amount-box">
+      <div class="vip-amount-label">Amount to pay:</div>
+      <div class="vip-amount-price" id="vipModalAmount">25,000 IQD</div>
     </div>
     <div style="font-size:.82rem;font-weight:700;color:var(--text2);margin-bottom:10px;">Choose payment method:</div>
     <div id="vipPayMethods"></div>
-    <div style="background:var(--gl);border-radius:10px;padding:14px;margin:14px 0;font-size:.8rem;color:var(--text2);line-height:1.7;">
-      <strong>Instructions:</strong><br>
-      1. Send the exact amount to the number above<br>
+    <div style="background:var(--gl);border-radius:10px;padding:14px;margin:14px 0;font-size:.79rem;color:var(--text2);line-height:1.8;">
+      <strong>Instructions / التعليمات:</strong><br>
+      1. Send exact amount to the number above<br>
       2. Screenshot your transfer<br>
       3. Send screenshot + your email to our Telegram<br>
       4. We activate your VIP within 1 hour ✅
     </div>
-    <a id="vipTgBtn" href="https://t.me/sharafaani" target="_blank" style="display:block;background:linear-gradient(135deg,#0088cc,#00aaff);color:#fff;border-radius:10px;padding:12px;font-weight:700;text-decoration:none;font-size:.9rem;text-align:center;">✈️ Contact on Telegram after paying</a>
+    <a id="vipTgBtn" href="https://t.me/sharafaani" target="_blank" style="display:block;background:linear-gradient(135deg,#0088cc,#00aaff);color:#fff;border-radius:10px;padding:13px;font-weight:700;text-decoration:none;font-size:.9rem;text-align:center;">✈️ Contact on Telegram after paying</a>
   </div>
 </div>
 
 <div id="footerMount"></div>
+<div class="toast" id="toast"></div>
+
 <script src="firebase-config.js"></script>
 <script type="module" src="db.js"></script>
 <script src="app.js"></script>
 <script>
-let vipSettings = null;
-let _selVIPMethod = null;
+// Wire up buttons immediately — no waiting needed
+document.getElementById('btnMonthly').addEventListener('click', function(){ openVIPModal('monthly'); });
+document.getElementById('btnAnnual').addEventListener('click',  function(){ openVIPModal('annual');  });
+document.getElementById('btnLifetime').addEventListener('click',function(){ openVIPModal('lifetime');});
+document.getElementById('vipCloseBtn').addEventListener('click', closeVIPModal);
+document.getElementById('vipModal').addEventListener('click', function(e){ if(e.target===this) closeVIPModal(); });
 
-async function initPage(){
-  initTheme();
-  await buildNav('');
-  applyLang();
+let _vipSettings = null;
+let _selMethod   = null;
+const _prices    = {monthly:5000, annual:25000, lifetime:80000};
 
-  // Use waitForDB from app.js
-  waitForDB(async function(){
-    vipSettings = await window._KS_DB.getVIPSettings();
-    // Update prices
-  document.getElementById('monthlyPrice').textContent = Number(vipSettings.monthlyPrice||5000).toLocaleString();
-  document.getElementById('annualPrice').textContent = Number(vipSettings.annualPrice||25000).toLocaleString();
-  document.getElementById('lifetimePrice').textContent = Number(vipSettings.lifetimePrice||80000).toLocaleString();
-
-  // Benefits grid
-  const benefits = vipSettings.benefits || [];
-  const icons = ['💰','🎰','🏆','🔑','🎯','👑','🎁','🎂','🌟','📱'];
-  document.getElementById('benefitsGrid').innerHTML = benefits.map((b,i)=>`
-    <div class="benefit-card">
-      <div class="benefit-icon">${icons[i%icons.length]}</div>
-      <div><div class="benefit-title">${b}</div></div>
-    </div>`).join('');
-
-    // TG links
-    const s = await window._KS_DB.getSettings();
-    document.getElementById('tgContactBtn').href = 'https://t.me/'+(s.telegram||'sharafaani');
-    document.getElementById('vipTgBtn').href = 'https://t.me/'+(s.telegram||'sharafaani');
-
-    // Pay methods
+function openVIPModal(plan){
+  const price = _vipSettings ? _vipSettings[plan+'Price']||_prices[plan] : _prices[plan];
+  const labels = {monthly:'Monthly VIP', annual:'Annual VIP', lifetime:'Lifetime VIP'};
+  document.getElementById('vipModalTitle').textContent = '👑 Get ' + labels[plan];
+  document.getElementById('vipModalAmount').textContent = Number(price).toLocaleString() + ' IQD';
+  document.getElementById('vipModal').classList.add('open');
+  // Build pay methods if not already done
+  if(!document.querySelector('#vipPayMethods .pay-method')){
     document.getElementById('vipPayMethods').innerHTML = PAYMENT_METHODS.map(m=>`
-      <div class="pay-method" onclick="selVIPMethod(this,'${m.id}','${m.number}')" id="vpm-${m.id}" style="margin-bottom:8px;">
+      <div class="pay-method" onclick="selVIPPM(this,'${m.id}')" id="vpm-${m.id}" style="margin-bottom:8px;">
         <div class="pm-icon">${m.icon}</div>
         <div><div class="pm-name">${m.name}</div><div class="pm-desc">${m.number}</div></div>
         <div class="pm-check" id="vpmc-${m.id}"></div>
       </div>`).join('');
-  }); // end waitForDB
+  }
 }
-
-function selVIPMethod(el, id, num){
+function closeVIPModal(){ document.getElementById('vipModal').classList.remove('open'); }
+function selVIPPM(el, id){
   document.querySelectorAll('#vipPayMethods .pay-method').forEach(m=>m.classList.remove('sel'));
   document.querySelectorAll('#vipPayMethods .pm-check').forEach(c=>c.textContent='');
-  el.classList.add('sel');
-  document.getElementById('vpmc-'+id).textContent='✓';
-  _selVIPMethod=id;
+  el.classList.add('sel'); document.getElementById('vpmc-'+id).textContent='✓';
+  _selMethod=id;
 }
 
-function openPayModal(plan){
-  if(!vipSettings){ showToast('⏳ Loading settings, please wait...'); return; }
-  const prices = {monthly:vipSettings.monthlyPrice, annual:vipSettings.annualPrice, lifetime:vipSettings.lifetimePrice};
-  const labels = {monthly:'Monthly VIP', annual:'Annual VIP', lifetime:'Lifetime VIP'};
-  document.getElementById('payModalTitle').textContent = '👑 Get '+labels[plan];
-  document.getElementById('payAmount').textContent = Number(prices[plan]).toLocaleString()+' IQD';
-  document.getElementById('vipPayModal').classList.add('open');
+// Load settings from Firebase when ready
+async function initPage(){
+  initTheme();
+  await buildNav('');
+  applyLang();
+  waitForDB(async function(){
+    try{
+      _vipSettings = await window._KS_DB.getVIPSettings();
+      const s       = await window._KS_DB.getSettings();
+      // Update prices
+      document.getElementById('monthlyPrice').textContent  = Number(_vipSettings.monthlyPrice ||5000).toLocaleString();
+      document.getElementById('annualPrice').textContent   = Number(_vipSettings.annualPrice  ||25000).toLocaleString();
+      document.getElementById('lifetimePrice').textContent = Number(_vipSettings.lifetimePrice||80000).toLocaleString();
+      // Benefits
+      const icons=['💰','🎰','🏆','🔑','🎯','👑','🎁','🎂','🌟','📱'];
+      document.getElementById('benefitsGrid').innerHTML = (_vipSettings.benefits||[]).map((b,i)=>`
+        <div class="benefit-card">
+          <div class="benefit-icon">${icons[i%icons.length]}</div>
+          <div><div class="benefit-title">${b}</div></div>
+        </div>`).join('') || '<div style="color:var(--gray);padding:14px;">No benefits configured yet.</div>';
+      // TG link
+      const tg = s.telegram||'sharafaani';
+      document.getElementById('tgBtn').href   = 'https://t.me/'+tg;
+      document.getElementById('vipTgBtn').href= 'https://t.me/'+tg;
+    }catch(e){ console.log('VIP page error:',e); }
+  });
 }
-function closePayModal(){ document.getElementById('vipPayModal').classList.remove('open'); }
-
 initPage();
 </script>
 </body>

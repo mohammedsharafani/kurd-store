@@ -274,7 +274,7 @@ if('serviceWorker' in navigator){
         <div id="emailVerifiedBadge" style="display:none;align-items:center;gap:6px;margin-top:6px;font-size:.8rem;color:#059669;font-weight:700;"><span>✅</span><span>Email verified!</span></div>
       </div>
       <div id="verifyCodeWrap" style="display:none;">
-        <div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;">Enter the 4-digit code sent to your email:</div>
+        <div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;">Enter the 4-digit code sent to your email:</div><div id="codeDisplayWrap" style="display:none;background:linear-gradient(135deg,var(--p),var(--pl));border-radius:12px;padding:14px;margin-top:8px;text-align:center;"><div style="font-size:.72rem;color:rgba(255,255,255,.8);margin-bottom:6px;">📧 Your verification code:</div><div id="verifyCodeDisplay" style="font-size:2.2rem;font-weight:700;color:#fff;letter-spacing:12px;font-family:monospace;">—</div></div>
         <div style="display:flex;gap:8px;">
           <input class="form-input" id="verifyCodeInput" type="text" maxlength="4" placeholder="1234" style="flex:1;text-align:center;font-size:1.2rem;letter-spacing:8px;font-weight:700;"/>
           <button class="btn btn-primary" style="padding:8px 14px;" onclick="checkVerifyCode()">✓</button>
