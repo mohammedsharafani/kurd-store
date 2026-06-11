@@ -314,9 +314,14 @@ async function submitOrder(){
   await awardLoyaltyAndSpins(name, email, total);
 
   goStep(4);
-  document.getElementById('modalTitle').textContent='🎉 Almost Done!';
+  document.getElementById('modalTitle').textContent='🎉 Spin Your Reward!';
+  // Make sure spin section is visible
+  const spinSec = document.getElementById('spinSection');
+  const succSec = document.getElementById('successSection');
+  if(spinSec) spinSec.style.display='block';
+  if(succSec) succSec.style.display='none';
   // Init wheel
-  await initSpinWheel(email);
+  try{ await initSpinWheel(email); }catch(e){ console.error(e); showSuccess(); }
 }
 
 // ══════════════════════════════════════
@@ -434,12 +439,23 @@ async function initSpinWheel(email){
         await window._KS_DB.saveReferral(lp.referralCode, {email, name:lp.name, uses:lp.uses||0});
       }
     }
-  }catch(e){ console.log('Spin init error:', e); showSuccess(); }
+  }catch(e){ console.error('Spin init error:', e); showSuccess(); }
 }
 
 function drawWheel(highlightIndex=-1){
   const canvas = document.getElementById('wheelCanvas');
-  if(!canvas || !_spinData.length) return;
+  if(!canvas) return;
+  // Use default prizes if none configured
+  if(!_spinData.length){
+    _spinData = [
+      {label:'5% Off',    type:'percent', value:5,     chance:35, color:'#7c3aed'},
+      {label:'10% Off',   type:'percent', value:10,    chance:25, color:'#059669'},
+      {label:'15% Off',   type:'percent', value:15,    chance:15, color:'#3b82f6'},
+      {label:'50k IQD',   type:'fixed',   value:50000, chance:12, color:'#f59e0b'},
+      {label:'Free Game', type:'freegame',value:30000, chance:8,  color:'#ec4899'},
+      {label:'Try Again', type:'none',    value:0,     chance:5,  color:'#6b7280'}
+    ];
+  }
   const ctx = canvas.getContext('2d');
   const cx = canvas.width/2, cy = canvas.height/2, r = cx-6;
   const slices = _spinData.length;
@@ -538,8 +554,10 @@ async function showPrize(idx){
 }
 
 function showSuccess(){
-  document.getElementById('spinSection').style.display='none';
-  document.getElementById('successSection').style.display='block';
+  const spinSec = document.getElementById('spinSection');
+  const succSec = document.getElementById('successSection');
+  if(spinSec) spinSec.style.display='none';
+  if(succSec) succSec.style.display='block';
   document.getElementById('modalTitle').textContent='🎉 Order Sent!';
 }
 
