@@ -620,6 +620,27 @@ tr:hover td{background:var(--gl);}
       <div class="form-actions"><button class="btn btn-primary" onclick="saveSettings()">💾 Save Branding</button></div>
     </div>
   </div>
+  <!-- CATEGORY LOGOS -->
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">🎮 Category Logos</div><div style="font-size:.76rem;color:var(--gray);">Paste image URLs to replace emojis on home page</div></div>
+    <div class="panel-body">
+      <div class="info-box blue" style="margin-bottom:14px;">💡 Paste any image URL (PNG/JPG/WebP). Leave empty to keep the default emoji. Recommended size: 80×80px.</div>
+      <div class="form-grid">
+        <div class="form-group"><label>🎮 PlayStation Logo URL</label><input id="catLogoPs" type="text" placeholder="https://..."/><div id="prevPs" style="margin-top:6px;display:none;"><img style="height:40px;object-fit:contain;border-radius:6px;" id="prevImgPs"/></div></div>
+        <div class="form-group"><label>🟢 Xbox Logo URL</label><input id="catLogoXbox" type="text" placeholder="https://..."/><div id="prevXbox" style="margin-top:6px;display:none;"><img style="height:40px;object-fit:contain;border-radius:6px;" id="prevImgXbox"/></div></div>
+        <div class="form-group"><label>💻 PC / Steam Logo URL</label><input id="catLogoPc" type="text" placeholder="https://..."/><div id="prevPc" style="margin-top:6px;display:none;"><img style="height:40px;object-fit:contain;border-radius:6px;" id="prevImgPc"/></div></div>
+        <div class="form-group"><label>🔴 Nintendo Logo URL</label><input id="catLogoNin" type="text" placeholder="https://..."/><div id="prevNin" style="margin-top:6px;display:none;"><img style="height:40px;object-fit:contain;border-radius:6px;" id="prevImgNin"/></div></div>
+        <div class="form-group"><label>📦 Subscriptions Logo URL</label><input id="catLogoSubs" type="text" placeholder="https://..."/><div id="prevSubs" style="margin-top:6px;display:none;"><img style="height:40px;object-fit:contain;border-radius:6px;" id="prevImgSubs"/></div></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveCatLogos()">💾 Save Category Logos</button></div>
+    </div>
+  </div>
+  <!-- RE-OPEN branding form actions that we closed above -->
+  <div style="display:none;">
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveSettings()">💾 Save Branding</button></div>
+    </div>
+  </div>
 
   <!-- BANNER -->
   <div class="panel">
@@ -1172,6 +1193,14 @@ async function loadSettings(){
   document.getElementById('lpName').textContent=s.storeName||'Kurd Store';document.getElementById('lpTag').textContent=s.tagline||'';
   if(document.getElementById('ssNameAr')) document.getElementById('ssNameAr').value=s.storeNameAr||'';
   if(document.getElementById('ssTagAr'))  document.getElementById('ssTagAr').value=s.taglineAr||'';
+  // Load cat logos
+  ['Ps','Xbox','Pc','Nin','Subs'].forEach(k=>{
+    const el=document.getElementById('catLogo'+k);
+    const prev=document.getElementById('prev'+k);
+    const img=document.getElementById('prevImg'+k);
+    if(el){ el.value=s['catLogo'+k]||''; }
+    if(el&&el.value&&prev&&img){ img.src=el.value; prev.style.display='block'; }
+  });
   document.getElementById('logoBigEmoji').textContent=s.logoEmoji||'🎮';
   if(s.logoImg){document.getElementById('logoBigImg').src=s.logoImg;document.getElementById('logoBigImg').style.display='block';document.getElementById('logoBigEmoji').style.display='none';}
   document.getElementById('bannerEnabled').value=s.bannerEnabled?'true':'false';
@@ -1186,6 +1215,24 @@ async function loadSettings(){
   if(document.getElementById('sEmailTemplate'))document.getElementById('sEmailTemplate').value=s.emailTemplate||'';
 }
 function updateLP(){document.getElementById('lpName').textContent=document.getElementById('ssName').value||'Kurd Store';document.getElementById('lpTag').textContent=document.getElementById('ssTag').value||'';}
+async function saveCatLogos(){
+  showSaving();
+  const s = await db().getSettings();
+  ['Ps','Xbox','Pc','Nin','Subs'].forEach(k=>{
+    const el=document.getElementById('catLogo'+k);
+    if(el) s['catLogo'+k]=el.value.trim();
+  });
+  await db().saveSettings(s);
+  showToast('✅ Category logos saved!');
+  // Show previews
+  ['Ps','Xbox','Pc','Nin','Subs'].forEach(k=>{
+    const el=document.getElementById('catLogo'+k);
+    const prev=document.getElementById('prev'+k);
+    const img=document.getElementById('prevImg'+k);
+    if(el&&el.value.trim()&&prev&&img){ img.src=el.value.trim(); prev.style.display='block'; }
+  });
+}
+
 async function saveSettings(){
   showSaving();
   const s=await db().getSettings();

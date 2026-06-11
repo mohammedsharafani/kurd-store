@@ -163,7 +163,7 @@ function openCheckout(){
   document.getElementById('orderItems').innerHTML=cart.map(i=>`<div class="order-item"><span>${i.icon} ${i.name}</span><span>${iqd(i.price)}</span></div>`).join('');
   const sub=cart.reduce((s,x)=>s+x.price,0);
   document.getElementById('orderTotal').textContent=iqd(sub-calcDisc(sub,cart));
-  _selMethod=null; _screenshotDone=false; _screenshotData=null; _verifyCode=null; _emailVerified=false;
+  _selMethod=null; _screenshotDone=false; _screenshotData=null; _verifyCode=null; _emailVerified=false; window.screenshotDone=false;
   document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
   document.querySelectorAll('.pm-check').forEach(c=>c.textContent='');
   const si=document.getElementById('screenshotInput'); if(si) si.value='';
@@ -282,7 +282,7 @@ async function submitOrder(){
   const email=document.getElementById('custEmail').value.trim();
   if(!name){showToast('⚠️ Please enter your name!');return;}
   if(!email||!email.includes('@')||!email.includes('.')){showToast('⚠️ Please enter a valid email!');return;}
-  if(!_screenshotDone){showToast('⚠️ Please upload your payment screenshot!');goStep(3);return;}
+  if(!_screenshotDone){showToast('⚠️ Please upload your payment screenshot first!');return;}
   if(!_emailVerified){showToast('⚠️ Please verify your email with the code!');return;}
   const cart=getCart();
   const sub=cart.reduce((s,x)=>s+x.price,0);
@@ -741,14 +741,30 @@ function previewScreenshot(input){
   if(!input.files[0]) return;
   const reader = new FileReader();
   reader.onload = function(e){
-    const prev = document.getElementById('screenshotPreview');
-    const plch = document.getElementById('screenshotPlaceholder');
-    const img  = document.getElementById('screenshotImg');
-    if(prev && plch && img){
-      img.src = e.target.result;
-      prev.style.display = 'block';
-      plch.style.display = 'none';
-    }
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      const maxW = 800;
+      const scale = img.width>maxW ? maxW/img.width : 1;
+      canvas.width=Math.round(img.width*scale);
+      canvas.height=Math.round(img.height*scale);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      _screenshotData = canvas.toDataURL('image/jpeg',0.7);
+      _screenshotDone = true;
+      // Show preview
+      const prev=document.getElementById('screenshotPreview');
+      const plch=document.getElementById('screenshotPlaceholder');
+      const imgEl=document.getElementById('screenshotImg');
+      const doneMsg=document.getElementById('screenshotDoneMsg');
+      if(imgEl) imgEl.src=_screenshotData;
+      if(prev) prev.style.display='block';
+      if(plch) plch.style.display='none';
+      if(doneMsg) doneMsg.style.display='block';
+      const zone=document.getElementById('screenshotZone');
+      if(zone) zone.style.borderColor='#059669';
+      showToast('✅ Screenshot ready!');
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(input.files[0]);
 }

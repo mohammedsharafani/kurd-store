@@ -174,10 +174,14 @@ function selVIPPM(el, id){
 // Load settings from Firebase when ready
 async function initPage(){
   initTheme();
-  await buildNav('');
-  applyLang();
-  waitForDB(async function(){
-    try{
+  // Build nav immediately
+  if(typeof buildNav==='function') await buildNav('');
+  if(typeof applyLang==='function') applyLang();
+  // Load Firebase data with polling fallback
+  let tries=0;
+  while(!window._KS_DB && tries<60){ await new Promise(r=>setTimeout(r,100)); tries++; }
+  if(!window._KS_DB){ console.log('VIP: DB not ready'); return; }
+  try{
       _vipSettings = await window._KS_DB.getVIPSettings();
       const s       = await window._KS_DB.getSettings();
       // Update prices
@@ -196,7 +200,6 @@ async function initPage(){
       document.getElementById('tgBtn').href   = 'https://t.me/'+tg;
       document.getElementById('vipTgBtn').href= 'https://t.me/'+tg;
     }catch(e){ console.log('VIP page error:',e); }
-  });
 }
 initPage();
 </script>

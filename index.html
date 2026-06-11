@@ -92,11 +92,11 @@ if('serviceWorker' in navigator){
 <div class="section">
   <div class="section-hd"><div><div class="section-title">🗂️ <em data-en="Browse by Category" data-kd="گەڕانی بەپۆل" data-ar="تصفح حسب الفئة">Browse by Category</em></div></div></div>
   <div class="cat-grid">
-    <a class="cat-card" href="playstation.html"><div class="cat-icon">🎮</div><div class="cat-name">PlayStation</div><div class="cat-count" id="cPs">—</div></a>
-    <a class="cat-card" href="xbox.html"><div class="cat-icon">🟢</div><div class="cat-name">Xbox</div><div class="cat-count" id="cXbox">—</div></a>
-    <a class="cat-card" href="pc.html"><div class="cat-icon">💻</div><div class="cat-name">PC / Steam</div><div class="cat-count" id="cPc">—</div></a>
-    <a class="cat-card" href="nintendo.html"><div class="cat-icon">🔴</div><div class="cat-name">Nintendo</div><div class="cat-count" id="cNin">—</div></a>
-    <a class="cat-card" href="subscriptions.html"><div class="cat-icon">📦</div><div class="cat-name">Subscriptions</div><div class="cat-count" id="cSubs">—</div></a>
+    <a class="cat-card" href="playstation.html"><div class="cat-icon" id="catIconPs"><img id="catImgPs" src="" onerror="this.style.display='none'" style="display:none;width:52px;height:52px;object-fit:contain;"/>🎮</div><div class="cat-name">PlayStation</div><div class="cat-count" id="cPs">—</div></a>
+    <a class="cat-card" href="xbox.html"><div class="cat-icon" id="catIconXbox"><img id="catImgXbox" src="" onerror="this.style.display='none'" style="display:none;width:52px;height:52px;object-fit:contain;"/>🟢</div><div class="cat-name">Xbox</div><div class="cat-count" id="cXbox">—</div></a>
+    <a class="cat-card" href="pc.html"><div class="cat-icon" id="catIconPc"><img id="catImgPc" src="" onerror="this.style.display='none'" style="display:none;width:52px;height:52px;object-fit:contain;"/>💻</div><div class="cat-name">PC / Steam</div><div class="cat-count" id="cPc">—</div></a>
+    <a class="cat-card" href="nintendo.html"><div class="cat-icon" id="catIconNin"><img id="catImgNin" src="" onerror="this.style.display='none'" style="display:none;width:52px;height:52px;object-fit:contain;"/>🔴</div><div class="cat-name">Nintendo</div><div class="cat-count" id="cNin">—</div></a>
+    <a class="cat-card" href="subscriptions.html"><div class="cat-icon" id="catIconSubs"><img id="catImgSubs" src="" onerror="this.style.display='none'" style="display:none;width:52px;height:52px;object-fit:contain;"/>📦</div><div class="cat-name">Subscriptions</div><div class="cat-count" id="cSubs">—</div></a>
     <a class="cat-card" href="discounts.html"><div class="cat-icon">🏷️</div><div class="cat-name">Discounts</div><div class="cat-count" id="cDisc">—</div></a>
   </div>
 </div>
@@ -248,21 +248,7 @@ if('serviceWorker' in navigator){
     <div class="step-panel active" id="sp1"><p style="font-size:.82rem;color:var(--text2);margin-bottom:12px;">Choose payment method:</p><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
     <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><div style="font-size:.7rem;color:#a78bfa;">Tap to copy</div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr"><strong>How to pay:</strong><br>1. Open your <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong> to the number above<br>3. Screenshot the transfer<br>4. Click "I've Paid"<br><br><strong>چۆن پارەبدەیت:</strong><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە<br>٣. ئایمەیجی بکە<br>٤. "پارەم داوە" دابکە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
     <!-- STEP 2.5: SCREENSHOT UPLOAD -->
-    <div class="step-panel" id="sp25">
-      <div style="text-align:center;margin-bottom:16px;">
-        <div style="font-size:2rem;margin-bottom:8px;">📸</div>
-        <div style="font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:4px;">Upload Payment Screenshot</div>
-        <div style="font-size:.78rem;color:var(--gray);">We need proof of payment before delivering your key.</div>
-        <div style="font-size:.78rem;color:var(--gray);">ئایمەیجی پارەدانەکەت بنێرە پێش وەرگرتنی کیلێکەکەت.</div>
-        <div style="font-size:.78rem;color:var(--gray);">ارسل لقطة شاشة الدفع قبل استلام المفتاح.</div>
-      </div>
-      <label style="display:block;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:var(--gl);transition:border-color .2s;" onmouseover="this.style.borderColor='var(--p)'" onmouseout="this.style.borderColor='var(--border)'">
-        <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="previewScreenshot(this)"/>
-        <div id="screenshotPreview" style="display:none;"><img id="screenshotImg" style="max-width:100%;border-radius:8px;max-height:200px;object-fit:contain;" alt="screenshot"/></div>
-        <div id="screenshotPlaceholder"><div style="font-size:2rem;">🖼️</div><div style="font-size:.82rem;color:var(--text2);margin-top:6px;">Click to upload screenshot</div><div style="font-size:.72rem;color:var(--gray);">JPG, PNG, WebP</div></div>
-      </label>
-      <div class="modal-nav" style="margin-top:14px;"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="confirmScreenshot()">✅ Confirm & Continue</button></div>
-    </div>
+        <div class="step-panel" id="sp25" style="display:none!important"></div>
     <div class="step-panel" id="sp3">
       <div class="form-group"><label class="form-label">Name / ناوت / الاسم</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div>
       <div class="form-group">
@@ -274,14 +260,27 @@ if('serviceWorker' in navigator){
         <div id="emailVerifiedBadge" style="display:none;align-items:center;gap:6px;margin-top:6px;font-size:.8rem;color:#059669;font-weight:700;"><span>✅</span><span>Email verified!</span></div>
       </div>
       <div id="verifyCodeWrap" style="display:none;">
-        <div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;">Enter the 4-digit code sent to your email:</div><div id="codeDisplayWrap" style="display:none;background:linear-gradient(135deg,var(--p),var(--pl));border-radius:12px;padding:14px;margin-top:8px;text-align:center;"><div style="font-size:.72rem;color:rgba(255,255,255,.8);margin-bottom:6px;">📧 Your verification code:</div><div id="verifyCodeDisplay" style="font-size:2.2rem;font-weight:700;color:#fff;letter-spacing:12px;font-family:monospace;">—</div></div>
+        <div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;">Enter the 4-digit code:</div>
         <div style="display:flex;gap:8px;">
-          <input class="form-input" id="verifyCodeInput" type="text" maxlength="4" placeholder="1234" style="flex:1;text-align:center;font-size:1.2rem;letter-spacing:8px;font-weight:700;"/>
+          <input class="form-input" id="verifyCodeInput" type="number" maxlength="4" placeholder="1234" style="flex:1;text-align:center;font-size:1.4rem;letter-spacing:8px;font-weight:700;"/>
           <button class="btn btn-primary" style="padding:8px 14px;" onclick="checkVerifyCode()">✓</button>
         </div>
       </div>
+      <div id="codeDisplayWrap" style="display:none;background:linear-gradient(135deg,var(--p),var(--pl));border-radius:12px;padding:12px;margin-top:8px;text-align:center;">
+        <div style="font-size:.72rem;color:rgba(255,255,255,.8);margin-bottom:4px;">📧 Your verification code:</div>
+        <div id="verifyCodeDisplay" style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:12px;font-family:monospace;">—</div>
+      </div>
+      <div style="margin-top:14px;">
+        <label style="font-size:.78rem;font-weight:700;color:var(--text2);display:block;margin-bottom:7px;">📸 Payment Screenshot <span style="color:#dc2626;">*required</span></label>
+        <label id="screenshotZone" style="display:block;border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--gl);transition:border-color .2s;" onmouseover="this.style.borderColor='var(--p)'" onmouseout="this.style.borderColor=screenshotDone?'#059669':'var(--border)'">
+          <input type="file" id="screenshotInput" accept="image/*" style="display:none;" onchange="previewScreenshot(this)"/>
+          <div id="screenshotPreview" style="display:none;"><img id="screenshotImg" style="max-width:100%;border-radius:8px;max-height:160px;object-fit:contain;" alt="screenshot"/></div>
+          <div id="screenshotPlaceholder"><div style="font-size:1.6rem;">📸</div><div style="font-size:.8rem;color:var(--text2);margin-top:5px;">Tap to upload transfer screenshot</div><div style="font-size:.7rem;color:var(--gray);">JPG · PNG · WebP</div></div>
+        </label>
+        <div id="screenshotDoneMsg" style="display:none;color:#059669;font-size:.8rem;font-weight:700;margin-top:6px;text-align:center;">✅ Screenshot uploaded!</div>
+      </div>
       <div id="tgLinkWrap"></div>
-      <div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div>
+      <div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit Order ✓</button></div>
     </div>
     <div class="step-panel" id="sp4">
       <!-- SPIN WHEEL -->
@@ -501,7 +500,24 @@ async function initPage(){
   try{ loadVIPWall(); }catch(e){}
 
   // Load banner settings
-  try{ window._KS_DB.listenSettings(s=>{ renderBanner(s); }); }catch(e){}
+  try{ window._KS_DB.listenSettings(s=>{ 
+    renderBanner(s);
+    // Load category logos
+    const cats=[
+      {id:'Ps',   key:'catLogoPs'},
+      {id:'Xbox',  key:'catLogoXbox'},
+      {id:'Pc',    key:'catLogoPc'},
+      {id:'Nin',   key:'catLogoNin'},
+      {id:'Subs',  key:'catLogoSubs'}
+    ];
+    cats.forEach(c=>{
+      if(s[c.key]){
+        const img=document.getElementById('catImg'+c.id);
+        const icon=document.getElementById('catIcon'+c.id);
+        if(img){ img.src=s[c.key]; img.style.display='block'; if(icon) icon.textContent=''; }
+      }
+    });
+  }); }catch(e){}
 
   // Live listeners — auto update when admin saves
   window._KS_DB.listenGames(rawGames=>{
