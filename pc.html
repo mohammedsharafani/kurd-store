@@ -108,7 +108,52 @@ if('serviceWorker' in navigator){
       <div id="tgLinkWrap"></div>
       <div class="modal-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="submitOrder()">Submit ✓</button></div>
     </div>
-    <div class="step-panel" id="sp4"><div class="success-box"><div class="success-icon">🎉</div><div class="success-title">Order Received!</div><div class="success-desc">Key within <strong>1–2 hours</strong>.</div><div id="tgFollowWrap"></div><button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button></div></div>
+    <div class="step-panel" id="sp4">
+      <!-- SPIN WHEEL -->
+      <div id="spinSection" style="text-align:center;">
+        <div style="font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:4px;" id="spinTitle">🎰 Spin your reward!</div>
+        <div style="font-size:.75rem;color:var(--gray);margin-bottom:14px;" id="spinSubtitle">You earned a spin for your purchase!</div>
+        <div style="position:relative;display:inline-block;margin-bottom:14px;">
+          <canvas id="wheelCanvas" width="260" height="260" style="border-radius:50%;cursor:pointer;box-shadow:0 8px 32px #7c3aed33;"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:var(--card);border-radius:50%;border:3px solid var(--p);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--p);z-index:2;">▶</div>
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:1.4rem;z-index:2;">🔻</div>
+        </div>
+        <div id="spinsLeftBadge" style="background:var(--ps);color:var(--p);border-radius:99px;padding:3px 14px;font-size:.75rem;font-weight:700;display:inline-block;margin-bottom:10px;"></div>
+        <div><button id="spinBtn" class="btn btn-primary" onclick="doSpin()" style="width:100%;padding:13px;">🎰 Spin!</button></div>
+        <div id="spinPrizeResult" style="display:none;background:var(--gl);border-radius:12px;padding:14px;margin-top:12px;">
+          <div style="font-size:1.1rem;font-weight:700;color:var(--p);" id="spinPrizeText"></div>
+          <div style="font-size:.78rem;color:var(--gray);margin-top:4px;" id="spinPrizeCode"></div>
+        </div>
+        <button id="skipSpinBtn" onclick="showSuccess()" style="background:none;border:none;color:var(--gray);font-size:.75rem;cursor:pointer;margin-top:8px;text-decoration:underline;font-family:var(--fb);">Skip →</button>
+      </div>
+      <!-- SUCCESS -->
+      <div id="successSection" style="display:none;">
+        <div class="success-box">
+          <div class="success-icon">🎉</div>
+          <div class="success-title">Order Received!</div>
+          <div class="success-desc">Key within <strong>1–2 hours</strong>.<br><br>کیلێکەکەت دەنێرین ژێر <strong>١-٢ کاتژمێر</strong>.</div>
+          <div id="loyaltyInfo" style="background:var(--gl);border-radius:10px;padding:12px;margin:12px 0;font-size:.8rem;text-align:left;display:none;">
+            <div style="font-weight:700;color:var(--p);margin-bottom:6px;">🏆 Your Loyalty Card</div>
+            <div id="loyaltyInfoText"></div>
+            <a id="cardLinkBtn" href="card.html" style="display:block;margin-top:8px;color:var(--p);font-weight:700;font-size:.78rem;text-decoration:none;">View My Card →</a>
+          </div>
+          <div id="referralInfo" style="background:var(--ps);border-radius:10px;padding:12px;margin:12px 0;font-size:.8rem;text-align:left;display:none;">
+            <div style="font-weight:700;color:var(--p);margin-bottom:6px;">👥 Share & Earn!</div>
+            <div style="color:var(--text2);margin-bottom:8px;font-size:.75rem;">Share your link — when a friend buys, you both get rewarded!</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input id="referralLinkInput" type="text" readonly style="flex:1;font-size:.72rem;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);"/>
+              <button onclick="copyReferralLink()" style="background:var(--p);color:#fff;border:none;border-radius:7px;padding:6px 10px;font-size:.72rem;cursor:pointer;font-weight:700;">Copy</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <a id="refTgShare" href="#" target="_blank" style="flex:1;background:#0088cc;color:#fff;border-radius:7px;padding:6px;font-size:.72rem;font-weight:700;text-decoration:none;text-align:center;">✈️ Telegram</a>
+              <a id="refWaShare" href="#" target="_blank" style="flex:1;background:#25d366;color:#fff;border-radius:7px;padding:6px;font-size:.72rem;font-weight:700;text-decoration:none;text-align:center;">💬 WhatsApp</a>
+            </div>
+          </div>
+          <div id="tgFollowWrap"></div>
+          <button class="btn-outline btn" style="width:100%;margin-top:10px;" onclick="closeCheckout()">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>

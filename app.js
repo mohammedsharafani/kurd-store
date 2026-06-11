@@ -243,8 +243,244 @@ async function submitOrder(){
     gtag('event','purchase',{value:total,currency:'IQD',items:items});
   }
 
-  goStep(4); document.getElementById('modalTitle').textContent='🎉 Order Sent!';
+  // Award loyalty points + spins BEFORE showing success
+  await awardLoyaltyAndSpins(name, email, total);
+
+  goStep(4);
+  document.getElementById('modalTitle').textContent='🎉 Almost Done!';
+  // Init wheel
+  await initSpinWheel(email);
 }
+
+// ══════════════════════════════════════
+//  LOYALTY POINTS SYSTEM
+// ══════════════════════════════════════
+async function awardLoyaltyAndSpins(name, email, total){
+  if(!window._KS_DB) return;
+  try{
+    const key = email.toLowerCase().replace(/[.#$[\]]/g,'_');
+    const [loySettings, vipSettings, vipMember, existingProfile] = await Promise.all([
+      window._KS_DB.getLoyaltySettings(),
+      window._KS_DB.getVIPSettings(),
+      window._KS_DB.getVIPMember(key),
+      window._KS_DB.getLoyalty(key)
+    ]);
+
+    const isVIP = vipMember && vipMember.active && (!vipMember.expiryDate || new Date(vipMember.expiryDate) > new Date());
+    const pointsPer = loySettings.pointsPer || 10000;
+    const basePoints = Math.floor(total / pointsPer);
+    const bonusPoints = isVIP ? (vipSettings.pointsBonus || 1) : 0;
+    const pointsEarned = Math.max(1, basePoints) + bonusPoints;
+
+    const profile = existingProfile || {name, email, points:0, orders:0, totalSpent:0, referralCode: name.split(' ')[0].toUpperCase() + Math.floor(Math.random()*90+10)};
+    profile.name = name;
+    profile.email = email;
+    profile.points = (profile.points||0) + pointsEarned;
+    profile.orders = (profile.orders||0) + 1;
+    profile.totalSpent = (profile.totalSpent||0) + total;
+    profile.lastOrder = new Date().toISOString();
+
+    // Spins: 1 base + 1 extra if VIP
+    const spinsToAward = isVIP ? 2 : 1;
+    profile.spinsAvailable = (profile.spinsAvailable||0) + spinsToAward;
+
+    await window._KS_DB.saveLoyalty(key, profile);
+
+    // Check referral — if this customer came via ref= link, award referrer
+    const refCode = localStorage.getItem('ks_ref');
+    if(refCode && refCode !== profile.referralCode){
+      const refData = await window._KS_DB.getReferral(refCode);
+      if(refData){
+        const refSettings = await window._KS_DB.getReferralSettings();
+        const refKey = refData.email.toLowerCase().replace(/[.#$[\]]/g,'_');
+        const refProfile = await window._KS_DB.getLoyalty(refKey);
+        if(refProfile){
+          // Award referrer
+          if(refSettings.referrerType === 'percent'){
+            refProfile.points = (refProfile.points||0) + Math.floor(total/10000);
+          }
+          refProfile.referralEarned = (refProfile.referralEarned||0) + (refSettings.referrerValue||15000);
+          await window._KS_DB.saveLoyalty(refKey, refProfile);
+        }
+        // Update referral count
+        refData.uses = (refData.uses||0) + 1;
+        await window._KS_DB.saveReferral(refCode, refData);
+        localStorage.removeItem('ks_ref');
+      }
+    }
+
+    // Store for display
+    window._lastLoyalty = {profile, loySettings, vipSettings, isVIP, pointsEarned, spinsToAward};
+  }catch(e){ console.log('Loyalty error:', e); }
+}
+
+// ══════════════════════════════════════
+//  SPIN WHEEL
+// ══════════════════════════════════════
+let _spinData = null;
+let _spinsRemaining = 0;
+let _spinning = false;
+
+async function initSpinWheel(email){
+  if(!window._KS_DB) return;
+  try{
+    const spinSettings = await window._KS_DB.getSpinSettings();
+    _spinData = spinSettings.prizes || [];
+    const key = email.toLowerCase().replace(/[.#$[\]]/g,'_');
+    const profile = await window._KS_DB.getLoyalty(key);
+    _spinsRemaining = profile?.spinsAvailable || 1;
+
+    document.getElementById('spinSection').style.display='block';
+    document.getElementById('successSection').style.display='none';
+    document.getElementById('spinsLeftBadge').textContent = _spinsRemaining + ' spin' + (_spinsRemaining!==1?'s':'') + ' remaining';
+
+    drawWheel();
+
+    // Show loyalty info for success page
+    if(window._lastLoyalty){
+      const {profile:lp, loySettings, isVIP, pointsEarned} = window._lastLoyalty;
+      const tiers = loySettings.tiers||[];
+      let tier = tiers[0];
+      for(const t of tiers){ if((lp.points||0) >= t.min) tier = t; }
+      const nextTier = tiers.find(t=>t.min > (lp.points||0));
+      const cardLink = document.getElementById('cardLinkBtn');
+      if(cardLink) cardLink.href = 'card.html?email='+encodeURIComponent(email);
+      document.getElementById('loyaltyInfoText').innerHTML =
+        `+${pointsEarned} point${pointsEarned!==1?'s':''} earned! ${isVIP?'👑 VIP bonus included!':''}<br>` +
+        `Total: <strong>${lp.points} pts</strong> — ${tier.icon} ${tier.name}` +
+        (nextTier ? `<br>Need <strong>${nextTier.min - lp.points} more</strong> to reach ${nextTier.icon} ${nextTier.name}` : '<br>🏆 Maximum tier!');
+      document.getElementById('loyaltyInfo').style.display='block';
+
+      // Referral link
+      if(lp.referralCode){
+        const base = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '');
+        const refLink = base + 'index.html?ref=' + lp.referralCode;
+        const inputEl = document.getElementById('referralLinkInput');
+        if(inputEl) inputEl.value = refLink;
+        const refTg = document.getElementById('refTgShare');
+        const refWa = document.getElementById('refWaShare');
+        if(refTg) refTg.href = 'https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent('🎮 Shop on Kurd Store and get a discount with my link!');
+        if(refWa) refWa.href = 'https://wa.me/?text='+encodeURIComponent('🎮 Shop on Kurd Store! Use my link for a discount: '+refLink);
+        document.getElementById('referralInfo').style.display='block';
+
+        // Save referral to Firebase
+        await window._KS_DB.saveReferral(lp.referralCode, {email, name:lp.name, uses:lp.uses||0});
+      }
+    }
+  }catch(e){ console.log('Spin init error:', e); showSuccess(); }
+}
+
+function drawWheel(highlightIndex=-1){
+  const canvas = document.getElementById('wheelCanvas');
+  if(!canvas || !_spinData.length) return;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width/2, cy = canvas.height/2, r = cx-6;
+  const slices = _spinData.length;
+  const arc = (Math.PI*2)/slices;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  _spinData.forEach((p,i)=>{
+    const start = arc*i - Math.PI/2;
+    const end = start + arc;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.closePath();
+    ctx.fillStyle = i===highlightIndex ? '#fff' : (p.color||'#7c3aed');
+    ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    // Text
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle = i===highlightIndex?p.color:'#fff';
+    ctx.font='bold '+(p.label.length>8?'9':'11')+'px sans-serif';
+    ctx.fillText(p.label, r-8, 4);
+    ctx.restore();
+  });
+}
+
+function doSpin(){
+  if(_spinning || _spinsRemaining<=0) return;
+  _spinning=true;
+  document.getElementById('spinBtn').disabled=true;
+  document.getElementById('spinPrizeResult').style.display='none';
+
+  // Determine prize by chance
+  const total = _spinData.reduce((s,p)=>s+(p.chance||0),0);
+  let rand = Math.random()*total, prizeIdx=0;
+  for(let i=0;i<_spinData.length;i++){ rand-=(_spinData[i].chance||0); if(rand<=0){prizeIdx=i;break;} }
+
+  // Animate wheel
+  const slices = _spinData.length;
+  const arc = 360/slices;
+  const targetAngle = 360*5 + (360 - prizeIdx*arc - arc/2) + Math.random()*20-10;
+  let current=0, speed=15, decelRate=0.97;
+  const canvas=document.getElementById('wheelCanvas');
+  const ctx=canvas.getContext('2d');
+  const cx=canvas.width/2, cy=canvas.height/2, r=cx-6;
+  let totalAngle=0;
+
+  function animate(){
+    totalAngle+=speed; speed*=decelRate;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(totalAngle*Math.PI/180); ctx.translate(-cx,-cy);
+    drawWheel(); ctx.restore();
+    if(speed>0.3){ requestAnimationFrame(animate); }
+    else{
+      _spinning=false; _spinsRemaining--;
+      document.getElementById('spinsLeftBadge').textContent = _spinsRemaining + ' spin' + (_spinsRemaining!==1?'s':'') + ' remaining';
+      showPrize(prizeIdx);
+      if(_spinsRemaining>0){
+        document.getElementById('spinBtn').disabled=false;
+        document.getElementById('spinBtn').textContent='🎰 Spin Again! ('+_spinsRemaining+' left)';
+      } else {
+        document.getElementById('spinBtn').style.display='none';
+        setTimeout(showSuccess, 2500);
+      }
+    }
+  }
+  animate();
+}
+
+async function showPrize(idx){
+  const prize = _spinData[idx];
+  const prizeEl = document.getElementById('spinPrizeResult');
+  const prizeText = document.getElementById('spinPrizeText');
+  const prizeCode = document.getElementById('spinPrizeCode');
+
+  if(prize.type==='none'){
+    prizeText.textContent='😢 Better luck next time!';
+    prizeCode.textContent="You'll win next purchase!";
+  } else {
+    prizeText.textContent='🎉 You won: '+prize.label+'!';
+    const code='SPIN'+Math.random().toString(36).substr(2,6).toUpperCase();
+    prizeCode.textContent='Your code: '+code+' (check your email)';
+    // Save prize to Firebase
+    if(window._KS_DB && window._lastLoyalty){
+      const key=window._lastLoyalty.profile.email.toLowerCase().replace(/[.#$[\]]/g,'_');
+      await window._KS_DB.saveSpinResult(key, {prize:prize.label, code, date:new Date().toISOString()});
+      // Save code so customer can use it
+      const codes = await window._KS_DB.getCodes();
+      codes[code] = {type:prize.type==='percent'?'percent':'fixed', value:prize.value, desc:prize.label+' — Spin Win!', appliesTo:'all', expiry: new Date(Date.now()+30*24*60*60*1000).toISOString().split('T')[0]};
+      await window._KS_DB.saveCodes(codes);
+      // Deduct spin
+      window._lastLoyalty.profile.spinsAvailable = _spinsRemaining;
+      await window._KS_DB.saveLoyalty(key, window._lastLoyalty.profile);
+    }
+  }
+  prizeEl.style.display='block';
+}
+
+function showSuccess(){
+  document.getElementById('spinSection').style.display='none';
+  document.getElementById('successSection').style.display='block';
+  document.getElementById('modalTitle').textContent='🎉 Order Sent!';
+}
+
+function copyReferralLink(){
+  const v = document.getElementById('referralLinkInput').value;
+  navigator.clipboard.writeText(v).then(()=>showToast('✅ Referral link copied!'));
+}
+
 function gameCardHTML(g){
   const l=getLang();
   const now=new Date();
@@ -474,16 +710,25 @@ async function checkReferralCode(){
   const ref = params.get('ref');
   if(!ref) return;
   if(!window._KS_DB) return;
+  // Save ref code for loyalty tracking
+  localStorage.setItem('ks_ref', ref.toUpperCase());
   try{
     const codes = await window._KS_DB.getCodes();
     const code = ref.toUpperCase();
     const c = codes[code];
     if(c){
-      // Check expiry
       if(c.expiry && new Date(c.expiry) < new Date()) return;
-      // Auto-apply discount
       localStorage.setItem('ks_disc', JSON.stringify({code,...c}));
-      showToast('🎉 Referral discount "'+code+'" applied automatically! '+c.desc);
+      showToast('🎉 Referral discount "'+code+'" applied! '+c.desc);
+      return;
+    }
+    // Check referral system codes
+    const refSettings = await window._KS_DB.getReferralSettings();
+    const refData = await window._KS_DB.getReferral(ref);
+    if(refData && refSettings.newCustDiscount){
+      const discCode = 'REF-'+ref+'-'+refSettings.newCustDiscount;
+      localStorage.setItem('ks_disc', JSON.stringify({code:discCode,type:'percent',value:refSettings.newCustDiscount,desc:refSettings.newCustDiscount+'% off — Welcome gift!',appliesTo:'all'}));
+      showToast('🎉 '+refSettings.newCustDiscount+'% welcome discount applied!');
     }
   }catch(e){}
 }

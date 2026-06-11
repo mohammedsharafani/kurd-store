@@ -77,11 +77,45 @@
       });
     }
 
+    // ── LOYALTY ──
+    async function getLoyalty(emailKey){ const d=await _get('loyalty/'+emailKey); return d; }
+    async function saveLoyalty(emailKey,data){ await _set('loyalty/'+emailKey,data); }
+    async function getAllLoyalty(){ const d=await _get('loyalty'); return d?Object.values(d):[]; }
+    async function getLoyaltySettings(){ const d=await _get('system/loyaltySettings'); return d||{pointsPer:10000,tiers:[{name:'Bronze',icon:'🥉',min:0,discount:5,color:'#cd7f32'},{name:'Silver',icon:'🥈',min:10,discount:10,color:'#9ca3af'},{name:'Gold',icon:'🥇',min:25,discount:15,color:'#f59e0b'},{name:'Diamond',icon:'💎',min:50,discount:20,color:'#06b6d4'}]}; }
+    async function saveLoyaltySettings(d){ await _set('system/loyaltySettings',d); }
+
+    // ── SPIN WHEEL ──
+    async function getSpinSettings(){ const d=await _get('system/spinSettings'); return d||{prizes:[{label:'5% Off',type:'percent',value:5,chance:35,color:'#7c3aed'},{label:'10% Off',type:'percent',value:10,chance:25,color:'#059669'},{label:'15% Off',type:'percent',value:15,chance:15,color:'#3b82f6'},{label:'50,000 IQD Off',type:'fixed',value:50000,chance:12,color:'#f59e0b'},{label:'Free Game <30k',type:'freegame',value:30000,chance:8,color:'#ec4899'},{label:'Try Again',type:'none',value:0,chance:5,color:'#6b7280'}]}; }
+    async function saveSpinSettings(d){ await _set('system/spinSettings',d); }
+    async function saveSpinResult(emailKey,result){ await push(ref(db,'spinHistory/'+emailKey),result); }
+
+    // ── REFERRAL ──
+    async function getReferralSettings(){ const d=await _get('system/referralSettings'); return d||{referrerType:'fixed',referrerValue:15000,newCustDiscount:5,expiryDays:30}; }
+    async function saveReferralSettings(d){ await _set('system/referralSettings',d); }
+    async function getReferral(code){ const d=await _get('referrals/'+code); return d; }
+    async function saveReferral(code,data){ await _set('referrals/'+code,data); }
+    async function getAllReferrals(){ const d=await _get('referrals'); return d?Object.entries(d).map(([k,v])=>({code:k,...v})):[]; }
+
+    // ── VIP ──
+    async function getVIPSettings(){ const d=await _get('system/vipSettings'); return d||{monthlyPrice:5000,annualPrice:25000,lifetimePrice:80000,discount:15,spinBonus:1,pointsBonus:1,benefits:['15% off all games forever','2 spins per purchase (1 extra)','Earn 1 extra loyalty point per purchase','VIP-only exclusive deals','Early access to new games 48h before everyone','Instant key replacement — no questions asked','Monthly surprise game gift','Birthday month special discount','Listed on VIP Members Wall','Direct Telegram support']}; }
+    async function saveVIPSettings(d){ await _set('system/vipSettings',d); }
+    async function getVIPMember(emailKey){ const d=await _get('vipMembers/'+emailKey); return d; }
+    async function saveVIPMember(emailKey,data){ await _set('vipMembers/'+emailKey,data); }
+    async function getAllVIPMembers(){ const d=await _get('vipMembers'); return d?Object.values(d):[]; }
+
     window._KS_DB = {
       getGames,getSubs,getSettings,getCodes,getReviews,
       saveGames,saveSubs,saveSettings,saveCodes,saveReviews,saveOrder,
       saveNotification,getNotifications,
-      listenGames,listenSubs,listenSettings,listenReviews
+      listenGames,listenSubs,listenSettings,listenReviews,
+      // Loyalty
+      getLoyalty,saveLoyalty,getAllLoyalty,getLoyaltySettings,saveLoyaltySettings,
+      // Spin
+      getSpinSettings,saveSpinSettings,saveSpinResult,
+      // Referral
+      getReferralSettings,saveReferralSettings,getReferral,saveReferral,getAllReferrals,
+      // VIP
+      getVIPSettings,saveVIPSettings,getVIPMember,saveVIPMember,getAllVIPMembers
     };
 
     console.log('✅ Firebase connected!');

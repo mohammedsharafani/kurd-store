@@ -443,3 +443,11 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 
 /* ══ VERIFY CODE ══ */
 .verify-input{text-align:center;font-size:1.4rem;letter-spacing:10px;font-weight:700;}
+
+/* ══ SPIN WHEEL CHECKOUT ══ */
+#spinSection{padding:8px 0;}
+#spinPrizeResult{border:2px solid var(--p);}
+#successSection .success-box{padding:20px 0;}
+
+/* ══ LOYALTY CARD LINK IN NAV ══ */
+.card-nav-link{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a0533 !important;border-radius:99px;padding:4px 12px;font-size:.75rem;font-weight:700;}

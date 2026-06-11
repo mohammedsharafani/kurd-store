@@ -127,6 +127,10 @@ tr:hover td{background:var(--gl);}
     <li><button onclick="showSec('reviews',this)">⭐ Reviews</button></li>
     <li><button onclick="showSec('customers',this)">👥 Customers</button></li>
     <li><button onclick="showSec('orders',this)">📋 Orders <span id="pendingBadge" style="background:#dc2626;color:#fff;border-radius:99px;font-size:.65rem;padding:1px 7px;margin-left:4px;display:none;">0</span></button></li>
+    <li><button onclick="showSec('loyalty',this)">🏆 Loyalty</button></li>
+    <li><button onclick="showSec('spin',this)">🎰 Spin Wheel</button></li>
+    <li><button onclick="showSec('referral',this)">👥 Referral</button></li>
+    <li><button onclick="showSec('vip',this)">👑 VIP Club</button></li>
     <li><button onclick="showSec('settings',this)">⚙️ Settings</button></li>
   </ul>
   <div class="sb-sec">Store Pages</div>
@@ -421,6 +425,112 @@ tr:hover td{background:var(--gl);}
   <div class="panel"><div class="panel-hd"><div class="panel-title">📋 Order List</div></div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Email</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody id="ordersTbody"></tbody></table></div><div class="empty-state" id="ordersEmpty" style="display:none;"><div class="ei">📋</div><p>No orders yet.</p></div></div>
 </div>
 
+<!-- ══════════ LOYALTY ══════════ -->
+<div id="sec-loyalty" style="display:none;">
+  <div class="topbar"><div><h1>🏆 Loyalty Points</h1><p>Configure points and tiers</p></div></div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">⚙️ Points Settings</div></div>
+    <div class="panel-body">
+      <div class="form-group" style="max-width:300px;margin-bottom:16px;">
+        <label>Points earned per IQD spent</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:.82rem;color:var(--text2);">1 point per</span>
+          <input id="loyPointsPer" type="number" min="1000" step="1000" style="width:120px;" placeholder="10000"/>
+          <span style="font-size:.82rem;color:var(--text2);">IQD</span>
+        </div>
+      </div>
+      <div style="font-family:var(--fd);font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:12px;">🏆 Tiers</div>
+      <div id="loyTiersList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveLoyaltySettings()">💾 Save Settings</button></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">👥 All Loyalty Cards</div><button class="btn btn-outline btn-sm" onclick="loadLoyaltyAdmin()">🔄 Refresh</button></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Points</th><th>Tier</th><th>Orders</th><th>Spent</th><th>VIP</th><th>Edit</th></tr></thead><tbody id="loyTbody"></tbody></table></div>
+    <div class="empty-state" id="loyEmpty" style="display:none;"><div class="ei">🏆</div><p>No loyalty cards yet.</p></div>
+  </div>
+</div>
+
+<!-- ══════════ SPIN WHEEL ══════════ -->
+<div id="sec-spin" style="display:none;">
+  <div class="topbar"><div><h1>🎰 Spin Wheel</h1><p>Configure prizes and chances</p></div></div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">🎁 Prizes — must add up to 100%</div><button class="btn btn-outline btn-sm" onclick="addSpinPrize()">+ Add Prize</button></div>
+    <div class="panel-body">
+      <div style="background:var(--gl);border-radius:10px;padding:12px;font-size:.78rem;color:var(--text2);margin-bottom:14px;">
+        💡 Total chances must equal <strong>100%</strong>. Current total: <strong id="spinChanceTotal">0%</strong>
+      </div>
+      <div id="spinPrizesList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveSpinSettings()">💾 Save Prizes</button></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">📋 Recent Spin History</div><button class="btn btn-outline btn-sm" onclick="loadSpinHistory()">🔄 Load</button></div>
+    <div class="panel-body" id="spinHistoryAdmin"><div style="color:var(--gray);font-size:.85rem;">Click Load to see spin history.</div></div>
+  </div>
+</div>
+
+<!-- ══════════ REFERRAL ══════════ -->
+<div id="sec-referral" style="display:none;">
+  <div class="topbar"><div><h1>👥 Referral System</h1><p>Reward customers who bring new buyers</p></div></div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">⚙️ Referral Settings</div></div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Reward for referrer</label>
+          <div style="display:flex;gap:8px;"><input id="refRewardVal" type="number" min="0" placeholder="15000"/><select id="refRewardType" style="width:auto;"><option value="fixed">IQD fixed</option><option value="percent">% of sale</option></select></div>
+        </div>
+        <div class="form-group"><label>New customer discount (%)</label><input id="refNewDisc" type="number" min="0" max="50" placeholder="5"/></div>
+        <div class="form-group"><label>Link expires after (days)</label><input id="refExpiry" type="number" min="1" placeholder="30"/></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveReferralSettings()">💾 Save</button></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">📊 Referral Performance</div><button class="btn btn-outline btn-sm" onclick="loadReferralAdmin()">🔄 Refresh</button></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Customer</th><th>Code</th><th>Referrals</th><th>Revenue</th></tr></thead><tbody id="refTbody"></tbody></table></div>
+    <div class="empty-state" id="refEmpty" style="display:none;"><div class="ei">👥</div><p>No referrals yet.</p></div>
+  </div>
+</div>
+
+<!-- ══════════ VIP CLUB ══════════ -->
+<div id="sec-vip" style="display:none;">
+  <div class="topbar"><div><h1>👑 VIP Club</h1><p>Manage VIP memberships</p></div><a href="vip.html" target="_blank" class="btn btn-outline btn-sm">👁 View VIP Page</a></div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">💰 VIP Pricing</div></div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Monthly Price (IQD)</label><input id="vipMonthly" type="number" placeholder="5000"/></div>
+        <div class="form-group"><label>Annual Price (IQD)</label><input id="vipAnnual" type="number" placeholder="25000"/></div>
+        <div class="form-group"><label>Lifetime Price (IQD)</label><input id="vipLifetime" type="number" placeholder="80000"/></div>
+        <div class="form-group"><label>VIP Discount (%)</label><input id="vipDiscount" type="number" placeholder="15"/></div>
+        <div class="form-group"><label>Extra spin per purchase</label><input id="vipSpinBonus" type="number" value="1" min="0" max="5"/><div style="font-size:.72rem;color:var(--gray);margin-top:3px;">VIP gets 1 base + this many extra spins</div></div>
+        <div class="form-group"><label>Extra points per purchase</label><input id="vipPointsBonus" type="number" value="1" min="0" max="10"/><div style="font-size:.72rem;color:var(--gray);margin-top:3px;">Added on top of normal points earned</div></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveVIPSettings()">💾 Save Pricing</button></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">✏️ VIP Benefits List</div><div style="font-size:.76rem;color:var(--gray);">Shown on VIP page and loyalty card</div></div>
+    <div class="panel-body">
+      <div id="vipBenefitsList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;"></div>
+      <button class="btn btn-outline btn-sm" onclick="addVIPBenefit()">+ Add Benefit</button>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveVIPBenefits()">💾 Save Benefits</button></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">👑 VIP Members</div><button class="btn btn-outline btn-sm" onclick="loadVIPAdmin()">🔄 Refresh</button></div>
+    <div style="padding:14px 18px;border-bottom:1.5px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="form-group" style="margin:0;flex:1;min-width:160px;"><label>Email to activate</label><input id="vipActivateEmail" type="email" placeholder="customer@email.com"/></div>
+      <div class="form-group" style="margin:0;"><label>Plan</label><select id="vipActivatePlan"><option value="monthly">Monthly</option><option value="annual">Annual</option><option value="lifetime">Lifetime</option></select></div>
+      <div class="form-group" style="margin:0;"><label>Show on wall?</label><select id="vipShowWall"><option value="true">Yes</option><option value="false">No</option></select></div>
+      <button class="btn btn-primary btn-sm" onclick="activateVIP()">👑 Activate VIP</button>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Expiry</th><th>Wall</th><th>Status</th><th>Actions</th></tr></thead><tbody id="vipTbody"></tbody></table></div>
+    <div class="empty-state" id="vipEmpty" style="display:none;"><div class="ei">👑</div><p>No VIP members yet.</p></div>
+  </div>
+</div>
+
 <!-- ══════════ SETTINGS ══════════ -->
 <div id="sec-settings" style="display:none;">
   <div class="topbar"><div><h1>⚙️ Settings</h1><p>Store info, integrations, and appearance</p></div></div>
@@ -554,7 +664,7 @@ function waitForDB(cb){
 
 // ── NAV ──
 function showSec(name,btn){
-  ['dashboard','games','subs','codes','reviews','orders','customers','settings'].forEach(s=>{
+  ['dashboard','games','subs','codes','reviews','orders','customers','loyalty','spin','referral','vip','settings'].forEach(s=>{
     const el=document.getElementById('sec-'+s);
     if(el) el.style.display=s===name?'block':'none';
   });
@@ -566,6 +676,10 @@ function showSec(name,btn){
   if(name==='reviews')   renderRvTable();
   if(name==='orders')    renderOrders();
   if(name==='customers') loadCustomers();
+  if(name==='loyalty')   loadLoyaltyAdmin();
+  if(name==='spin')      loadSpinAdmin();
+  if(name==='referral')  loadReferralAdmin();
+  if(name==='vip')       loadVIPAdmin();
   if(name==='settings')  loadSettings();
   if(name==='dashboard') loadDashboard();
 }
@@ -1261,13 +1375,319 @@ async function viewScreenshot(orderId){
 }
 
 // ══════════════════════════════════════
-//  UPDATE DASHBOARD to draw chart
+//  LOYALTY ADMIN
 // ══════════════════════════════════════
+let _loySettings = null;
 
-// Override loadDashboard to also draw chart
-const _origLoadDashboard = loadDashboard;
-async function loadDashboard(){
-  await _origLoadDashboard();
+async function loadLoyaltyAdmin(){
+  _loySettings = await db().getLoyaltySettings();
+  // Points per
+  document.getElementById('loyPointsPer').value = _loySettings.pointsPer || 10000;
+  // Tiers
+  renderLoyTiers();
+  // Members
+  const all = await db().getAllLoyalty();
+  const tb = document.getElementById('loyTbody');
+  const em = document.getElementById('loyEmpty');
+  if(!all.length){ tb.innerHTML=''; em.style.display='block'; return; }
+  em.style.display='none';
+  const tiers = _loySettings.tiers || [];
+  tb.innerHTML = all.sort((a,b)=>(b.points||0)-(a.points||0)).map(m=>{
+    let tier = tiers[0];
+    for(const t of tiers){ if((m.points||0)>=t.min) tier=t; }
+    return `<tr>
+      <td><strong>${m.name||'—'}</strong></td>
+      <td style="font-size:.78rem;">${m.email||'—'}</td>
+      <td><strong style="color:var(--p);">${m.points||0}</strong></td>
+      <td>${tier.icon} ${tier.name}</td>
+      <td>${m.orders||0}</td>
+      <td style="font-size:.78rem;">${Number(m.totalSpent||0).toLocaleString()} IQD</td>
+      <td>${m.isVIP?'<span style="color:#f59e0b;font-weight:700;">👑 VIP</span>':'—'}</td>
+      <td class="td-act">
+        <button class="btn btn-outline btn-sm" onclick="editLoyaltyPoints('${(m.email||'').replace(/[.#$[\]]/g,'_')}','${m.name||''}',${m.points||0})">✏️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderLoyTiers(){
+  const tiers = _loySettings.tiers || [];
+  document.getElementById('loyTiersList').innerHTML = tiers.map((t,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:var(--gl);border-radius:9px;padding:10px 12px;flex-wrap:wrap;">
+      <input type="text" value="${t.icon}" style="width:48px;text-align:center;font-size:1.2rem;" class="lt-icon" data-i="${i}"/>
+      <input type="text" value="${t.name}" style="flex:1;min-width:80px;" class="lt-name" data-i="${i}"/>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.78rem;color:var(--text2);">From<input type="number" value="${t.min}" style="width:60px;" class="lt-min" data-i="${i}"/>pts</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.78rem;color:var(--text2);">Discount<input type="number" value="${t.discount}" style="width:55px;" class="lt-disc" data-i="${i}"/>%</div>
+      <input type="color" value="${t.color||'#7c3aed'}" class="lt-color" data-i="${i}" style="width:36px;height:32px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;"/>
+    </div>`).join('');
+}
+
+async function saveLoyaltySettings(){
+  showSaving();
+  const tiers = [];
+  document.querySelectorAll('#loyTiersList > div').forEach((row,i)=>{
+    tiers.push({
+      icon:    row.querySelector('.lt-icon').value.trim(),
+      name:    row.querySelector('.lt-name').value.trim(),
+      min:     parseInt(row.querySelector('.lt-min').value)||0,
+      discount:parseInt(row.querySelector('.lt-disc').value)||0,
+      color:   row.querySelector('.lt-color').value
+    });
+  });
+  _loySettings.pointsPer = parseInt(document.getElementById('loyPointsPer').value)||10000;
+  _loySettings.tiers = tiers;
+  await db().saveLoyaltySettings(_loySettings);
+  showToast('✅ Loyalty settings saved!');
+}
+
+async function editLoyaltyPoints(key, name, current){
+  const np = prompt(`Edit points for ${name}:
+Current: ${current} points`, current);
+  if(np===null) return;
+  const p = parseInt(np); if(isNaN(p)||p<0){showToast('⚠️ Invalid points!');return;}
+  showSaving();
+  const profile = await db().getLoyalty(key) || {};
+  profile.points = p;
+  await db().saveLoyalty(key, profile);
+  showToast('✅ Points updated!');
+  loadLoyaltyAdmin();
+}
+
+// ══════════════════════════════════════
+//  SPIN WHEEL ADMIN
+// ══════════════════════════════════════
+let _spinSettings = null;
+
+async function loadSpinAdmin(){
+  _spinSettings = await db().getSpinSettings();
+  renderSpinPrizes();
+}
+
+function renderSpinPrizes(){
+  const prizes = _spinSettings.prizes || [];
+  updateSpinTotal();
+  document.getElementById('spinPrizesList').innerHTML = prizes.map((p,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:var(--gl);border-radius:9px;padding:10px 12px;flex-wrap:wrap;" data-i="${i}">
+      <input type="color" value="${p.color||'#7c3aed'}" class="sp-color" data-i="${i}" style="width:36px;height:32px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;"/>
+      <input type="text" value="${p.label}" placeholder="Prize label" style="flex:2;min-width:100px;" class="sp-label" data-i="${i}"/>
+      <select class="sp-type" data-i="${i}" style="width:auto;">
+        <option value="percent" ${p.type==='percent'?'selected':''}>% discount</option>
+        <option value="fixed"   ${p.type==='fixed'?'selected':''}>IQD fixed off</option>
+        <option value="none"    ${p.type==='none'?'selected':''}>No prize</option>
+      </select>
+      <input type="number" value="${p.value||0}" placeholder="Value" style="width:70px;" class="sp-value" data-i="${i}"/>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.78rem;color:var(--text2);">Chance<input type="number" value="${p.chance||0}" min="0" max="100" style="width:55px;" class="sp-chance" data-i="${i}" oninput="updateSpinTotal()"/>%</div>
+      <button class="btn btn-danger btn-sm" onclick="removeSpinPrize(${i})">✕</button>
+    </div>`).join('');
+}
+
+function updateSpinTotal(){
+  const total = Array.from(document.querySelectorAll('.sp-chance')).reduce((s,el)=>s+parseInt(el.value||0),0);
+  const el = document.getElementById('spinChanceTotal');
+  if(el){ el.textContent=total+'%'; el.style.color=total===100?'#059669':'#dc2626'; }
+}
+
+function addSpinPrize(){
+  if(!_spinSettings) return;
+  _spinSettings.prizes.push({label:'New Prize',type:'percent',value:5,chance:0,color:'#7c3aed'});
+  renderSpinPrizes();
+}
+
+function removeSpinPrize(i){
+  if(!_spinSettings) return;
+  _spinSettings.prizes.splice(i,1);
+  renderSpinPrizes();
+}
+
+async function saveSpinSettings(){
+  if(!_spinSettings) return;
+  const total = Array.from(document.querySelectorAll('.sp-chance')).reduce((s,el)=>s+parseInt(el.value||0),0);
+  if(total!==100){showToast('⚠️ Chances must add up to 100%! Currently: '+total+'%');return;}
+  const prizes=[];
+  document.querySelectorAll('#spinPrizesList > div').forEach(row=>{
+    prizes.push({
+      label:  row.querySelector('.sp-label').value.trim(),
+      type:   row.querySelector('.sp-type').value,
+      value:  parseFloat(row.querySelector('.sp-value').value)||0,
+      chance: parseInt(row.querySelector('.sp-chance').value)||0,
+      color:  row.querySelector('.sp-color').value
+    });
+  });
+  showSaving();
+  _spinSettings.prizes=prizes;
+  await db().saveSpinSettings(_spinSettings);
+  showToast('✅ Spin wheel saved!');
+}
+
+async function loadSpinHistory(){
+  try{
+    const {getDatabase,ref,get}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const {getApps,initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
+    const snap=await get(ref(getDatabase(app),'spinHistory'));
+    const el=document.getElementById('spinHistoryAdmin');
+    if(!snap.exists()){el.innerHTML='<div style="color:var(--gray);font-size:.85rem;">No spins yet.</div>';return;}
+    const all=[];
+    Object.entries(snap.val()).forEach(([ekey,spins])=>{
+      Object.values(spins).forEach(s=>all.push({...s,emailKey:ekey}));
+    });
+    all.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      <thead><tr><th style="padding:7px 12px;border-bottom:1.5px solid var(--border);text-align:left;">Email</th><th>Prize</th><th>Code</th><th>Date</th></tr></thead>
+      <tbody>${all.slice(0,30).map(s=>`<tr><td style="padding:7px 12px;border-bottom:1px solid var(--gl);">${s.emailKey}</td><td style="padding:7px 12px;border-bottom:1px solid var(--gl);font-weight:700;color:var(--p);">${s.prize}</td><td style="padding:7px 12px;border-bottom:1px solid var(--gl);font-family:monospace;">${s.code||'—'}</td><td style="padding:7px 12px;border-bottom:1px solid var(--gl);color:var(--gray);font-size:.72rem;">${new Date(s.date).toLocaleDateString()}</td></tr>`).join('')}</tbody>
+    </table>`;
+    showToast('✅ Loaded '+all.length+' spins');
+  }catch(e){showToast('❌ Error loading spin history');}
+}
+
+// ══════════════════════════════════════
+//  REFERRAL ADMIN
+// ══════════════════════════════════════
+async function loadReferralAdmin(){
+  const s = await db().getReferralSettings();
+  document.getElementById('refRewardVal').value  = s.referrerValue||15000;
+  document.getElementById('refRewardType').value = s.referrerType||'fixed';
+  document.getElementById('refNewDisc').value    = s.newCustDiscount||5;
+  document.getElementById('refExpiry').value     = s.expiryDays||30;
+  // Load all referrals
+  const refs = await db().getAllReferrals();
+  const tb=document.getElementById('refTbody'), em=document.getElementById('refEmpty');
+  if(!refs.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=refs.sort((a,b)=>(b.uses||0)-(a.uses||0)).map(r=>`<tr>
+    <td><strong>${r.name||'—'}</strong></td>
+    <td><span style="background:var(--p);color:#fff;border-radius:6px;padding:2px 10px;font-family:monospace;font-size:.85rem;">${r.code}</span></td>
+    <td style="text-align:center;font-weight:700;color:var(--p);">${r.uses||0}</td>
+    <td class="td-price">${Number((r.earned||0)).toLocaleString()} IQD</td>
+  </tr>`).join('');
+}
+
+async function saveReferralSettings(){
+  showSaving();
+  await db().saveReferralSettings({
+    referrerType:  document.getElementById('refRewardType').value,
+    referrerValue: parseFloat(document.getElementById('refRewardVal').value)||15000,
+    newCustDiscount:parseFloat(document.getElementById('refNewDisc').value)||5,
+    expiryDays:    parseInt(document.getElementById('refExpiry').value)||30
+  });
+  showToast('✅ Referral settings saved!');
+}
+
+// ══════════════════════════════════════
+//  VIP ADMIN
+// ══════════════════════════════════════
+let _vipSettings = null;
+
+async function loadVIPAdmin(){
+  _vipSettings = await db().getVIPSettings();
+  document.getElementById('vipMonthly').value     = _vipSettings.monthlyPrice||5000;
+  document.getElementById('vipAnnual').value      = _vipSettings.annualPrice||25000;
+  document.getElementById('vipLifetime').value    = _vipSettings.lifetimePrice||80000;
+  document.getElementById('vipDiscount').value    = _vipSettings.discount||15;
+  document.getElementById('vipSpinBonus').value   = _vipSettings.spinBonus||1;
+  document.getElementById('vipPointsBonus').value = _vipSettings.pointsBonus||1;
+  renderVIPBenefits();
+  // Load members
+  const members = await db().getAllVIPMembers();
+  const tb=document.getElementById('vipTbody'), em=document.getElementById('vipEmpty');
+  if(!members.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  const now=new Date();
+  tb.innerHTML=members.map(m=>{
+    const expired = m.expiryDate && new Date(m.expiryDate)<now && m.plan!=='lifetime';
+    return `<tr>
+      <td><strong>${m.name||'—'}</strong></td>
+      <td style="font-size:.78rem;">${m.email||'—'}</td>
+      <td><span class="badge b-sub">${m.plan}</span></td>
+      <td style="font-size:.76rem;color:${expired?'#dc2626':'var(--gray)'};">${m.plan==='lifetime'?'♾️ Forever':m.expiryDate?new Date(m.expiryDate).toLocaleDateString():'—'}</td>
+      <td>${m.showOnWall?'✅':'❌'}</td>
+      <td><span style="padding:2px 9px;border-radius:99px;font-size:.7rem;font-weight:700;background:${m.active&&!expired?'#d1fae5':'#fee2e2'};color:${m.active&&!expired?'#059669':'#dc2626'};">${m.active&&!expired?'✅ Active':'❌ Inactive'}</span></td>
+      <td class="td-act">
+        <button class="btn ${m.active?'btn-danger':'btn-success'} btn-sm" onclick="toggleVIPStatus('${(m.email||'').replace(/[.#$[\]]/g,'_')}',${!m.active})">${m.active?'Deactivate':'Activate'}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderVIPBenefits(){
+  const benefits = _vipSettings.benefits || [];
+  document.getElementById('vipBenefitsList').innerHTML = benefits.map((b,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="color:#059669;font-weight:700;flex-shrink:0;">✅</span>
+      <input type="text" value="${b}" style="flex:1;" class="vip-benefit-input"/>
+      <button class="btn btn-danger btn-sm" onclick="this.closest('div').remove();updateVIPBenefitCount()">✕</button>
+    </div>`).join('');
+}
+
+function addVIPBenefit(){
+  const list = document.getElementById('vipBenefitsList');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  const check = document.createElement('span');
+  check.textContent = '✅';
+  check.style.cssText = 'color:#059669;font-weight:700;flex-shrink:0;';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.placeholder = 'New benefit...';
+  inp.style.flex = '1'; inp.className = 'vip-benefit-input';
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-danger btn-sm'; btn.textContent = '✕';
+  btn.onclick = function(){ this.parentElement.remove(); };
+  div.appendChild(check); div.appendChild(inp); div.appendChild(btn);
+  list.appendChild(div);
+}
+
+
+
+function updateVIPBenefitCount(){}
+
+async function saveVIPSettings(){
+  showSaving();
+  _vipSettings.monthlyPrice  = parseInt(document.getElementById('vipMonthly').value)||5000;
+  _vipSettings.annualPrice   = parseInt(document.getElementById('vipAnnual').value)||25000;
+  _vipSettings.lifetimePrice = parseInt(document.getElementById('vipLifetime').value)||80000;
+  _vipSettings.discount      = parseInt(document.getElementById('vipDiscount').value)||15;
+  _vipSettings.spinBonus     = parseInt(document.getElementById('vipSpinBonus').value)||1;
+  _vipSettings.pointsBonus   = parseInt(document.getElementById('vipPointsBonus').value)||1;
+  await db().saveVIPSettings(_vipSettings);
+  showToast('✅ VIP pricing saved!');
+}
+
+async function saveVIPBenefits(){
+  showSaving();
+  const benefits = Array.from(document.querySelectorAll('.vip-benefit-input')).map(el=>el.value.trim()).filter(Boolean);
+  if(!_vipSettings) _vipSettings = await db().getVIPSettings();
+  _vipSettings.benefits = benefits;
+  await db().saveVIPSettings(_vipSettings);
+  showToast('✅ VIP benefits saved! ('+benefits.length+' benefits)');
+}
+
+async function activateVIP(){
+  const email = document.getElementById('vipActivateEmail').value.trim().toLowerCase();
+  const plan  = document.getElementById('vipActivatePlan').value;
+  const showWall = document.getElementById('vipShowWall').value === 'true';
+  if(!email||!email.includes('@')){showToast('⚠️ Enter a valid email!');return;}
+  const key = email.replace(/[.#$[\]]/g,'_');
+  // Try to get name from loyalty profile
+  const profile = await db().getLoyalty(key);
+  const expMap  = {monthly:30, annual:365, lifetime:null};
+  const expiryDate = expMap[plan] ? new Date(Date.now()+expMap[plan]*24*60*60*1000).toISOString().split('T')[0] : null;
+  showSaving();
+  await db().saveVIPMember(key, {email, name:profile?.name||email, plan, active:true, expiryDate, showOnWall:showWall, activatedAt:new Date().toISOString()});
+  // Update loyalty profile too
+  if(profile){ profile.isVIP=true; await db().saveLoyalty(key,profile); }
+  showToast('✅ VIP activated for '+email+'!');
+  document.getElementById('vipActivateEmail').value='';
+  loadVIPAdmin();
+}
+
+async function toggleVIPStatus(key, newStatus){
+  showSaving();
+  const m = await db().getVIPMember(key);
+  if(!m){showToast('❌ Member not found');return;}
+  m.active = newStatus;
+  await db().saveVIPMember(key, m);
+  showToast(newStatus?'✅ VIP activated!':'VIP deactivated');
+  loadVIPAdmin();
 }
 
 // ══════════════════════════════════════
