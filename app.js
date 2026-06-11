@@ -34,6 +34,17 @@ function applyLang(){
   document.documentElement.setAttribute('dir', l==='ar'?'rtl':'ltr');
   const b=document.getElementById('langBtn');
   if(b) b.textContent = l==='en'?'🌐 عربي / کوردی': l==='kd'?'🌐 العربية / English':'🌐 English / کوردی';
+  // Reposition cart sidebar based on language (when closed)
+  const sidebar = document.getElementById('cartSidebar');
+  if(sidebar && !sidebar.classList.contains('open')){
+    if(l==='ar'){
+      sidebar.style.right='auto'; sidebar.style.left='0';
+      sidebar.style.transform='translateX(-100%)';
+    } else {
+      sidebar.style.left='auto'; sidebar.style.right='0';
+      sidebar.style.transform='translateX(100%)';
+    }
+  }
 }
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -122,8 +133,29 @@ function renderCartItems(){
   if(tp) tp.textContent=iqd(sub-disc);
   if(ft) ft.style.display='block';
 }
-function openCart(){ document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartSidebar').classList.add('open'); renderCartItems(); }
-function closeCart(){ document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartSidebar').classList.remove('open'); }
+function openCart(){
+  const sidebar = document.getElementById('cartSidebar');
+  const isAr = getLang()==='ar';
+  // Set position based on language BEFORE opening
+  if(isAr){
+    sidebar.style.right='auto'; sidebar.style.left='0';
+    sidebar.style.transform='translateX(-100%)';
+    sidebar.style.boxShadow='8px 0 48px #7c3aed22';
+  } else {
+    sidebar.style.left='auto'; sidebar.style.right='0';
+    sidebar.style.transform='translateX(100%)';
+    sidebar.style.boxShadow='-8px 0 48px #7c3aed22';
+  }
+  // Force reflow then open
+  void sidebar.offsetWidth;
+  document.getElementById('cartOverlay').classList.add('open');
+  sidebar.classList.add('open');
+  renderCartItems();
+}
+function closeCart(){
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.getElementById('cartSidebar').classList.remove('open');
+}
 async function applyCartDisc(){
   const code=document.getElementById('cartDiscInput').value.trim().toUpperCase();
   const msg=document.getElementById('discMsg');
