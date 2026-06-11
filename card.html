@@ -228,7 +228,9 @@ async function lookupCards(){
   document.getElementById('lcProgFill').style.width=prog+'%';
   document.getElementById('lcPtsLabel').textContent=pts+' points';
   document.getElementById('lcNextLabel').textContent=nextTier?'Next: '+nextTier.icon+' '+nextTier.name+' ('+nextTier.min+')':'🏆 Max tier!';
-  const code=tier.name.toUpperCase()+'-'+(profile.name||'').split(' ')[0].toUpperCase()+'-'+tier.discount;
+  // Use saved discount code if available, otherwise generate clean one
+  const cleanN = (profile.name||'User').replace(/[^a-zA-Z0-9]/g,'').substring(0,8).toUpperCase()||'USER';
+  const code = profile.discountCode || (tier.name.toUpperCase()+'-'+cleanN+'-'+tier.discount);
   document.getElementById('lcCode').textContent=code;
 
   const ntb=document.getElementById('nextTierBox');

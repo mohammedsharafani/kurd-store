@@ -92,7 +92,14 @@
 <div class="benefits-wrap">
   <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);text-align:center;margin-bottom:20px;">👑 VIP Benefits</div>
   <div class="benefits-grid" id="benefitsGrid">
-    <div class="benefit-card"><div class="benefit-icon">⏳</div><div><div class="benefit-title">Loading benefits...</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">💰</div><div><div class="benefit-title">15% off all games forever</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">🎰</div><div><div class="benefit-title">2 spins per purchase (1 extra)</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">🏆</div><div><div class="benefit-title">Earn 1 extra loyalty point per purchase</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">🔑</div><div><div class="benefit-title">VIP-only exclusive deals</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">🎯</div><div><div class="benefit-title">Early access to new games 48h before everyone</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">🎁</div><div><div class="benefit-title">Instant key replacement — no questions asked</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">🎂</div><div><div class="benefit-title">Birthday month special discount</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon">👑</div><div><div class="benefit-title">Listed on VIP Members Wall on website</div></div></div>
   </div>
 </div>
 
@@ -196,9 +203,12 @@ function selVIPPM(el, id){
     // Benefits
     const icons=['💰','🎰','🏆','🔑','🎯','👑','🎁','🎂','🌟','📱'];
     const benefits = _vipSettings.benefits||[];
-    document.getElementById('benefitsGrid').innerHTML = benefits.length
-      ? benefits.map((b,i)=>`<div class="benefit-card"><div class="benefit-icon">${icons[i%icons.length]}</div><div><div class="benefit-title">${b}</div></div></div>`).join('')
-      : '<div style="color:var(--gray);padding:14px;">No benefits configured yet in admin.</div>';
+    if(benefits.length){
+      document.getElementById('benefitsGrid').innerHTML = benefits.map((b,i)=>
+        `<div class="benefit-card"><div class="benefit-icon">${icons[i%icons.length]}</div><div><div class="benefit-title">${b}</div></div></div>`
+      ).join('');
+    }
+    // If no benefits in Firebase, keep the default HTML shown above
   }catch(e){
     console.log('VIP settings error:',e);
   }

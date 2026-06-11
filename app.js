@@ -382,6 +382,25 @@ async function awardLoyaltyAndSpins(name, email, total){
     }
 
     // Store for display
+    // Generate clean discount code and save to Firebase
+    const cleanName = (profile.name||'Customer').replace(/[^a-zA-Z0-9]/g,'').substring(0,8).toUpperCase()||'USER';
+    const tiers2 = loySettings.tiers||[];
+    let curTier2 = tiers2[0]||{name:'Bronze',discount:5};
+    for(const t of tiers2){ if((profile.points||0)>=t.min) curTier2=t; }
+    const discCode = (isVIP?'VIP':curTier2.name.toUpperCase())+'-'+cleanName+'-'+( isVIP?vipSettings.discount:curTier2.discount);
+    // Save this code to Firebase so it actually works at checkout
+    const existingCodes = await window._KS_DB.getCodes();
+    existingCodes[discCode] = {
+      type:'percent',
+      value: isVIP ? (vipSettings.discount||15) : (curTier2.discount||5),
+      desc: (isVIP?'VIP':'Loyalty')+' discount for '+profile.name,
+      appliesTo:'all',
+      expiry: null
+    };
+    await window._KS_DB.saveCodes(existingCodes);
+    profile.discountCode = discCode;
+    await window._KS_DB.saveLoyalty(key, profile);
+
     window._lastLoyalty = {profile, loySettings, vipSettings, isVIP, pointsEarned, spinsToAward};
   }catch(e){ console.log('Loyalty error:', e); }
 }
@@ -394,52 +413,66 @@ let _spinsRemaining = 0;
 let _spinning = false;
 
 async function initSpinWheel(email){
-  if(!window._KS_DB) return;
+  // Step 1: Show spin section immediately
+  const spinSec = document.getElementById('spinSection');
+  const succSec = document.getElementById('successSection');
+  if(spinSec) spinSec.style.display='block';
+  if(succSec) succSec.style.display='none';
+  _spinsRemaining = 1; // default 1 spin
+
+  // Step 2: Load spin settings (non-blocking)
   try{
-    const spinSettings = await window._KS_DB.getSpinSettings();
-    _spinData = spinSettings.prizes || [];
-    const key = email.toLowerCase().replace(/[.#$[\]]/g,'_');
-    const profile = await window._KS_DB.getLoyalty(key);
-    _spinsRemaining = profile?.spinsAvailable || 1;
+    if(window._KS_DB){
+      const spinSettings = await window._KS_DB.getSpinSettings();
+      if(spinSettings?.prizes?.length) _spinData = spinSettings.prizes;
+      const key = email.toLowerCase().replace(/[.#$[\]]/g,'_');
+      const profile = await window._KS_DB.getLoyalty(key);
+      if(profile?.spinsAvailable > 0) _spinsRemaining = profile.spinsAvailable;
+    }
+  }catch(e){ console.log('Spin settings load error:', e); }
 
-    document.getElementById('spinSection').style.display='block';
-    document.getElementById('successSection').style.display='none';
-    document.getElementById('spinsLeftBadge').textContent = _spinsRemaining + ' spin' + (_spinsRemaining!==1?'s':'') + ' remaining';
+  // Step 3: Draw wheel (uses defaults if no prizes configured)
+  drawWheel();
+  const badge = document.getElementById('spinsLeftBadge');
+  if(badge) badge.textContent = _spinsRemaining + ' spin' + (_spinsRemaining!==1?'s':'') + ' remaining';
 
-    drawWheel();
-
-    // Show loyalty info for success page
+  // Step 4: Show loyalty info (non-blocking, safe)
+  try{
     if(window._lastLoyalty){
       const {profile:lp, loySettings, isVIP, pointsEarned} = window._lastLoyalty;
-      const tiers = loySettings.tiers||[];
-      let tier = tiers[0];
-      for(const t of tiers){ if((lp.points||0) >= t.min) tier = t; }
-      const nextTier = tiers.find(t=>t.min > (lp.points||0));
+      const tiers = loySettings?.tiers||[];
+      let tier = tiers[0]||{icon:'🥉',name:'Bronze'};
+      for(const t of tiers){ if((lp.points||0)>=t.min) tier=t; }
+      const nextTier = tiers.find(t=>t.min>(lp.points||0));
       const cardLink = document.getElementById('cardLinkBtn');
-      if(cardLink) cardLink.href = 'card.html?email='+encodeURIComponent(email);
-      document.getElementById('loyaltyInfoText').innerHTML =
-        `+${pointsEarned} point${pointsEarned!==1?'s':''} earned! ${isVIP?'👑 VIP bonus included!':''}<br>` +
-        `Total: <strong>${lp.points} pts</strong> — ${tier.icon} ${tier.name}` +
-        (nextTier ? `<br>Need <strong>${nextTier.min - lp.points} more</strong> to reach ${nextTier.icon} ${nextTier.name}` : '<br>🏆 Maximum tier!');
-      document.getElementById('loyaltyInfo').style.display='block';
-
-      // Referral link
-      if(lp.referralCode){
-        const base = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '');
-        const refLink = base + 'index.html?ref=' + lp.referralCode;
-        const inputEl = document.getElementById('referralLinkInput');
-        if(inputEl) inputEl.value = refLink;
-        const refTg = document.getElementById('refTgShare');
-        const refWa = document.getElementById('refWaShare');
-        if(refTg) refTg.href = 'https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent('🎮 Shop on Kurd Store and get a discount with my link!');
-        if(refWa) refWa.href = 'https://wa.me/?text='+encodeURIComponent('🎮 Shop on Kurd Store! Use my link for a discount: '+refLink);
-        document.getElementById('referralInfo').style.display='block';
-
-        // Save referral to Firebase
-        await window._KS_DB.saveReferral(lp.referralCode, {email, name:lp.name, uses:lp.uses||0});
-      }
+      const loyText  = document.getElementById('loyaltyInfoText');
+      const loyBox   = document.getElementById('loyaltyInfo');
+      if(cardLink) cardLink.href='card.html?email='+encodeURIComponent(email);
+      if(loyText) loyText.innerHTML=
+        '+'+pointsEarned+' point'+(pointsEarned!==1?'s':'')+' earned!'+(isVIP?' 👑':'')+'<br>'+
+        'Total: <strong>'+(lp.points||0)+' pts</strong> — '+tier.icon+' '+tier.name+
+        (nextTier?'<br>'+( nextTier.min-(lp.points||0))+' more to reach '+nextTier.icon+' '+nextTier.name:'<br>🏆 Max tier!');
+      if(loyBox) loyBox.style.display='block';
     }
-  }catch(e){ console.error('Spin init error:', e); showSuccess(); }
+  }catch(e){ console.log('Loyalty info display error:', e); }
+
+  // Step 5: Show referral link (non-blocking, safe)
+  try{
+    if(window._lastLoyalty?.profile?.referralCode){
+      const lp = window._lastLoyalty.profile;
+      const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+      const refLink = base + 'index.html?ref=' + lp.referralCode;
+      const inputEl = document.getElementById('referralLinkInput');
+      if(inputEl) inputEl.value = refLink;
+      const refTg = document.getElementById('refTgShare');
+      const refWa = document.getElementById('refWaShare');
+      if(refTg) refTg.href='https://t.me/share/url?url='+encodeURIComponent(refLink)+'&text='+encodeURIComponent('🎮 Shop on Kurd Store with my link!');
+      if(refWa) refWa.href='https://wa.me/?text='+encodeURIComponent('🎮 Kurd Store discount: '+refLink);
+      const refBox = document.getElementById('referralInfo');
+      if(refBox) refBox.style.display='block';
+      if(window._KS_DB) window._KS_DB.saveReferral(lp.referralCode,{email,name:lp.name,uses:lp.uses||0}).catch(()=>{});
+    }
+  }catch(e){ console.log('Referral display error:', e); }
 }
 
 function drawWheel(highlightIndex=-1){
