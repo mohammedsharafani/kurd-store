@@ -14,12 +14,23 @@ function toggleTheme(){
   if(b) b.textContent=n==='dark'?'☀️':'🌙';
 }
 function getLang(){ return localStorage.getItem('ks_lang')||'en'; }
-function toggleLang(){ const n=getLang()==='en'?'kd':'en'; localStorage.setItem('ks_lang',n); applyLang(); }
+function toggleLang(){
+  const cur=getLang();
+  const next = cur==='en'?'kd': cur==='kd'?'ar':'en';
+  localStorage.setItem('ks_lang',next);
+  applyLang();
+}
 function applyLang(){
   const l=getLang();
-  document.querySelectorAll('[data-en]').forEach(el=>el.textContent=l==='en'?el.dataset.en:el.dataset.kd);
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    if(l==='en')      el.textContent=el.dataset.en;
+    else if(l==='kd') el.textContent=el.dataset.kd;
+    else if(l==='ar') el.textContent=el.dataset.ar||el.dataset.en;
+  });
+  // RTL for Arabic
+  document.documentElement.setAttribute('dir', l==='ar'?'rtl':'ltr');
   const b=document.getElementById('langBtn');
-  if(b) b.textContent=l==='en'?'🌐 کوردی':'🌐 English';
+  if(b) b.textContent = l==='en'?'🌐 عربي / کوردی': l==='kd'?'🌐 العربية / English':'🌐 English / کوردی';
 }
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -65,13 +76,17 @@ function addGameToCart(g){
   }
   if(!g.stock){showToast('Out of stock!');return;}
   const cart=getCart();
-  cart.push({uid:Date.now(),gameId:g.id,name:getLang()==='en'?g.title:g.titleKd,platform:g.platform,price:g.price,icon:g.icon,type:'game'});
+  const l=getLang();
+  const gname = l==='ar'?(g.titleAr||g.title): l==='kd'?g.titleKd:g.title;
+  cart.push({uid:Date.now(),gameId:g.id,name:gname,platform:g.platform,price:g.price,icon:g.icon,type:'game',category:g.category});
   saveCart(cart); updateCartBadge(true);
-  showToast((getLang()==='en'?g.title:g.titleKd)+' added!');
+  showToast(gname+' added!');
 }
 function addSubToCart(s,label,price){
   const cart=getCart();
-  cart.push({uid:Date.now(),subId:s.id,name:(getLang()==='en'?s.name:s.nameKd)+' — '+label,platform:'Subscription',price,icon:s.icon,type:'sub'});
+  const _l=getLang();
+  const _sname=_l==='ar'?(s.nameAr||s.name):_l==='kd'?s.nameKd:s.name;
+  cart.push({uid:Date.now(),subId:s.id,name:_sname+' — '+label,platform:'Subscription',price,icon:s.icon,type:'sub'});
   saveCart(cart); updateCartBadge(true);
   showToast('Subscription added!');
 }
@@ -198,7 +213,7 @@ function gameCardHTML(g){
     </div>
     <div class="pcard-body">
       <div class="pcard-plat">${g.platform}</div>
-      <div class="pcard-title">${l==='en'?g.title:g.titleKd}</div>
+      <div class="pcard-title">${l==='ar'?(g.titleAr||g.title):l==='kd'?g.titleKd:g.title}</div>
       <div class="pcard-footer">
         <div>
           ${g.variants&&g.variants.length
@@ -215,8 +230,8 @@ function subCardHTML(s){
   const l=getLang();
   return `<div class="sub-card ${s.cls||'purple'}">
     <div class="sub-icon">${s.icon}</div>
-    <div class="sub-name">${l==='en'?s.name:s.nameKd}</div>
-    <div class="sub-name-kd">${l==='en'?s.nameKd:s.name}</div>
+    <div class="sub-name">${l==='ar'?(s.nameAr||s.name):l==='kd'?s.nameKd:s.name}</div>
+    <div class="sub-name-kd">${l==='ar'?s.name:l==='kd'?s.name:s.nameKd}</div>
     <div class="sub-desc">${s.desc}</div>
     <div class="sub-opts">${s.options.map(o=>`<div class="sub-opt" onclick='addSubToCart(${JSON.stringify(s)},"${o.label}",${o.price})'><span class="sub-opt-label">${o.label}</span><span class="sub-opt-price">${iqd(o.price)}</span></div>`).join('')}</div>
   </div>`;
@@ -226,7 +241,7 @@ async function buildNav(activePage){
   const logoHTML=s.logoImg?`<img src="${s.logoImg}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;" alt="logo"/>`:`<div class="site-logo-emoji">${s.logoEmoji||'🎮'}</div>`;
   document.getElementById('navMount').innerHTML=`
   <nav class="topnav">
-    <a class="nav-logo" href="index.html">${logoHTML}<span>${s.storeName||'Kurd Store'}</span></a>
+    <a class="nav-logo" href="index.html">${logoHTML}<span>${getLang()==='ar'?(s.storeNameAr||s.storeName||'Kurd Store'):getLang()==='kd'?(s.storeNameKd||s.storeName||'Kurd Store'):(s.storeName||'Kurd Store')}</span></a>
     <ul class="navlinks">
       <li><a href="index.html" ${activePage==='home'?'class="active"':''}>🏠 Home</a></li>
       <li><a href="playstation.html" ${activePage==='ps'?'class="active"':''}>🎮 PlayStation</a></li>
@@ -238,8 +253,8 @@ async function buildNav(activePage){
     </ul>
     <div class="nav-right">
       <button class="nav-icon-btn" id="darkBtn" onclick="toggleTheme()">${getTheme()==='dark'?'☀️':'🌙'}</button>
-      <button class="nav-icon-btn" id="langBtn" onclick="toggleLang()">${getLang()==='en'?'🌐 کوردی':'🌐 English'}</button>
-      <button class="cart-btn" onclick="openCart()">🛒 Cart <span class="cart-count">0</span></button>
+      <button class="nav-icon-btn" id="langBtn" onclick="toggleLang()">${getLang()==='en'?'🌐 عربي/کوردی':getLang()==='kd'?'🌐 العربية/EN':'🌐 English/KD'}</button>
+      <button class="cart-btn" onclick="openCart()">🛒 ${getLang()==='ar'?'السلة':getLang()==='kd'?'سەبەتە':'Cart'} <span class="cart-count">0</span></button>
     </div>
   </nav>`;
   updateCartBadge();
@@ -267,14 +282,15 @@ async function buildNav(activePage){
     const mobileNav = document.createElement('div');
     mobileNav.id = mobileNavId;
     mobileNav.className = 'mobile-nav';
+    const _ml = getLang();
     mobileNav.innerHTML = `
-      <a href="index.html">🏠 Home</a>
+      <a href="index.html">🏠 ${_ml==='ar'?'الرئيسية':_ml==='kd'?'ماڵەوە':'Home'}</a>
       <a href="playstation.html">🎮 PlayStation</a>
       <a href="xbox.html">🟢 Xbox</a>
       <a href="pc.html">💻 PC/Steam</a>
       <a href="nintendo.html">🔴 Nintendo</a>
-      <a href="subscriptions.html">📦 Subscriptions</a>
-      <a href="discounts.html">🏷️ Discounts</a>`;
+      <a href="subscriptions.html">📦 ${_ml==='ar'?'الاشتراكات':_ml==='kd'?'ئەبوونەمەندی':'Subscriptions'}</a>
+      <a href="discounts.html">🏷️ ${_ml==='ar'?'العروض':_ml==='kd'?'داشکاندن':'Discounts'}</a>`;
     document.body.insertBefore(mobileNav, document.body.firstChild.nextSibling);
     // Mark active
     document.querySelectorAll('#'+mobileNavId+' a').forEach(a=>{
@@ -317,20 +333,20 @@ async function buildNav(activePage){
     <footer>
       <div class="footer-grid">
         <div><div class="footer-logo">${fe}<span>${s.storeName||'Kurd Store'}</span></div><div class="footer-desc">${s.tagline||'Your Kurdish Gaming Store'}</div></div>
-        <div class="footer-col"><h4>Pages</h4><ul>
-          <li><a href="index.html">🏠 Home</a></li>
+        <div class="footer-col"><h4>${getLang()==='ar'?'الصفحات':getLang()==='kd'?'پەڕەکان':'Pages'}</h4><ul>
+          <li><a href="index.html">🏠 ${getLang()==='ar'?'الرئيسية':getLang()==='kd'?'ماڵەوە':'Home'}</a></li>
           <li><a href="playstation.html">🎮 PlayStation</a></li>
           <li><a href="xbox.html">🟢 Xbox</a></li>
           <li><a href="pc.html">💻 PC/Steam</a></li>
           <li><a href="nintendo.html">🔴 Nintendo</a></li>
-          <li><a href="subscriptions.html">📦 Subscriptions</a></li>
-          <li><a href="discounts.html">🏷️ Discounts</a></li>
+          <li><a href="subscriptions.html">📦 ${getLang()==='ar'?'الاشتراكات':getLang()==='kd'?'ئەبوونەمەندی':'Subscriptions'}</a></li>
+          <li><a href="discounts.html">🏷️ ${getLang()==='ar'?'العروض':getLang()==='kd'?'داشکاندن':'Discounts'}</a></li>
         </ul></div>
-        <div class="footer-col"><h4>Contact</h4><ul>
+        <div class="footer-col"><h4>${getLang()==='ar'?'تواصل معنا':getLang()==='kd'?'پەیوەندی':'Contact'}</h4><ul>
           <li><a href="https://t.me/${s.telegram||'sharafaani'}" target="_blank">✈️ @${s.telegram||'sharafaani'}</a></li>
         </ul></div>
       </div>
-      <div class="footer-bottom"><span>© 2024 ${s.storeName||'Kurd Store'}.</span><span>Made with ❤️ for Kurdish gamers</span></div>
+      <div class="footer-bottom"><span>© 2024 ${s.storeName||'Kurd Store'}.</span><span>${getLang()==='ar'?'صُنع بـ ❤️ للاعبين العراقيين':getLang()==='kd'?'بە ❤️ بۆ یاریزانانی کوردستان':'Made with ❤️ for Kurdish gamers'}</span></div>
     </footer>`;
   }
 }
