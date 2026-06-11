@@ -406,7 +406,8 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 [dir=rtl] .section-hd{flex-direction:row-reverse;}
 [dir=rtl] .pcard-body{text-align:right;}
 [dir=rtl] .pcard-footer{flex-direction:row-reverse;}
-[dir=rtl] .cart-sidebar{left:0;right:auto;}
+[dir=rtl] .cart-sidebar{left:0;right:auto;transform:translateX(-100%);}
+[dir=rtl] .cart-sidebar.open{transform:translateX(0);}
 [dir=rtl] .cart-item{flex-direction:row-reverse;}
 [dir=rtl] .ci-info{text-align:right;}
 [dir=rtl] .footer-grid{direction:rtl;}
