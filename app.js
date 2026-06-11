@@ -131,22 +131,21 @@ function renderCartItems(){
   if(ft) ft.style.display='block';
 }
 function openCart(){
-  const sidebar = document.getElementById('cartSidebar');
+  const sidebar  = document.getElementById('cartSidebar');
+  const overlay  = document.getElementById('cartOverlay');
+  if(!sidebar || !overlay) return;
   const isAr = getLang()==='ar';
-  // Remove any inline styles that would override CSS
-  sidebar.style.transform = '';
-  sidebar.style.left = '';
-  sidebar.style.right = '';
-  // Set RTL class
-  if(isAr){ sidebar.classList.add('cart-rtl'); }
-  else     { sidebar.classList.remove('cart-rtl'); }
-  document.getElementById('cartOverlay').classList.add('open');
+  if(isAr) sidebar.classList.add('cart-rtl');
+  else     sidebar.classList.remove('cart-rtl');
+  overlay.classList.add('open');
   sidebar.classList.add('open');
   renderCartItems();
 }
 function closeCart(){
-  document.getElementById('cartOverlay').classList.remove('open');
-  document.getElementById('cartSidebar').classList.remove('open');
+  const sidebar = document.getElementById('cartSidebar');
+  const overlay = document.getElementById('cartOverlay');
+  if(overlay) overlay.classList.remove('open');
+  if(sidebar) sidebar.classList.remove('open');
 }
 async function applyCartDisc(){
   const code=document.getElementById('cartDiscInput').value.trim().toUpperCase();
@@ -536,6 +535,7 @@ async function buildNav(activePage){
       <li><a href="nintendo.html" ${activePage==='nintendo'?'class="active"':''}>🔴 Nintendo</a></li>
       <li><a href="subscriptions.html" ${activePage==='subs'?'class="active"':''}>📦 Subscriptions</a></li>
       <li><a href="discounts.html" ${activePage==='discounts'?'class="active"':''}>🏷️ Discounts</a></li>
+      <li><a href="vip.html" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a0533;border-radius:99px;padding:4px 14px;font-weight:700;font-size:.82rem;">👑 VIP</a></li>
     </ul>
     <div class="nav-right">
       <button class="nav-icon-btn" id="darkBtn" onclick="toggleTheme()">${getTheme()==='dark'?'☀️':'🌙'}</button>
@@ -576,7 +576,8 @@ async function buildNav(activePage){
       <a href="pc.html">💻 PC/Steam</a>
       <a href="nintendo.html">🔴 Nintendo</a>
       <a href="subscriptions.html">📦 ${_ml==='ar'?'الاشتراكات':_ml==='kd'?'ئەبوونەمەندی':'Subscriptions'}</a>
-      <a href="discounts.html">🏷️ ${_ml==='ar'?'العروض':_ml==='kd'?'داشکاندن':'Discounts'}</a>`;
+      <a href="discounts.html">🏷️ ${_ml==='ar'?'العروض':_ml==='kd'?'داشکاندن':'Discounts'}</a>
+      <a href="vip.html" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a0533;font-weight:700;border-radius:10px;text-align:center;">👑 VIP Club</a>`;
     document.body.insertBefore(mobileNav, document.body.firstChild.nextSibling);
     // Mark active
     document.querySelectorAll('#'+mobileNavId+' a').forEach(a=>{
