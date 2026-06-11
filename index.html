@@ -512,9 +512,11 @@ async function initPage(){
     ];
     cats.forEach(c=>{
       if(s[c.key]){
-        const img=document.getElementById('catImg'+c.id);
         const icon=document.getElementById('catIcon'+c.id);
-        if(img){ img.src=s[c.key]; img.style.display='block'; if(icon) icon.textContent=''; }
+        if(icon){
+          // Replace content with just the image (remove emoji text node)
+          icon.innerHTML='<img src="'+s[c.key]+'" style="width:52px;height:52px;object-fit:contain;" onerror="this.parentElement.innerHTML=\'🎮\'"/>';
+        }
       }
     });
   }); }catch(e){}

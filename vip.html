@@ -171,37 +171,45 @@ function selVIPPM(el, id){
   _selMethod=id;
 }
 
-// Load settings from Firebase when ready
-async function initPage(){
+// Standalone data loader - no dependency on app.js waitForDB
+(async function loadVIPData(){
   initTheme();
-  // Build nav immediately
-  if(typeof buildNav==='function') await buildNav('');
-  if(typeof applyLang==='function') applyLang();
-  // Load Firebase data with polling fallback
-  let tries=0;
-  while(!window._KS_DB && tries<60){ await new Promise(r=>setTimeout(r,100)); tries++; }
-  if(!window._KS_DB){ console.log('VIP: DB not ready'); return; }
+  // Build nav immediately with defaults
+  if(typeof buildNav==='function'){ await buildNav(''); }
+  if(typeof applyLang==='function'){ applyLang(); }
+
+  // Poll for Firebase connection
+  let t=0;
+  while(!window._KS_DB_READY && t<80){ await new Promise(r=>setTimeout(r,100)); t++; }
+
+  if(!window._KS_DB){
+    document.getElementById('benefitsGrid').innerHTML='<div style="color:var(--gray);padding:14px;">Could not load benefits. Please refresh.</div>';
+    return;
+  }
+
   try{
-      _vipSettings = await window._KS_DB.getVIPSettings();
-      const s       = await window._KS_DB.getSettings();
-      // Update prices
-      document.getElementById('monthlyPrice').textContent  = Number(_vipSettings.monthlyPrice ||5000).toLocaleString();
-      document.getElementById('annualPrice').textContent   = Number(_vipSettings.annualPrice  ||25000).toLocaleString();
-      document.getElementById('lifetimePrice').textContent = Number(_vipSettings.lifetimePrice||80000).toLocaleString();
-      // Benefits
-      const icons=['💰','🎰','🏆','🔑','🎯','👑','🎁','🎂','🌟','📱'];
-      document.getElementById('benefitsGrid').innerHTML = (_vipSettings.benefits||[]).map((b,i)=>`
-        <div class="benefit-card">
-          <div class="benefit-icon">${icons[i%icons.length]}</div>
-          <div><div class="benefit-title">${b}</div></div>
-        </div>`).join('') || '<div style="color:var(--gray);padding:14px;">No benefits configured yet.</div>';
-      // TG link
-      const tg = s.telegram||'sharafaani';
-      document.getElementById('tgBtn').href   = 'https://t.me/'+tg;
-      document.getElementById('vipTgBtn').href= 'https://t.me/'+tg;
-    }catch(e){ console.log('VIP page error:',e); }
-}
-initPage();
+    _vipSettings = await window._KS_DB.getVIPSettings();
+    // Update prices
+    document.getElementById('monthlyPrice').textContent  = Number(_vipSettings.monthlyPrice ||5000).toLocaleString();
+    document.getElementById('annualPrice').textContent   = Number(_vipSettings.annualPrice  ||25000).toLocaleString();
+    document.getElementById('lifetimePrice').textContent = Number(_vipSettings.lifetimePrice||80000).toLocaleString();
+    // Benefits
+    const icons=['💰','🎰','🏆','🔑','🎯','👑','🎁','🎂','🌟','📱'];
+    const benefits = _vipSettings.benefits||[];
+    document.getElementById('benefitsGrid').innerHTML = benefits.length
+      ? benefits.map((b,i)=>`<div class="benefit-card"><div class="benefit-icon">${icons[i%icons.length]}</div><div><div class="benefit-title">${b}</div></div></div>`).join('')
+      : '<div style="color:var(--gray);padding:14px;">No benefits configured yet in admin.</div>';
+  }catch(e){
+    console.log('VIP settings error:',e);
+  }
+
+  try{
+    const s = await window._KS_DB.getSettings();
+    const tg = s.telegram||'sharafaani';
+    document.getElementById('tgBtn').href    = 'https://t.me/'+tg;
+    document.getElementById('vipTgBtn').href = 'https://t.me/'+tg;
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
