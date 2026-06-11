@@ -96,7 +96,18 @@ tr:hover td{background:var(--gl);}
 .info-box.blue{background:#e7f8ff;color:#0369a1;}
 .info-box.green{background:#f0fdf4;color:#166534;}
 .info-box.purple{background:#fdf4ff;color:#6b21a8;}
-@media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}.stat-cards{grid-template-columns:1fr 1fr;}.form-grid{grid-template-columns:1fr;}}
+@media(max-width:900px){
+  .sidebar{position:fixed;left:-220px;transition:left .3s;z-index:200;}
+  .sidebar.mob-open{left:0;}
+  .mob-overlay{position:fixed;inset:0;background:#00000066;z-index:199;display:none;}
+  .mob-overlay.show{display:block;}
+  .main{margin-left:0;}
+  .stat-cards{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .mob-menu-btn{display:flex !important;}
+}
+@media(min-width:901px){.mob-menu-btn{display:none !important;}.mob-overlay{display:none !important;}}
+.mob-menu-btn{background:none;border:none;cursor:pointer;font-size:1.4rem;color:var(--text);padding:4px 8px;display:none;}
 </style>
 </head>
 <body>
@@ -114,6 +125,7 @@ tr:hover td{background:var(--gl);}
     <li><button onclick="showSec('subs',this)">📦 Subscriptions</button></li>
     <li><button onclick="showSec('codes',this)">🏷️ Discount Codes</button></li>
     <li><button onclick="showSec('reviews',this)">⭐ Reviews</button></li>
+    <li><button onclick="showSec('customers',this)">👥 Customers</button></li>
     <li><button onclick="showSec('orders',this)">📋 Orders <span id="pendingBadge" style="background:#dc2626;color:#fff;border-radius:99px;font-size:.65rem;padding:1px 7px;margin-left:4px;display:none;">0</span></button></li>
     <li><button onclick="showSec('settings',this)">⚙️ Settings</button></li>
   </ul>
@@ -130,11 +142,23 @@ tr:hover td{background:var(--gl);}
   <div class="sb-footer"><p>Kurd Store Admin</p><p style="margin-top:3px;">@<a id="sbTg" href="#">sharafaani</a></p></div>
 </aside>
 
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobMenu()"></div>
 <main class="main">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+  <button class="mob-menu-btn" id="mobMenuBtn" onclick="openMobMenu()">☰</button>
+  <span style="font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--text);" id="mobPageTitle">🎮 Games</span>
+</div>
 
 <!-- ══════════ DASHBOARD ══════════ -->
 <div id="sec-dashboard" style="display:none;">
   <div class="topbar"><div><h1>📊 Dashboard</h1><p>Store overview</p></div><button class="btn btn-outline btn-sm" onclick="loadDashboard()">🔄 Refresh</button></div>
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-hd"><div class="panel-title">📈 Revenue — Last 7 Days</div></div>
+    <div class="panel-body">
+      <canvas id="revenueChart" height="80" style="width:100%;"></canvas>
+      <div id="revenueChartEmpty" style="text-align:center;color:var(--gray);font-size:.85rem;padding:20px;">No revenue data yet</div>
+    </div>
+  </div>
   <div class="stat-cards">
     <div class="sc"><div class="sc-icon purple">📋</div><div><div class="sc-num" id="dashOrders">—</div><div class="sc-lbl">Total Orders</div></div></div>
     <div class="sc"><div class="sc-icon green">💰</div><div><div class="sc-num" id="dashRevenue">—</div><div class="sc-lbl">Total Revenue</div></div></div>
@@ -360,6 +384,27 @@ tr:hover td{background:var(--gl);}
   <div class="panel"><div class="panel-hd"><div class="panel-title">📋 All Reviews</div></div><div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Game</th><th>Stars</th><th>Review</th><th>Date</th><th>Action</th></tr></thead><tbody id="rvTbody"></tbody></table></div><div class="empty-state" id="rvEmpty" style="display:none;"><div class="ei">⭐</div><p>No reviews yet.</p></div></div>
 </div>
 
+<!-- ══════════ CUSTOMERS ══════════ -->
+<div id="sec-customers" style="display:none;">
+  <div class="topbar">
+    <div><h1>👥 Customer Database</h1><p>All customers who placed orders</p></div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="custSearch" placeholder="🔍 Search by name or email..." oninput="filterCustomers(this.value)" style="padding:6px 12px;font-size:.8rem;width:220px;border-radius:99px;border:1.5px solid var(--border);background:var(--card);color:var(--text);outline:none;"/>
+      <button class="btn btn-primary btn-sm" onclick="exportCustomers()">📥 Export CSV</button>
+    </div>
+  </div>
+  <div class="stat-cards" style="grid-template-columns:repeat(3,1fr);">
+    <div class="sc"><div class="sc-icon purple">👥</div><div><div class="sc-num" id="custTotal">—</div><div class="sc-lbl">Total Customers</div></div></div>
+    <div class="sc"><div class="sc-icon blue">📧</div><div><div class="sc-num" id="custUnique">—</div><div class="sc-lbl">Unique Emails</div></div></div>
+    <div class="sc"><div class="sc-icon green">💰</div><div><div class="sc-num" id="custAvg">—</div><div class="sc-lbl">Avg Order Value</div></div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">👥 All Customers</div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Last Order</th></tr></thead><tbody id="custTbody"></tbody></table></div>
+    <div class="empty-state" id="custEmpty" style="display:none;"><div class="ei">👥</div><p>No customers yet.</p></div>
+  </div>
+</div>
+
 <!-- ══════════ ORDERS ══════════ -->
 <div id="sec-orders" style="display:none;">
   <div class="topbar"><div><h1>📋 Orders</h1><p>All customer orders</p></div>
@@ -509,7 +554,7 @@ function waitForDB(cb){
 
 // ── NAV ──
 function showSec(name,btn){
-  ['dashboard','games','subs','codes','reviews','orders','settings'].forEach(s=>{
+  ['dashboard','games','subs','codes','reviews','orders','customers','settings'].forEach(s=>{
     const el=document.getElementById('sec-'+s);
     if(el) el.style.display=s===name?'block':'none';
   });
@@ -520,6 +565,7 @@ function showSec(name,btn){
   if(name==='codes')     renderCodes();
   if(name==='reviews')   renderRvTable();
   if(name==='orders')    renderOrders();
+  if(name==='customers') loadCustomers();
   if(name==='settings')  loadSettings();
   if(name==='dashboard') loadDashboard();
 }
@@ -1012,11 +1058,216 @@ async function loadDashboard(){
     const total=orders.length,pending=orders.filter(o=>o.status==='pending').length,revenue=orders.reduce((s,o)=>s+(o.total||0),0);
     document.getElementById('dashOrders').textContent=total;document.getElementById('dashPending').textContent=pending;document.getElementById('dashRevenue').textContent=Number(revenue).toLocaleString()+' IQD';
     document.getElementById('dashOrdersEmpty').style.display='none';
+    // Draw revenue chart
+    drawRevenueChart(orders);
     document.getElementById('dashRecentOrders').innerHTML=orders.slice(0,5).map(o=>`<tr><td style="padding:9px 12px;border-bottom:1px solid var(--gl);"><strong>${o.name||'—'}</strong><br><span style="font-size:.7rem;color:var(--gray);">${o.date?new Date(o.date).toLocaleDateString():''}</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--gl);font-size:.78rem;max-width:140px;">${(o.items||'').substring(0,40)}...</td><td style="padding:9px 12px;border-bottom:1px solid var(--gl);font-family:var(--fd);font-weight:700;color:var(--p);">${iqd(o.total||0)}</td><td style="padding:9px 12px;border-bottom:1px solid var(--gl);"><span style="padding:2px 8px;border-radius:99px;font-size:.68rem;font-weight:700;background:${o.status==='delivered'?'#d1fae5':'#fef3c7'};color:${o.status==='delivered'?'#059669':'#b45309'};">${o.status==='delivered'?'✅':'⏳'} ${o.status}</span></td></tr>`).join('');
     const counts={};orders.forEach(o=>{if(o.items)o.items.split(',').forEach(i=>{const k=i.trim();if(k)counts[k]=(counts[k]||0)+1;});});
     const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
     document.getElementById('dashTopGames').innerHTML=sorted.length?sorted.map(([name,count],i)=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--gl);"><div style="width:26px;height:26px;background:var(--ps);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;color:var(--p);font-size:.85rem;">${i+1}</div><div style="flex:1;font-size:.83rem;font-weight:600;">${name.substring(0,35)}</div><div style="font-family:var(--fd);font-weight:700;color:var(--p);">${count}x</div></div>`).join(''):'<div style="color:var(--gray);font-size:.85rem;padding:10px;">No data yet</div>';
   }catch(e){console.error(e);showToast('❌ Error loading dashboard');}
+}
+
+// ══════════════════════════════════════
+//  MOBILE MENU
+// ══════════════════════════════════════
+function openMobMenu(){
+  document.getElementById('mobOverlay').classList.add('show');
+  document.querySelector('.sidebar').classList.add('mob-open');
+}
+function closeMobMenu(){
+  document.getElementById('mobOverlay').classList.remove('show');
+  document.querySelector('.sidebar').classList.remove('mob-open');
+}
+// Close mobile menu when nav button clicked
+document.querySelectorAll('.sb-nav button').forEach(btn=>{
+  btn.addEventListener('click',()=>{ if(window.innerWidth<=900) closeMobMenu(); });
+});
+
+// ══════════════════════════════════════
+//  REVENUE GRAPH
+// ══════════════════════════════════════
+function drawRevenueChart(orders){
+  const canvas = document.getElementById('revenueChart');
+  const empty  = document.getElementById('revenueChartEmpty');
+  if(!canvas) return;
+
+  // Build last 7 days
+  const days = [];
+  const now = new Date();
+  for(let i=6;i>=0;i--){
+    const d = new Date(now); d.setDate(d.getDate()-i);
+    days.push({
+      label: d.toLocaleDateString('en',{month:'short',day:'numeric'}),
+      date:  d.toDateString(),
+      total: 0
+    });
+  }
+  orders.forEach(o=>{
+    const oDate = new Date(o.date).toDateString();
+    const day = days.find(d=>d.date===oDate);
+    if(day) day.total += (o.total||0);
+  });
+
+  const hasData = days.some(d=>d.total>0);
+  if(!hasData){ canvas.style.display='none'; empty.style.display='block'; return; }
+  canvas.style.display='block'; empty.style.display='none';
+
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth||600; const H = 140;
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const maxVal = Math.max(...days.map(d=>d.total),1);
+  const padL=50, padR=20, padT=20, padB=30;
+  const gW=W-padL-padR, gH=H-padT-padB;
+  const step=gW/6;
+
+  // Grid lines
+  ctx.strokeStyle='#e5d9ff'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=padT+(gH/4)*i;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    ctx.fillStyle='#9ca3af'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(Number(maxVal*(1-i/4)/1000).toFixed(0)+'K',padL-4,y+3);
+  }
+
+  // Gradient fill
+  const grad=ctx.createLinearGradient(0,padT,0,padT+gH);
+  grad.addColorStop(0,'rgba(124,58,237,.35)');
+  grad.addColorStop(1,'rgba(124,58,237,.02)');
+  ctx.beginPath();
+  days.forEach((d,i)=>{
+    const x=padL+i*step; const y=padT+gH-(d.total/maxVal*gH);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(padL+6*step,padT+gH); ctx.lineTo(padL,padT+gH); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath(); ctx.strokeStyle='#7c3aed'; ctx.lineWidth=2.5;
+  days.forEach((d,i)=>{
+    const x=padL+i*step; const y=padT+gH-(d.total/maxVal*gH);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Dots + labels
+  days.forEach((d,i)=>{
+    const x=padL+i*step; const y=padT+gH-(d.total/maxVal*gH);
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle='#7c3aed'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    // X labels
+    ctx.fillStyle='#6b7280'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(d.label,x,H-4);
+  });
+}
+
+// ══════════════════════════════════════
+//  CUSTOMER DATABASE
+// ══════════════════════════════════════
+let _allCustomers = [];
+
+async function loadCustomers(){
+  try{
+    const {getDatabase,ref,get}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const {getApps,initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
+    const db2=getDatabase(app); const snap=await get(ref(db2,'orders'));
+    if(!snap.exists()){
+      document.getElementById('custEmpty').style.display='block';
+      document.getElementById('custTbody').innerHTML='';
+      ['custTotal','custUnique','custAvg'].forEach(id=>document.getElementById(id).textContent='0');
+      return;
+    }
+    const orders=Object.values(snap.val());
+    // Build customer map
+    const custMap={};
+    orders.forEach(o=>{
+      const key=(o.email||'unknown').toLowerCase();
+      if(!custMap[key]) custMap[key]={name:o.name||'—',email:o.email||'—',orders:0,total:0,lastDate:''};
+      custMap[key].orders++;
+      custMap[key].total+=(o.total||0);
+      if(!custMap[key].lastDate||new Date(o.date)>new Date(custMap[key].lastDate)) custMap[key].lastDate=o.date;
+    });
+    _allCustomers=Object.values(custMap).sort((a,b)=>b.total-a.total);
+    document.getElementById('custTotal').textContent=orders.length;
+    document.getElementById('custUnique').textContent=_allCustomers.length;
+    const avg=orders.length?Math.round(orders.reduce((s,o)=>s+(o.total||0),0)/orders.length):0;
+    document.getElementById('custAvg').textContent=Number(avg).toLocaleString()+' IQD';
+    renderCustomers(_allCustomers);
+  }catch(e){showToast('❌ Error loading customers');}
+}
+
+function renderCustomers(list){
+  const tb=document.getElementById('custTbody');
+  const em=document.getElementById('custEmpty');
+  if(!list.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=list.map((c,i)=>`<tr>
+    <td style="font-weight:700;color:var(--p);">${i+1}</td>
+    <td><strong>${c.name}</strong></td>
+    <td style="font-size:.8rem;">${c.email}</td>
+    <td style="text-align:center;"><span class="badge b-sub">${c.orders} order${c.orders!==1?'s':''}</span></td>
+    <td class="td-price">${Number(c.total).toLocaleString()} IQD</td>
+    <td style="font-size:.75rem;color:var(--gray);">${c.lastDate?new Date(c.lastDate).toLocaleDateString():''}</td>
+  </tr>`).join('');
+}
+
+function filterCustomers(q){
+  q=q.toLowerCase().trim();
+  if(!q){renderCustomers(_allCustomers);return;}
+  renderCustomers(_allCustomers.filter(c=>c.name.toLowerCase().includes(q)||c.email.toLowerCase().includes(q)));
+}
+
+function exportCustomers(){
+  if(!_allCustomers.length){showToast('⚠️ No customers to export!');return;}
+  const csv=[['#','Name','Email','Orders','Total (IQD)','Last Order'],
+    ..._allCustomers.map((c,i)=>[i+1,c.name,c.email,c.orders,c.total,c.lastDate?new Date(c.lastDate).toLocaleDateString():''])
+  ].map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='kurd-store-customers.csv'; a.click();
+  showToast('✅ '+_allCustomers.length+' customers exported!');
+}
+
+// ══════════════════════════════════════
+//  SCREENSHOT VIEWER
+// ══════════════════════════════════════
+let _allOrdersCache = null;
+
+async function viewScreenshot(orderId){
+  try{
+    const {getDatabase,ref,get}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const {getApps,initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
+    const db2=getDatabase(app);
+    const snap=await get(ref(db2,'orders/'+orderId));
+    if(!snap.exists()||!snap.val().screenshot){showToast('No screenshot for this order.');return;}
+    const src=snap.val().screenshot;
+    // Show in lightbox
+    let lb=document.getElementById('screenshotLb');
+    if(!lb){
+      lb=document.createElement('div');
+      lb.id='screenshotLb';
+      lb.style.cssText='position:fixed;inset:0;background:#000000cc;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      lb.innerHTML=`<div style="position:relative;max-width:500px;width:100%;"><button onclick="document.getElementById('screenshotLb').remove()" style="position:absolute;top:-12px;right:-12px;background:#fff;border:none;border-radius:99px;width:28px;height:28px;font-size:.9rem;cursor:pointer;z-index:1;">✕</button><img src="${src}" style="width:100%;border-radius:12px;"/><div style="text-align:center;margin-top:10px;color:#fff;font-size:.8rem;">Payment Screenshot</div></div>`;
+      document.body.appendChild(lb);
+    } else {
+      lb.querySelector('img').src=src;
+      lb.style.display='flex';
+    }
+  }catch(e){showToast('❌ Error loading screenshot');}
+}
+
+// ══════════════════════════════════════
+//  UPDATE DASHBOARD to draw chart
+// ══════════════════════════════════════
+
+// Override loadDashboard to also draw chart
+const _origLoadDashboard = loadDashboard;
+async function loadDashboard(){
+  await _origLoadDashboard();
 }
 
 // ══════════════════════════════════════

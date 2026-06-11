@@ -172,9 +172,14 @@ function openCheckout(){
   document.getElementById('orderItems').innerHTML=cart.map(i=>`<div class="order-item"><span>${i.icon} ${i.name}</span><span>${iqd(i.price)}</span></div>`).join('');
   const sub=cart.reduce((s,x)=>s+x.price,0);
   document.getElementById('orderTotal').textContent=iqd(sub-calcDisc(sub,cart));
-  _selMethod=null;
+  _selMethod=null; _screenshotDone=false; _screenshotData=null; _verifyCode=null; _emailVerified=false;
   document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
   document.querySelectorAll('.pm-check').forEach(c=>c.textContent='');
+  const si=document.getElementById('screenshotInput'); if(si) si.value='';
+  const vi=document.getElementById('verifyCodeInput'); if(vi) vi.value='';
+  const vw=document.getElementById('verifyCodeWrap'); if(vw) vw.style.display='none';
+  const vb=document.getElementById('emailVerifiedBadge'); if(vb) vb.style.display='none';
+  const sb=document.getElementById('sendCodeBtn'); if(sb){sb.style.display='inline-flex';sb.textContent='📧 Send Code';}
   goStep(1);
   document.getElementById('checkoutModal').classList.add('open');
 }
@@ -208,7 +213,10 @@ function copyPayNum(){ navigator.clipboard.writeText(document.getElementById('pd
 async function submitOrder(){
   const name=document.getElementById('custName').value.trim();
   const email=document.getElementById('custEmail').value.trim();
-  if(!name||!email){showToast('Please enter name and email!');return;}
+  if(!name){showToast('⚠️ Please enter your name!');return;}
+  if(!email||!email.includes('@')||!email.includes('.')){showToast('⚠️ Please enter a valid email!');return;}
+  if(!_screenshotDone){showToast('⚠️ Please upload your payment screenshot!');goStep(3);return;}
+  if(!_emailVerified){showToast('⚠️ Please verify your email with the code!');return;}
   const cart=getCart();
   const sub=cart.reduce((s,x)=>s+x.price,0);
   const disc=calcDisc(sub,cart);
@@ -216,7 +224,7 @@ async function submitOrder(){
   const d=getAppliedDisc();
   const method=_selMethod?PAYMENT_METHODS.find(x=>x.id===_selMethod)?.name:'';
   const items=cart.map(i=>i.name).join(', ');
-  try{ await window._KS_DB.saveOrder({name,email,items,total,method,discount:d?.code||'',date:new Date().toISOString(),status:'pending'}); }catch(e){}
+  try{ await window._KS_DB.saveOrder({name,email,items,total,method,discount:d?.code||'',date:new Date().toISOString(),status:'pending',screenshot:_screenshotData||null}); }catch(e){}
   const hist=JSON.parse(localStorage.getItem('ks_history')||'[]');
   hist.unshift({id:Date.now(),items:[...cart],total,method,name,date:new Date().toLocaleDateString(),status:'pending'});
   localStorage.setItem('ks_history',JSON.stringify(hist));
@@ -239,9 +247,24 @@ async function submitOrder(){
 }
 function gameCardHTML(g){
   const l=getLang();
-  return `<div class="pcard${g.stock?'':' oos'}" onclick="window.location.href='product.html?id=${g.id}'" style="cursor:pointer;">
-    ${g.badge&&g.stock?`<div class="pcard-badges"><span class="pbadge pb-${g.badge}">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
-    ${!g.stock?'<div class="pcard-badges"><span class="pbadge pb-oos">OUT OF STOCK</span></div>':''}
+  const now=new Date();
+  const isExpired = g.expiryDate && new Date(g.expiryDate)<now;
+  const isOos = !g.stock || isExpired;
+  // Sale timer
+  let timerHTML='';
+  if(g.expiryDate && !isExpired && g.stock){
+    const diff = new Date(g.expiryDate)-now;
+    const days = Math.floor(diff/(1000*60*60*24));
+    const hrs  = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const mins = Math.floor((diff%(1000*60*60))/(1000*60));
+    if(days<3){
+      timerHTML=`<div class="sale-timer" data-expiry="${g.expiryDate}">⏰ ${days>0?days+'d ':''}${hrs}h ${mins}m</div>`;
+    }
+  }
+  return `<div class="pcard${isOos?' oos':''}" onclick="window.location.href='product.html?id=${g.id}'" style="cursor:pointer;">
+    ${g.badge&&g.stock&&!isExpired?`<div class="pcard-badges"><span class="pbadge pb-${g.badge}">${g.badge==='sale'?'SALE':'NEW'}</span></div>`:''}
+    ${isOos?'<div class="pcard-oos-overlay"><span>OUT OF STOCK</span></div>':''}
+    ${timerHTML}
     <div class="pcard-img">
       <img src="${g.img||''}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'"/>
       <span class="femoji">${g.icon}</span>
@@ -395,6 +418,23 @@ function autoExpireGames(games){
     }
     return g;
   });
+}
+
+// ── SCREENSHOT PREVIEW ──
+function previewScreenshot(input){
+  if(!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const prev = document.getElementById('screenshotPreview');
+    const plch = document.getElementById('screenshotPlaceholder');
+    const img  = document.getElementById('screenshotImg');
+    if(prev && plch && img){
+      img.src = e.target.result;
+      prev.style.display = 'block';
+      plch.style.display = 'none';
+    }
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 
 // ── OUT OF STOCK NOTIFICATION ──

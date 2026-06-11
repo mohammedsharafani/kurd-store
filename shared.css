@@ -432,3 +432,14 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 [dir=rtl] .product-info{direction:rtl;}
 [dir=rtl] .product-actions{flex-direction:row-reverse;}
 [dir=rtl] .sticky-cart-bar{flex-direction:row-reverse;}
+
+/* ══ OUT OF STOCK OVERLAY ON CARDS ══ */
+.pcard-oos-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:5;display:flex;align-items:center;justify-content:center;border-radius:var(--r);}
+.pcard-oos-overlay span{background:#6b7280;color:#fff;border-radius:99px;padding:6px 18px;font-weight:700;font-size:.8rem;letter-spacing:.5px;}
+.pcard{position:relative;}
+
+/* ══ SALE TIMER ON CARDS ══ */
+.sale-timer{position:absolute;top:8px;right:8px;z-index:6;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border-radius:99px;padding:3px 10px;font-size:.68rem;font-weight:700;box-shadow:0 2px 8px #dc262644;}
+
+/* ══ VERIFY CODE ══ */
+.verify-input{text-align:center;font-size:1.4rem;letter-spacing:10px;font-weight:700;}
