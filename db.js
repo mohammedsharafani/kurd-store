@@ -96,6 +96,10 @@
     async function saveReferral(code,data){ await _set('referrals/'+code,data); }
     async function getAllReferrals(){ const d=await _get('referrals'); return d?Object.entries(d).map(([k,v])=>({code:k,...v})):[]; }
 
+    // ── LEADERBOARD ──
+    async function getLeaderboard(){ const d=await _get('system/leaderboard'); return d||{weekStart:null,winner:null,reward:''}; }
+    async function saveLeaderboard(d){ await _set('system/leaderboard',d); }
+
     // ── VIP ──
     async function getVIPSettings(){ const d=await _get('system/vipSettings'); return d||{monthlyPrice:5000,annualPrice:25000,lifetimePrice:80000,discount:15,spinBonus:1,pointsBonus:1,benefits:['15% off all games forever','2 spins per purchase (1 extra)','Earn 1 extra loyalty point per purchase','VIP-only exclusive deals','Early access to new games 48h before everyone','Instant key replacement — no questions asked','Monthly surprise game gift','Birthday month special discount','Listed on VIP Members Wall','Direct Telegram support']}; }
     async function saveVIPSettings(d){ await _set('system/vipSettings',d); }
@@ -115,7 +119,9 @@
       // Referral
       getReferralSettings,saveReferralSettings,getReferral,saveReferral,getAllReferrals,
       // VIP
-      getVIPSettings,saveVIPSettings,getVIPMember,saveVIPMember,getAllVIPMembers
+      getVIPSettings,saveVIPSettings,getVIPMember,saveVIPMember,getAllVIPMembers,
+      // Leaderboard
+      getLeaderboard,saveLeaderboard
     };
 
     console.log('✅ Firebase connected!');

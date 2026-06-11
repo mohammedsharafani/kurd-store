@@ -444,6 +444,22 @@ tr:hover td{background:var(--gl);}
       <div class="form-actions"><button class="btn btn-primary" onclick="saveLoyaltySettings()">💾 Save Settings</button></div>
     </div>
   </div>
+  <!-- WEEKLY LEADERBOARD SETTINGS -->
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">🏆 Weekly Leaderboard</div><div style="font-size:.76rem;color:var(--gray);">Shown on home page — winner gets a reward</div></div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>This Week's Prize / Reward (shown on website)</label><input id="weeklyReward" type="text" placeholder="e.g. Free game of your choice! 🎮 or 50,000 IQD store credit"/></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveWeeklyReward()">💾 Save Reward</button>
+        <button class="btn btn-outline" onclick="declareWeeklyWinner()">🏆 Declare This Week Winner</button>
+        <button class="btn btn-danger" onclick="resetWeeklyPoints()">🔄 Reset Weekly (New Week)</button>
+      </div>
+      <div id="currentWinnerBox" style="display:none;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:12px;padding:14px;margin-top:14px;color:#1a0533;font-weight:700;"></div>
+    </div>
+  </div>
+
   <!-- CARD PREVIEW -->
   <div class="panel">
     <div class="panel-hd"><div class="panel-title">🔍 Preview Customer Card</div><div style="font-size:.76rem;color:var(--gray);">Look up any customer card by email</div></div>
@@ -726,7 +742,7 @@ function showSec(name,btn){
   if(name==='reviews')   renderRvTable();
   if(name==='orders')    renderOrders();
   if(name==='customers') loadCustomers();
-  if(name==='loyalty')   loadLoyaltyAdmin();
+  if(name==='loyalty')   { loadLoyaltyAdmin(); loadLeaderboardAdmin(); }
   if(name==='spin')      loadSpinAdmin();
   if(name==='referral')  loadReferralAdmin();
   if(name==='vip')       loadVIPAdmin();
@@ -1742,11 +1758,68 @@ async function toggleVIPStatus(key, newStatus){
 }
 
 // ══════════════════════════════════════
+//  LEADERBOARD ADMIN
+// ══════════════════════════════════════
+async function loadLeaderboardAdmin(){
+  const lb = await db().getLeaderboard();
+  document.getElementById('weeklyReward').value = lb.reward || '';
+  if(lb.winner){
+    const box = document.getElementById('currentWinnerBox');
+    box.style.display='block';
+    box.innerHTML='🏆 Current Winner: <strong>'+lb.winner.name+'</strong> with <strong>'+lb.winner.points+' points</strong>';
+  }
+}
+
+async function saveWeeklyReward(){
+  showSaving();
+  const lb = await db().getLeaderboard();
+  lb.reward = document.getElementById('weeklyReward').value.trim();
+  await db().saveLeaderboard(lb);
+  showToast('✅ Weekly reward saved!');
+}
+
+async function declareWeeklyWinner(){
+  const all = await db().getAllLoyalty();
+  if(!all.length){ showToast('⚠️ No customers yet!'); return; }
+  const top = all.sort((a,b)=>(b.points||0)-(a.points||0))[0];
+  if(!confirm('Declare "'+top.name+'" as this week\'s winner with '+top.points+' points?')) return;
+  showSaving();
+  const lb = await db().getLeaderboard();
+  lb.winner = {name:top.name, email:top.email, points:top.points, date:new Date().toISOString()};
+  await db().saveLeaderboard(lb);
+  const box = document.getElementById('currentWinnerBox');
+  box.style.display='block';
+  box.innerHTML='🏆 Winner declared: <strong>'+top.name+'</strong> with <strong>'+top.points+' points</strong>!';
+  showToast('🏆 '+top.name+' declared as winner!');
+  // Also notify via Telegram if configured
+  const s = await db().getSettings();
+  if(s.botToken && s.botChatId){
+    fetch('https://api.telegram.org/bot'+s.botToken+'/sendMessage',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:s.botChatId, text:'🏆 This week\'s Loyalty Winner: '+top.name+' with '+top.points+' points!\nReward: '+(lb.reward||'—')})
+    }).catch(()=>{});
+  }
+}
+
+async function resetWeeklyPoints(){
+  if(!confirm('Reset weekly leaderboard? This starts a new week. Customer total points are NOT affected.')) return;
+  showSaving();
+  await db().saveLeaderboard({weekStart:new Date().toISOString(), winner:null, reward:document.getElementById('weeklyReward').value.trim()});
+  document.getElementById('currentWinnerBox').style.display='none';
+  showToast('✅ New week started!');
+}
+
+// ══════════════════════════════════════
 //  SPIN WHEEL PREVIEW
 // ══════════════════════════════════════
 function drawPreviewWheel(){
   const canvas = document.getElementById('previewWheel');
-  if(!canvas || !_spinSettings) return;
+  if(!canvas) return;
+  if(!_spinSettings){ 
+    // Auto-load spin settings if not loaded yet
+    db().getSpinSettings().then(s=>{ _spinSettings=s; drawPreviewWheel(); });
+    return;
+  }
   const prizes = _spinSettings.prizes || [];
   if(!prizes.length) return;
   const ctx = canvas.getContext('2d');

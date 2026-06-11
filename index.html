@@ -189,6 +189,26 @@ if('serviceWorker' in navigator){
 
 </div><!-- end normalSections -->
 
+<!-- Loyalty Leaderboard -->
+<div id="leaderboardSection" style="display:none;padding:40px 4vw;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--text);">🏆 Loyalty Leaderboard</div>
+        <div style="font-size:.85rem;color:var(--gray);margin-top:4px;">Top customers this week — winner gets a special reward!</div>
+      </div>
+      <div id="weeklyRewardBadge" style="display:none;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:12px;padding:10px 18px;font-weight:700;font-size:.85rem;text-align:center;">
+        <div style="font-size:.7rem;opacity:.7;margin-bottom:2px;">🎁 THIS WEEK'S PRIZE</div>
+        <div id="weeklyRewardText">—</div>
+      </div>
+    </div>
+    <div id="leaderboardGrid" style="display:flex;flex-direction:column;gap:10px;max-width:600px;margin:0 auto;"></div>
+    <div style="text-align:center;margin-top:22px;">
+      <a href="card.html" style="color:var(--p);font-weight:700;font-size:.85rem;text-decoration:none;">📋 Check your loyalty card →</a>
+    </div>
+  </div>
+</div>
+
 <!-- VIP Members Wall -->
 <div id="vipWallSection" style="display:none;padding:40px 4vw;background:linear-gradient(135deg,#1a0533,#2d0a5e);margin-top:20px;">
   <div style="max-width:1100px;margin:0 auto;">
@@ -420,6 +440,39 @@ function clearSearch(){
   doHomeSearch('');
 }
 
+async function loadLeaderboard(){
+  if(!window._KS_DB) return;
+  try{
+    const [allLoyalty, leaderboard] = await Promise.all([
+      window._KS_DB.getAllLoyalty(),
+      window._KS_DB.getLeaderboard()
+    ]);
+    if(!allLoyalty.length) return;
+    // Sort by points
+    const sorted = [...allLoyalty].sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,10);
+    document.getElementById('leaderboardSection').style.display='block';
+    // Weekly reward
+    if(leaderboard.reward){
+      document.getElementById('weeklyRewardBadge').style.display='block';
+      document.getElementById('weeklyRewardText').textContent=leaderboard.reward;
+    }
+    const medals=['🥇','🥈','🥉'];
+    const colors=['linear-gradient(135deg,#fbbf24,#f59e0b)','linear-gradient(135deg,#9ca3af,#d1d5db)','linear-gradient(135deg,#cd7f32,#d97706)'];
+    document.getElementById('leaderboardGrid').innerHTML = sorted.map((c,i)=>`
+      <div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid ${i<3?'#fbbf24':'var(--border)'};border-radius:14px;padding:14px 18px;${i===0?'box-shadow:0 4px 20px #fbbf2433;':''}">
+        <div style="width:42px;height:42px;border-radius:99px;background:${i<3?colors[i]:'var(--gl)'};display:flex;align-items:center;justify-content:center;font-size:${i<3?'1.5rem':'1rem'};font-weight:700;color:${i<3?'#1a0533':'var(--text)'};flex-shrink:0;">${i<3?medals[i]:'#'+(i+1)}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;color:var(--text);font-size:.92rem;">${c.name||'Anonymous'}</div>
+          <div style="font-size:.74rem;color:var(--gray);">${c.orders||0} orders · ${Number(c.totalSpent||0).toLocaleString()} IQD spent</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--p);">${c.points||0}</div>
+          <div style="font-size:.68rem;color:var(--gray);">points</div>
+        </div>
+      </div>`).join('');
+  }catch(e){ console.log('Leaderboard error:',e); }
+}
+
 async function loadVIPWall(){
   if(!window._KS_DB) return;
   try{
@@ -439,6 +492,7 @@ async function initPage(){
   await buildNav('home');
   applyLang();
   initBackToTop();
+  loadLeaderboard();
   loadVIPWall();
   // Re-apply lang after listeners fire so translated labels show
   setTimeout(applyLang, 1000);

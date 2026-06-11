@@ -140,13 +140,10 @@ async function initPage(){
   await buildNav('');
   applyLang();
 
-  let t=0;
-  while(!window._KS_DB && t<50){ await new Promise(r=>setTimeout(r,100)); t++; }
-
-  vipSettings = await window._KS_DB.getVIPSettings();
-  const s = await window._KS_DB.getSettings();
-
-  // Update prices
+  // Use waitForDB from app.js
+  waitForDB(async function(){
+    vipSettings = await window._KS_DB.getVIPSettings();
+    // Update prices
   document.getElementById('monthlyPrice').textContent = Number(vipSettings.monthlyPrice||5000).toLocaleString();
   document.getElementById('annualPrice').textContent = Number(vipSettings.annualPrice||25000).toLocaleString();
   document.getElementById('lifetimePrice').textContent = Number(vipSettings.lifetimePrice||80000).toLocaleString();
@@ -160,17 +157,19 @@ async function initPage(){
       <div><div class="benefit-title">${b}</div></div>
     </div>`).join('');
 
-  // TG links
-  document.getElementById('tgContactBtn').href = 'https://t.me/'+(s.telegram||'sharafaani');
-  document.getElementById('vipTgBtn').href = 'https://t.me/'+(s.telegram||'sharafaani');
+    // TG links
+    const s = await window._KS_DB.getSettings();
+    document.getElementById('tgContactBtn').href = 'https://t.me/'+(s.telegram||'sharafaani');
+    document.getElementById('vipTgBtn').href = 'https://t.me/'+(s.telegram||'sharafaani');
 
-  // Pay methods
-  document.getElementById('vipPayMethods').innerHTML = PAYMENT_METHODS.map(m=>`
-    <div class="pay-method" onclick="selVIPMethod(this,'${m.id}','${m.number}')" id="vpm-${m.id}" style="margin-bottom:8px;">
-      <div class="pm-icon">${m.icon}</div>
-      <div><div class="pm-name">${m.name}</div><div class="pm-desc">${m.number}</div></div>
-      <div class="pm-check" id="vpmc-${m.id}"></div>
-    </div>`).join('');
+    // Pay methods
+    document.getElementById('vipPayMethods').innerHTML = PAYMENT_METHODS.map(m=>`
+      <div class="pay-method" onclick="selVIPMethod(this,'${m.id}','${m.number}')" id="vpm-${m.id}" style="margin-bottom:8px;">
+        <div class="pm-icon">${m.icon}</div>
+        <div><div class="pm-name">${m.name}</div><div class="pm-desc">${m.number}</div></div>
+        <div class="pm-check" id="vpmc-${m.id}"></div>
+      </div>`).join('');
+  }); // end waitForDB
 }
 
 function selVIPMethod(el, id, num){
@@ -182,7 +181,7 @@ function selVIPMethod(el, id, num){
 }
 
 function openPayModal(plan){
-  if(!vipSettings) return;
+  if(!vipSettings){ showToast('⏳ Loading settings, please wait...'); return; }
   const prices = {monthly:vipSettings.monthlyPrice, annual:vipSettings.annualPrice, lifetime:vipSettings.lifetimePrice};
   const labels = {monthly:'Monthly VIP', annual:'Annual VIP', lifetime:'Lifetime VIP'};
   document.getElementById('payModalTitle').textContent = '👑 Get '+labels[plan];
