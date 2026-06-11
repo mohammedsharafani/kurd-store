@@ -34,16 +34,13 @@ function applyLang(){
   document.documentElement.setAttribute('dir', l==='ar'?'rtl':'ltr');
   const b=document.getElementById('langBtn');
   if(b) b.textContent = l==='en'?'🌐 عربي / کوردی': l==='kd'?'🌐 العربية / English':'🌐 English / کوردی';
-  // Reposition cart sidebar based on language (when closed)
+  // Update cart RTL class
   const sidebar = document.getElementById('cartSidebar');
-  if(sidebar && !sidebar.classList.contains('open')){
-    if(l==='ar'){
-      sidebar.style.right='auto'; sidebar.style.left='0';
-      sidebar.style.transform='translateX(-100%)';
-    } else {
-      sidebar.style.left='auto'; sidebar.style.right='0';
-      sidebar.style.transform='translateX(100%)';
-    }
+  if(sidebar){
+    if(l==='ar') sidebar.classList.add('cart-rtl');
+    else sidebar.classList.remove('cart-rtl');
+    // Clear any stale inline styles
+    sidebar.style.transform=''; sidebar.style.left=''; sidebar.style.right='';
   }
 }
 function showToast(msg){
@@ -136,18 +133,13 @@ function renderCartItems(){
 function openCart(){
   const sidebar = document.getElementById('cartSidebar');
   const isAr = getLang()==='ar';
-  // Set position based on language BEFORE opening
-  if(isAr){
-    sidebar.style.right='auto'; sidebar.style.left='0';
-    sidebar.style.transform='translateX(-100%)';
-    sidebar.style.boxShadow='8px 0 48px #7c3aed22';
-  } else {
-    sidebar.style.left='auto'; sidebar.style.right='0';
-    sidebar.style.transform='translateX(100%)';
-    sidebar.style.boxShadow='-8px 0 48px #7c3aed22';
-  }
-  // Force reflow then open
-  void sidebar.offsetWidth;
+  // Remove any inline styles that would override CSS
+  sidebar.style.transform = '';
+  sidebar.style.left = '';
+  sidebar.style.right = '';
+  // Set RTL class
+  if(isAr){ sidebar.classList.add('cart-rtl'); }
+  else     { sidebar.classList.remove('cart-rtl'); }
   document.getElementById('cartOverlay').classList.add('open');
   sidebar.classList.add('open');
   renderCartItems();
