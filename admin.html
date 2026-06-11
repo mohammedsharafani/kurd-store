@@ -493,8 +493,8 @@ tr:hover td{background:var(--gl);}
   </div>
   <div class="panel">
     <div class="panel-hd"><div class="panel-title">👥 All Loyalty Cards</div><button class="btn btn-outline btn-sm" onclick="loadLoyaltyAdmin()">🔄 Refresh</button></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Points</th><th>Tier</th><th>Orders</th><th>Spent</th><th>VIP</th><th>Leaderboard</th><th>Actions</th></tr></thead><tbody id="loyTbody"></tbody></table></div>
-    <div class="empty-state" id="loyEmpty" style="display:none;"><div class="ei">🏆</div><p>No loyalty cards yet.</p></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Points</th><th>Tier</th><th>Orders</th><th>Spent</th><th>VIP</th><th title="Toggle visibility on home page leaderboard">Leaderboard 🏆</th><th>Actions</th></tr></thead><tbody id="loyTbody"></tbody></table></div>
+    <div class="empty-state" id="loyEmpty" style="display:none;"><div class="ei">🏆</div><p>No loyalty cards yet.</p><p style="font-size:.78rem;color:var(--gray);margin-top:6px;">Cards are created automatically after a customer's first purchase.</p></div>
   </div>
 </div>
 
@@ -1504,6 +1504,8 @@ async function loadLoyaltyAdmin(){
   const em = document.getElementById('loyEmpty');
   if(!all.length){ tb.innerHTML=''; em.style.display='block'; return; }
   em.style.display='none';
+  // Also add leaderboard column header tooltip
+  
   const tiers = _loySettings.tiers || [];
   tb.innerHTML = all.sort((a,b)=>(b.points||0)-(a.points||0)).map(m=>{
     let tier = tiers[0];
@@ -1517,8 +1519,8 @@ async function loadLoyaltyAdmin(){
       <td style="font-size:.78rem;">${Number(m.totalSpent||0).toLocaleString()} IQD</td>
       <td>${m.isVIP?'<span style="color:#f59e0b;font-weight:700;">👑 VIP</span>':'—'}</td>
       <td class="td-act">
-        <button class="btn btn-outline btn-sm" onclick="editLoyaltyPoints('${(m.email||'').replace(/[.#$[\]]/g,'_')}','${m.name||''}',${m.points||0})" title="Edit points">✏️</button>
-        <button class="btn btn-sm ${m.hiddenFromLeaderboard?'btn-success':'btn-danger'}" onclick="toggleLeaderboard('${(m.email||'').replace(/[.#$[\]]/g,'_')}',${!m.hiddenFromLeaderboard})" title="${m.hiddenFromLeaderboard?'Show on leaderboard':'Remove from leaderboard'}">${m.hiddenFromLeaderboard?'👁 Show':'🚫 Hide'}</button>
+        <button class="btn btn-outline btn-sm" onclick="editLoyaltyPoints('${(m.email||'').replace(/[.#$[\]]/g,'_')}','${m.name||''}',${m.points||0})">✏️ Edit</button>
+        <button class="btn ${m.hiddenFromLeaderboard?'btn-success':'btn-danger'} btn-sm" onclick="toggleLeaderboard('${(m.email||'').replace(/[.#$[\]]/g,'_')}',${!m.hiddenFromLeaderboard})">${m.hiddenFromLeaderboard?'👁 Show':'🚫 Hide'}</button>
       </td>
     </tr>`;
   }).join('');
