@@ -448,7 +448,7 @@ async function loadLeaderboard(){
     ]);
     if(!allLoyalty.length) return;
     // Sort by points
-    const sorted = [...allLoyalty].sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,10);
+    const sorted = [...allLoyalty].filter(c=>!c.hiddenFromLeaderboard).sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,10);
     document.getElementById('leaderboardSection').style.display='block';
     // Weekly reward
     if(leaderboard.reward){
