@@ -598,8 +598,18 @@ function subCardHTML(s){
   </div>`;
 }
 async function buildNav(activePage){
-  let s={}; try{ s=await window._KS_DB.getSettings(); }catch(e){}
-  s=Object.assign({},DEFAULT_SETTINGS,s);
+  // STEP 1: Render nav immediately with defaults (no Firebase needed)
+  let s=Object.assign({},DEFAULT_SETTINGS);
+  renderNav(activePage,s);
+  // STEP 2: Load real settings and re-render if available
+  try{
+    if(window._KS_DB){
+      const loaded=await window._KS_DB.getSettings();
+      if(loaded){ s=Object.assign({},DEFAULT_SETTINGS,loaded); renderNav(activePage,s); }
+    }
+  }catch(e){}
+}
+function renderNav(activePage,s){
   const logoHTML=s.logoImg?`<img src="${s.logoImg}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;" alt="logo"/>`:`<div class="site-logo-emoji">${s.logoEmoji||'🎮'}</div>`;
   document.getElementById('navMount').innerHTML=`
   <nav class="topnav">
@@ -713,7 +723,7 @@ async function buildNav(activePage){
       <div class="footer-bottom"><span>© 2024 ${s.storeName||'Kurd Store'}.</span><span>${getLang()==='ar'?'صُنع بـ ❤️ للاعبين العراقيين':getLang()==='kd'?'بە ❤️ بۆ یاریزانانی کوردستان':'Made with ❤️ for Kurdish gamers'}</span></div>
     </footer>`;
   }
-}
+} // end renderNav
 
 // ── AUTO EXPIRE GAMES ──
 function autoExpireGames(games){

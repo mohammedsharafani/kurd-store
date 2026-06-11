@@ -492,13 +492,16 @@ async function initPage(){
   await buildNav('home');
   applyLang();
   initBackToTop();
-  loadLeaderboard();
-  loadVIPWall();
-  // Re-apply lang after listeners fire so translated labels show
   setTimeout(applyLang, 1000);
 
+  // Guard against null _KS_DB
+  if(!window._KS_DB){ console.log('DB not ready'); return; }
+
+  try{ loadLeaderboard(); }catch(e){}
+  try{ loadVIPWall(); }catch(e){}
+
   // Load banner settings
-  window._KS_DB.listenSettings(s=>{ renderBanner(s); });
+  try{ window._KS_DB.listenSettings(s=>{ renderBanner(s); }); }catch(e){}
 
   // Live listeners — auto update when admin saves
   window._KS_DB.listenGames(rawGames=>{
@@ -516,13 +519,13 @@ async function initPage(){
     document.getElementById('newGrid').innerHTML=games.filter(g=>g.badge==='new').slice(0,4).map(gameCardHTML).join('');
     document.getElementById('saleGrid').innerHTML=games.filter(g=>g.badge==='sale').slice(0,4).map(gameCardHTML).join('');
   });
-  window._KS_DB.listenSubs(subs=>{
+  try{ window._KS_DB.listenSubs(subs=>{
     _allSubs = subs;
     document.getElementById('stSubs').textContent=subs.length;
     document.getElementById('cSubs').textContent=subs.length+' plans';
     document.getElementById('subsGrid').innerHTML=subs.slice(0,3).map(subCardHTML).join('');
-  });
-  window._KS_DB.listenReviews(reviews=>{
+  }); }catch(e){}
+  try{ window._KS_DB.listenReviews(reviews=>{
     document.getElementById('reviewsGrid').innerHTML=reviews.slice(0,6).map(r=>`
       <div class="review-card">
         <div class="rv-hd"><div class="rv-avatar">${r.name[0]}</div><div><div class="rv-name">${r.name}</div><div class="rv-date">${r.date}</div></div></div>
@@ -530,7 +533,7 @@ async function initPage(){
         <div class="rv-text">${r.text}</div>
         <div class="rv-game">🎮 ${r.game}</div>
       </div>`).join('');
-  });
+  }); }catch(e){}
   renderHist();
 }
 
