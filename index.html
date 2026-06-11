@@ -310,6 +310,8 @@ async function initPage(){
   await buildNav('home');
   applyLang();
   initBackToTop();
+  // Re-apply lang after listeners fire so translated labels show
+  setTimeout(applyLang, 1000);
 
   // Load banner settings
   window._KS_DB.listenSettings(s=>{ renderBanner(s); });

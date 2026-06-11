@@ -396,16 +396,19 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 /* ══════════════════════════════════════
    RTL SUPPORT FOR ARABIC
 ══════════════════════════════════════ */
-[dir=rtl] .topnav{flex-direction:row-reverse;}
+[dir=rtl]{overflow-x:hidden;}
+[dir=rtl] body{overflow-x:hidden;}
+[dir=rtl] .topnav{overflow:hidden;}
+[dir=rtl] .topnav{flex-direction:row-reverse;flex-wrap:nowrap;}
 [dir=rtl] .navlinks{flex-direction:row-reverse;}
 [dir=rtl] .nav-right{flex-direction:row-reverse;}
 [dir=rtl] .nav-logo{flex-direction:row-reverse;}
 [dir=rtl] .hero-title{text-align:right;}
 [dir=rtl] .hero-sub{text-align:right;}
-[dir=rtl] .hero-actions{flex-direction:row-reverse;}
-[dir=rtl] .section-hd{flex-direction:row-reverse;}
+[dir=rtl] .hero-actions{flex-direction:row-reverse;flex-wrap:wrap;}
+[dir=rtl] .section-hd{flex-direction:row-reverse;flex-wrap:wrap;}
 [dir=rtl] .pcard-body{text-align:right;}
-[dir=rtl] .pcard-footer{flex-direction:row-reverse;}
+[dir=rtl] .pcard-footer{flex-direction:row-reverse;flex-wrap:wrap;}
 /* Cart RTL handled by JS */
 [dir=rtl] .cart-item{flex-direction:row-reverse;}
 [dir=rtl] .ci-info{text-align:right;}
