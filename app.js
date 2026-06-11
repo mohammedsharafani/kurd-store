@@ -19,6 +19,9 @@ function toggleLang(){
   const next = cur==='en'?'kd': cur==='kd'?'ar':'en';
   localStorage.setItem('ks_lang',next);
   applyLang();
+  // Rebuild nav so translated links + cart direction update
+  const activePage = document.querySelector('.navlinks a.active')?.getAttribute('href')?.replace('.html','').replace('index','home') || 'home';
+  if(typeof buildNav === 'function') buildNav(activePage);
 }
 function applyLang(){
   const l=getLang();
