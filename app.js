@@ -598,7 +598,8 @@ function subCardHTML(s){
   </div>`;
 }
 async function buildNav(activePage){
-  const s=await window._KS_DB.getSettings();
+  let s={}; try{ s=await window._KS_DB.getSettings(); }catch(e){}
+  s=Object.assign({},DEFAULT_SETTINGS,s);
   const logoHTML=s.logoImg?`<img src="${s.logoImg}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;" alt="logo"/>`:`<div class="site-logo-emoji">${s.logoEmoji||'🎮'}</div>`;
   document.getElementById('navMount').innerHTML=`
   <nav class="topnav">
@@ -621,13 +622,6 @@ async function buildNav(activePage){
     </div>
   </nav>`;
   updateCartBadge();
-} // end _renderNav
-
-// ── STANDALONE NAV (call anytime, no Firebase needed) ──
-function buildNavImmediate(activePage){
-  _renderNav(activePage, DEFAULT_SETTINGS);
-}
-
   // Google Analytics — load if configured
   (async ()=>{
     try{
