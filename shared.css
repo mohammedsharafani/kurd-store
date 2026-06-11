@@ -398,43 +398,24 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 /* ══════════════════════════════════════
    RTL SUPPORT FOR ARABIC
 ══════════════════════════════════════ */
-[dir=rtl]{overflow-x:hidden;max-width:100vw;}
-[dir=rtl] body{overflow-x:hidden;max-width:100vw;}
-[dir=rtl] .topnav{overflow:hidden;max-width:100%;}
-[dir=rtl] .main-wrap,[dir=rtl] .page-hd,[dir=rtl] .hero,[dir=rtl] section{max-width:100%;overflow-x:hidden;}
-[dir=rtl] .topnav{flex-direction:row-reverse;flex-wrap:nowrap;}
+[dir=rtl] body{overflow-x:hidden;}
+[dir=rtl] .topnav{flex-direction:row-reverse;}
 [dir=rtl] .navlinks{flex-direction:row-reverse;}
 [dir=rtl] .nav-right{flex-direction:row-reverse;}
 [dir=rtl] .nav-logo{flex-direction:row-reverse;}
 [dir=rtl] .hero-title{text-align:right;}
 [dir=rtl] .hero-sub{text-align:right;}
-[dir=rtl] .hero-actions{flex-direction:row-reverse;flex-wrap:wrap;}
-[dir=rtl] .section-hd{flex-direction:row-reverse;flex-wrap:wrap;}
+[dir=rtl] .section-hd{flex-direction:row-reverse;}
 [dir=rtl] .pcard-body{text-align:right;}
-[dir=rtl] .pcard-footer{flex-direction:row-reverse;flex-wrap:wrap;}
-/* Cart RTL handled by JS */
-[dir=rtl] .cart-item{flex-direction:row-reverse;}
-[dir=rtl] .ci-info{text-align:right;}
+[dir=rtl] .pcard-footer{flex-direction:row-reverse;}
 [dir=rtl] .footer-grid{direction:rtl;}
 [dir=rtl] .footer-col{text-align:right;}
 [dir=rtl] .footer-bottom{flex-direction:row-reverse;}
-[dir=rtl] .bc{direction:rtl;}
-[dir=rtl] .hiw-grid{direction:rtl;}
-[dir=rtl] .trust-grid{direction:rtl;}
-[dir=rtl] .counter-grid{direction:rtl;}
 [dir=rtl] .sub-card{text-align:right;}
 [dir=rtl] .modal{direction:rtl;}
 [dir=rtl] .modal-nav{flex-direction:row-reverse;}
-[dir=rtl] .pay-method{flex-direction:row-reverse;}
-[dir=rtl] .order-item{flex-direction:row-reverse;}
 [dir=rtl] .mobile-nav a{text-align:right;}
-[dir=rtl] input,[dir=rtl] textarea{text-align:right;}
-[dir=rtl] .search-wrap{direction:rtl;}
-[dir=rtl] .tabs{direction:rtl;}
 [dir=rtl] .sort-wrap{flex-direction:row-reverse;}
-[dir=rtl] .product-info{direction:rtl;}
-[dir=rtl] .product-actions{flex-direction:row-reverse;}
-[dir=rtl] .sticky-cart-bar{flex-direction:row-reverse;}
 
 /* ══ OUT OF STOCK OVERLAY ON CARDS ══ */
 .pcard-oos-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:5;display:flex;align-items:center;justify-content:center;border-radius:var(--r);}

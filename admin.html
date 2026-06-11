@@ -444,6 +444,37 @@ tr:hover td{background:var(--gl);}
       <div class="form-actions"><button class="btn btn-primary" onclick="saveLoyaltySettings()">💾 Save Settings</button></div>
     </div>
   </div>
+  <!-- CARD PREVIEW -->
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">🔍 Preview Customer Card</div><div style="font-size:.76rem;color:var(--gray);">Look up any customer card by email</div></div>
+    <div class="panel-body">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;">
+        <div class="form-group" style="margin:0;flex:1;min-width:200px;"><label>Customer Email</label><input id="cardPreviewEmail" type="email" placeholder="customer@email.com"/></div>
+        <button class="btn btn-primary" onclick="previewCustomerCard()">🔍 View Card</button>
+        <a id="cardPreviewLink" href="#" target="_blank" class="btn btn-outline" style="display:none;">🔗 Open Card Page</a>
+      </div>
+      <div id="cardPreviewResult" style="display:none;">
+        <div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:18px;padding:24px;color:#fff;max-width:380px;">
+          <div style="font-size:.68rem;font-weight:700;letter-spacing:2px;opacity:.8;margin-bottom:12px;">🎮 KURD STORE</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;" id="cp-name">—</div>
+          <div style="font-size:.72rem;opacity:.7;margin-bottom:16px;" id="cp-email">—</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span id="cp-tier-badge" style="background:rgba(255,255,255,.2);border-radius:99px;padding:3px 14px;font-size:.8rem;font-weight:700;">🥉 Bronze</span>
+            <span id="cp-vip-badge" style="display:none;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0533;border-radius:99px;padding:3px 12px;font-size:.78rem;font-weight:700;">👑 VIP</span>
+          </div>
+          <div style="font-size:.72rem;opacity:.8;margin-bottom:5px;display:flex;justify-content:space-between;"><span id="cp-pts-label">0 pts</span><span id="cp-next-label">Next tier</span></div>
+          <div style="background:rgba(255,255,255,.2);border-radius:99px;height:9px;overflow:hidden;margin-bottom:16px;"><div id="cp-progress" style="height:100%;background:#fff;border-radius:99px;transition:width .6s;width:0%"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+            <div style="background:rgba(255,255,255,.15);border-radius:9px;padding:9px;text-align:center;"><div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;" id="cp-pts">0</div><div style="font-size:.6rem;opacity:.8;">Points</div></div>
+            <div style="background:rgba(255,255,255,.15);border-radius:9px;padding:9px;text-align:center;"><div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;" id="cp-orders">0</div><div style="font-size:.6rem;opacity:.8;">Orders</div></div>
+            <div style="background:rgba(255,255,255,.15);border-radius:9px;padding:9px;text-align:center;"><div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;" id="cp-spent">0K</div><div style="font-size:.6rem;opacity:.8;">IQD</div></div>
+          </div>
+          <div style="font-size:.68rem;opacity:.7;margin-bottom:5px;">Discount code:</div>
+          <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px 14px;font-family:monospace;font-weight:700;font-size:.95rem;letter-spacing:2px;" id="cp-code">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="panel">
     <div class="panel-hd"><div class="panel-title">👥 All Loyalty Cards</div><button class="btn btn-outline btn-sm" onclick="loadLoyaltyAdmin()">🔄 Refresh</button></div>
     <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Points</th><th>Tier</th><th>Orders</th><th>Spent</th><th>VIP</th><th>Edit</th></tr></thead><tbody id="loyTbody"></tbody></table></div>
@@ -462,6 +493,25 @@ tr:hover td{background:var(--gl);}
       </div>
       <div id="spinPrizesList" style="display:flex;flex-direction:column;gap:8px;"></div>
       <div class="form-actions"><button class="btn btn-primary" onclick="saveSpinSettings()">💾 Save Prizes</button></div>
+    </div>
+  </div>
+  <!-- LIVE PREVIEW -->
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">🎰 Live Wheel Preview</div><div style="font-size:.76rem;color:var(--gray);">Test the wheel animation before going live</div></div>
+    <div class="panel-body" style="text-align:center;">
+      <div style="position:relative;display:inline-block;margin-bottom:16px;">
+        <canvas id="previewWheel" width="280" height="280" style="border-radius:50%;box-shadow:0 8px 32px #7c3aed33;"></canvas>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:var(--card);border-radius:50%;border:3px solid var(--p);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--p);">▶</div>
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:1.5rem;">🔻</div>
+      </div>
+      <div id="previewPrizeResult" style="display:none;background:var(--gl);border-radius:12px;padding:12px;margin:12px auto;max-width:300px;">
+        <div style="font-size:1rem;font-weight:700;color:var(--p);" id="previewPrizeText">—</div>
+        <div style="font-size:.78rem;color:var(--gray);margin-top:4px;" id="previewPrizeChance">—</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="testSpinWheel()">🎰 Test Spin!</button>
+        <button class="btn btn-outline" onclick="drawPreviewWheel()">🔄 Refresh Preview</button>
+      </div>
     </div>
   </div>
   <div class="panel">
@@ -1461,6 +1511,7 @@ let _spinSettings = null;
 async function loadSpinAdmin(){
   _spinSettings = await db().getSpinSettings();
   renderSpinPrizes();
+  setTimeout(drawPreviewWheel, 200);
 }
 
 function renderSpinPrizes(){
@@ -1688,6 +1739,109 @@ async function toggleVIPStatus(key, newStatus){
   await db().saveVIPMember(key, m);
   showToast(newStatus?'✅ VIP activated!':'VIP deactivated');
   loadVIPAdmin();
+}
+
+// ══════════════════════════════════════
+//  SPIN WHEEL PREVIEW
+// ══════════════════════════════════════
+function drawPreviewWheel(){
+  const canvas = document.getElementById('previewWheel');
+  if(!canvas || !_spinSettings) return;
+  const prizes = _spinSettings.prizes || [];
+  if(!prizes.length) return;
+  const ctx = canvas.getContext('2d');
+  const cx=canvas.width/2, cy=canvas.height/2, r=cx-6;
+  const arc=(Math.PI*2)/prizes.length;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  prizes.forEach((p,i)=>{
+    const start=arc*i-Math.PI/2, end=start+arc;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end); ctx.closePath();
+    ctx.fillStyle=p.color||'#7c3aed'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle='#fff';
+    ctx.font='bold '+(p.label.length>8?'9':'11')+'px sans-serif';
+    ctx.fillText(p.label,r-8,4); ctx.restore();
+  });
+}
+
+let _previewSpinning = false;
+
+function testSpinWheel(){
+  if(_previewSpinning || !_spinSettings) return;
+  const prizes = _spinSettings.prizes||[];
+  if(!prizes.length){ showToast('⚠️ Save prizes first!'); return; }
+  _previewSpinning = true;
+  document.getElementById('previewPrizeResult').style.display='none';
+
+  // Pick prize
+  const total=prizes.reduce((s,p)=>s+(p.chance||0),0);
+  let rand=Math.random()*total, idx=0;
+  for(let i=0;i<prizes.length;i++){ rand-=(prizes[i].chance||0); if(rand<=0){idx=i;break;} }
+
+  // Animate
+  const canvas=document.getElementById('previewWheel');
+  const ctx=canvas.getContext('2d');
+  const cx=canvas.width/2, cy=canvas.height/2, r=cx-6;
+  const arc=360/prizes.length;
+  const target=360*6+(360-idx*arc-arc/2);
+  let angle=0, speed=18, dec=0.97;
+
+  function frame(){
+    angle+=speed; speed*=dec;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle*Math.PI/180); ctx.translate(-cx,-cy);
+    drawPreviewWheel(); ctx.restore();
+    if(speed>0.25){ requestAnimationFrame(frame); }
+    else{
+      _previewSpinning=false;
+      const prize=prizes[idx];
+      document.getElementById('previewPrizeText').textContent='🎉 '+prize.label;
+      document.getElementById('previewPrizeChance').textContent='Chance: '+prize.chance+'%'+(prize.type!=='none'?' | Value: '+(prize.type==='percent'?prize.value+'%':Number(prize.value).toLocaleString()+' IQD'):'');
+      document.getElementById('previewPrizeResult').style.display='block';
+    }
+  }
+  frame();
+}
+
+// ══════════════════════════════════════
+//  CUSTOMER CARD PREVIEW
+// ══════════════════════════════════════
+async function previewCustomerCard(){
+  const email = document.getElementById('cardPreviewEmail').value.trim().toLowerCase();
+  if(!email||!email.includes('@')){ showToast('⚠️ Enter a valid email!'); return; }
+  const key = email.replace(/[.#$[\]]/g,'_');
+  const [profile, loySettings, vipMember] = await Promise.all([
+    db().getLoyalty(key),
+    db().getLoyaltySettings(),
+    db().getVIPMember(key)
+  ]);
+  if(!profile){ showToast('❌ No loyalty card found for this email'); return; }
+  const tiers=loySettings.tiers||[];
+  const pts=profile.points||0;
+  let tier=tiers[0]; let nextTier=null;
+  for(const t of tiers){ if(pts>=t.min) tier=t; }
+  nextTier=tiers.find(t=>t.min>pts)||null;
+  const isVIP=vipMember&&vipMember.active&&(!vipMember.expiryDate||new Date(vipMember.expiryDate)>new Date());
+  const prog=nextTier?Math.min(100,((pts-tier.min)/(nextTier.min-tier.min))*100):100;
+  document.getElementById('cp-name').textContent=profile.name||'—';
+  document.getElementById('cp-email').textContent=email;
+  document.getElementById('cp-tier-badge').textContent=tier.icon+' '+tier.name;
+  document.getElementById('cp-vip-badge').style.display=isVIP?'inline-block':'none';
+  document.getElementById('cp-pts-label').textContent=pts+' points';
+  document.getElementById('cp-next-label').textContent=nextTier?'Next: '+nextTier.icon+' '+nextTier.name+' ('+nextTier.min+' pts)':'🏆 Max tier!';
+  document.getElementById('cp-progress').style.width=prog+'%';
+  document.getElementById('cp-pts').textContent=pts;
+  document.getElementById('cp-orders').textContent=profile.orders||0;
+  document.getElementById('cp-spent').textContent=Number(Math.round((profile.totalSpent||0)/1000)).toLocaleString()+'K';
+  const code=(isVIP?'VIP':tier.name.toUpperCase())+'-'+(profile.name||'').split(' ')[0].toUpperCase()+'-'+tier.discount;
+  document.getElementById('cp-code').textContent=code;
+  document.getElementById('cardPreviewResult').style.display='block';
+  const link=document.getElementById('cardPreviewLink');
+  link.href='card.html?email='+encodeURIComponent(email);
+  link.style.display='inline-flex';
+  showToast('✅ Card loaded for '+email);
 }
 
 // ══════════════════════════════════════

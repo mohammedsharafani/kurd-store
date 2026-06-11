@@ -739,17 +739,23 @@ function initBackToTop(){
 
 // ── KEY FIX: Poll for _KS_DB instead of relying on events ──
 function waitForDB(callback){
-  const needsLoader = !window._KS_DB;
+  const needsLoader = !window._KS_DB_READY;
   if(needsLoader) showLoader('🎮');
-  const run = (()=>{ let done=false; return ()=>{ if(done) return; done=true; if(needsLoader) hideLoader(); callback(); }; })();
-  if(window._KS_DB){ run(); return; }
-  // Listen for event from db.js
+  let done = false;
+  function run(){
+    if(done) return; done=true;
+    if(needsLoader) hideLoader();
+    callback();
+  }
+  // Already ready?
+  if(window._KS_DB_READY){ run(); return; }
+  // Listen for the event (in case it fires after this runs)
   window.addEventListener('ks_db_ready', run, {once:true});
-  // Fallback poll
+  // Poll as final fallback
   let tries=0;
-  const interval=setInterval(()=>{
+  const iv=setInterval(()=>{
     tries++;
-    if(window._KS_DB){ clearInterval(interval); run(); }
-    else if(tries>40){ clearInterval(interval); run(); }
+    if(window._KS_DB_READY){ clearInterval(iv); run(); }
+    else if(tries>80){ clearInterval(iv); run(); }
   },100);
 }
