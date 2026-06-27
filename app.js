@@ -633,7 +633,7 @@ function gameCardHTML(g){
             : `<span class="pcard-price">${iqd(g.price)}</span>${g.oldPrice?`<span class="pcard-old">${iqd(g.oldPrice)}</span>`:''}`
           }
         </div>
-        ${g.stock?(g.variants&&g.variants.length?`<span class="add-btn" style="background:var(--p);color:#fff;font-size:.55rem;padding:0 5px;width:auto;border-radius:7px;white-space:nowrap;">Choose</span>`:`<button class="add-btn" onclick='event.stopPropagation();addGameToCart(${JSON.stringify(g)})'>+</button>`):'<span class="oos-tag">Unavailable</span>'}
+        ${g.stock?(g.variants&&g.variants.length?`<span class="add-btn" style="background:var(--p);color:#fff;font-size:.55rem;padding:0 5px;width:auto;border-radius:7px;white-space:nowrap;">${g.category==='xbox'?'🏠/🔄':'Choose'}</span>`:`<button class="add-btn" onclick='event.stopPropagation();addGameToCart(${JSON.stringify(g)})'>+</button>`):'<span class="oos-tag">Unavailable</span>'}
       </div>
     </div>
   </div>`;

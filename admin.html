@@ -234,6 +234,8 @@ tr:hover td{background:var(--gl);}
           <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.62rem;background:#f0fdf4;min-width:95px;">✅ PS5</th>
           <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.62rem;background:#eff6ff;min-width:95px;">✅ PS4</th>
           <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.62rem;background:#f5f3ff;min-width:95px;">👤 InAcc</th>
+          <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.62rem;background:#d1fae5;min-width:95px;">🏠 Home</th>
+          <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.62rem;background:#dbeafe;min-width:95px;">🔄 Switch</th>
           <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);color:var(--p);font-size:.62rem;text-transform:uppercase;min-width:115px;">🗓️ Expiry</th>
           <th style="padding:8px 9px;border-bottom:1.5px solid var(--border);min-width:36px;"></th>
         </tr></thead>
@@ -279,7 +281,7 @@ tr:hover td{background:var(--gl);}
         </div>
         <div class="form-group"><label>Description (shown on product page)</label><textarea id="gDesc" placeholder="Describe the game..."></textarea></div>
         <div class="form-group full">
-          <label>🎮 PS Account Variants — leave empty if not needed</label>
+          <label>🎮 PlayStation Variants — leave empty if not needed</label>
           <div style="background:var(--gl);border-radius:10px;padding:14px;margin-top:4px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
             <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
               <div style="font-size:.75rem;font-weight:700;color:#059669;margin-bottom:8px;">✅ Active PS5</div>
@@ -295,6 +297,21 @@ tr:hover td{background:var(--gl);}
               <div style="font-size:.75rem;font-weight:700;color:#7c3aed;margin-bottom:8px;">👤 In Account</div>
               <div class="form-group" style="margin-bottom:7px;"><label>Price (IQD)</label><input id="gInaPrice" type="number" min="0" placeholder="20000"/></div>
               <div class="form-group" style="margin:0;"><label>Description</label><input id="gInaDesc" type="text" placeholder="Play on our PS account"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>🟢 Xbox Variants — leave empty if not needed</label>
+          <div style="background:var(--gl);border-radius:10px;padding:14px;margin-top:4px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
+              <div style="font-size:.75rem;font-weight:700;color:#059669;margin-bottom:8px;">🏠 My Home</div>
+              <div class="form-group" style="margin-bottom:7px;"><label>Price (IQD)</label><input id="gXboxHomePrice" type="number" min="0" placeholder="40000"/></div>
+              <div class="form-group" style="margin:0;"><label>Description</label><input id="gXboxHomeDesc" type="text" placeholder="Play on your main Xbox (home console)"/></div>
+            </div>
+            <div style="background:var(--card);border-radius:9px;padding:12px;border:1.5px solid var(--border);">
+              <div style="font-size:.75rem;font-weight:700;color:#3b82f6;margin-bottom:8px;">🔄 Switch</div>
+              <div class="form-group" style="margin-bottom:7px;"><label>Price (IQD)</label><input id="gXboxSwitchPrice" type="number" min="0" placeholder="30000"/></div>
+              <div class="form-group" style="margin:0;"><label>Description</label><input id="gXboxSwitchDesc" type="text" placeholder="Switch to our account to play"/></div>
             </div>
           </div>
         </div>
@@ -823,7 +840,7 @@ function syncCat(){
 function resetGForm(){
   editGId=null;
   document.getElementById('gFormTitle').textContent='➕ Add New Game';
-  ['gTitle','gTitleKd','gTitleAr','gPrice','gOldPrice','gIcon','gImgUrl','gExpiry','gDesc','gPS5Price','gPS4Price','gInaPrice','gPS5Desc','gPS4Desc','gInaDesc'].forEach(id=>document.getElementById(id).value='');
+  ['gTitle','gTitleKd','gTitleAr','gPrice','gOldPrice','gIcon','gImgUrl','gExpiry','gDesc','gPS5Price','gPS4Price','gInaPrice','gPS5Desc','gPS4Desc','gInaDesc','gXboxHomePrice','gXboxSwitchPrice','gXboxHomeDesc','gXboxSwitchDesc'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('gPlatform').value='PS5'; document.getElementById('gCat').value='ps';
   document.getElementById('gBadge').value=''; document.getElementById('gStock').value='true';
   document.getElementById('gEP').textContent='🎮';
@@ -835,7 +852,9 @@ async function saveGame(){
   const ps5p=parseFloat(document.getElementById('gPS5Price').value);
   const ps4p=parseFloat(document.getElementById('gPS4Price').value);
   const inap=parseFloat(document.getElementById('gInaPrice').value);
-  const hasVariants=!isNaN(ps5p)||!isNaN(ps4p)||!isNaN(inap);
+  const xhp2=parseFloat(document.getElementById('gXboxHomePrice')?.value);
+  const xsp2=parseFloat(document.getElementById('gXboxSwitchPrice')?.value);
+  const hasVariants=!isNaN(ps5p)||!isNaN(ps4p)||!isNaN(inap)||!isNaN(xhp2)||!isNaN(xsp2);
   let price=parseFloat(document.getElementById('gPrice').value);
   
   if(!title){showToast('⚠️ Title is required!');return;}
@@ -846,9 +865,13 @@ async function saveGame(){
   }
   
   const variants=[];
-  if(!isNaN(ps5p)) variants.push({type:'activeps5',label:'✅ Active PS5',desc:document.getElementById('gPS5Desc').value.trim()||'PS5 primary account activation',price:ps5p});
-  if(!isNaN(ps4p)) variants.push({type:'activeps4',label:'✅ Active PS4',desc:document.getElementById('gPS4Desc').value.trim()||'PS4 primary account activation',price:ps4p});
-  if(!isNaN(inap)) variants.push({type:'inaccount', label:'👤 In Account',desc:document.getElementById('gInaDesc').value.trim()||'Play on our PS account',          price:inap});
+  if(!isNaN(ps5p)) variants.push({type:'activeps5',  label:'✅ Active PS5',desc:document.getElementById('gPS5Desc').value.trim()||'PS5 primary account activation',price:ps5p});
+  if(!isNaN(ps4p)) variants.push({type:'activeps4',  label:'✅ Active PS4',desc:document.getElementById('gPS4Desc').value.trim()||'PS4 primary account activation',price:ps4p});
+  if(!isNaN(inap)) variants.push({type:'inaccount',  label:'👤 In Account',desc:document.getElementById('gInaDesc').value.trim()||'Play on our PS account',         price:inap});
+  const xhp=parseFloat(document.getElementById('gXboxHomePrice').value);
+  const xsp=parseFloat(document.getElementById('gXboxSwitchPrice').value);
+  if(!isNaN(xhp)) variants.push({type:'xboxhome',   label:'🏠 My Home',  desc:document.getElementById('gXboxHomeDesc').value.trim()||'Play on your main Xbox (home console)',price:xhp});
+  if(!isNaN(xsp)) variants.push({type:'xboxswitch', label:'🔄 Switch',   desc:document.getElementById('gXboxSwitchDesc').value.trim()||'Switch to our account to play',      price:xsp});
   
   // Get image - URL input takes priority, then uploaded file
   let finalImg = document.getElementById('gImgUrl').value.trim();
@@ -950,9 +973,13 @@ async function editGame(id){
     const ap5=g.variants.find(v=>v.type==='activeps5'||v.type==='active');
     const ap4=g.variants.find(v=>v.type==='activeps4');
     const ina=g.variants.find(v=>v.type==='inaccount');
+    const xhm=g.variants.find(v=>v.type==='xboxhome');
+    const xsw=g.variants.find(v=>v.type==='xboxswitch');
     if(ap5){document.getElementById('gPS5Price').value=ap5.price;document.getElementById('gPS5Desc').value=ap5.desc||'';}
     if(ap4){document.getElementById('gPS4Price').value=ap4.price;document.getElementById('gPS4Desc').value=ap4.desc||'';}
     if(ina){document.getElementById('gInaPrice').value=ina.price;document.getElementById('gInaDesc').value=ina.desc||'';}
+    if(xhm){const e1=document.getElementById('gXboxHomePrice');const e2=document.getElementById('gXboxHomeDesc');if(e1)e1.value=xhm.price;if(e2)e2.value=xhm.desc||'';}
+    if(xsw){const e1=document.getElementById('gXboxSwitchPrice');const e2=document.getElementById('gXboxSwitchDesc');if(e1)e1.value=xsw.price;if(e2)e2.value=xsw.desc||'';}
   }
   document.getElementById('singlePanel').scrollIntoView({behavior:'smooth'});
 }
@@ -1051,7 +1078,7 @@ function addBulkRow(){
     td(sel('b-stock','<option value="true">✅ Yes</option><option value="false">❌ No</option>'))+
     `<td style="padding:4px 6px;"><input type="text" placeholder="🎮" maxlength="4" style="width:42px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:.77rem;background:var(--card);color:var(--text);outline:none;text-align:center;" class="b-icon"/></td>`+
     td(inp('b-img','https://...jpg'))+
-    td(inp('b-ps5','PS5 price','number'),'#f0fdf4')+td(inp('b-ps4','PS4 price','number'),'#eff6ff')+td(inp('b-ina','InAcc price','number'),'#f5f3ff')+
+    td(inp('b-ps5','PS5 price','number'),'#f0fdf4')+td(inp('b-ps4','PS4 price','number'),'#eff6ff')+td(inp('b-ina','InAcc price','number'),'#f5f3ff')+td(inp('b-xhome','Home price','number'),'#d1fae5')+td(inp('b-xswitch','Switch price','number'),'#dbeafe')+
     `<td style="padding:4px 6px;"><input type="date" style="width:100%;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:.75rem;background:var(--card);color:var(--text);outline:none;" class="b-expiry"/></td>`+
     `<td style="padding:4px 6px;text-align:center;"><button onclick="this.closest('tr').remove()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;width:24px;height:24px;cursor:pointer;font-size:.75rem;">✕</button></td>`;
   tbody.appendChild(tr);
@@ -1067,7 +1094,9 @@ async function saveBulkGames(){
     const ps5p=parseFloat(row.querySelector('.b-ps5').value);
     const ps4p=parseFloat(row.querySelector('.b-ps4').value);
     const inap=parseFloat(row.querySelector('.b-ina').value);
-    const hasVariants=!isNaN(ps5p)||!isNaN(ps4p)||!isNaN(inap);
+    const xhp2=parseFloat(document.getElementById('gXboxHomePrice')?.value);
+  const xsp2=parseFloat(document.getElementById('gXboxSwitchPrice')?.value);
+  const hasVariants=!isNaN(ps5p)||!isNaN(ps4p)||!isNaN(inap)||!isNaN(xhp2)||!isNaN(xsp2);
     if(!title) return;
     if(!hasVariants&&isNaN(price)){row.style.background='#fee2e2';errors++;return;}
     row.style.background='';
@@ -1075,6 +1104,10 @@ async function saveBulkGames(){
     const displayPrice=!isNaN(price)?price:Math.min(...variants.map(v=>v.price));
     const oldPriceRaw=row.querySelector('.b-oldprice').value;
     const titleAr=row.querySelector('.b-titlear')?.value.trim()||null;
+    const xhbp=parseFloat(row.querySelector('.b-xhome')?.value);
+    const xsbp=parseFloat(row.querySelector('.b-xswitch')?.value);
+    if(!isNaN(xhbp)) variants.push({type:'xboxhome',  label:'🏠 My Home',desc:'Play on your main Xbox (home console)',price:xhbp});
+    if(!isNaN(xsbp)) variants.push({type:'xboxswitch',label:'🔄 Switch',  desc:'Switch to our account to play',      price:xsbp});
     newGames.push({title,titleKd:row.querySelector('.b-titlekd').value.trim()||title,titleAr,platform:row.querySelector('.b-platform').value,category:row.querySelector('.b-cat').value,price:displayPrice,oldPrice:oldPriceRaw?parseFloat(oldPriceRaw):null,badge:row.querySelector('.b-badge').value||null,stock:row.querySelector('.b-stock').value==='true',icon:row.querySelector('.b-icon').value.trim()||'🎮',img:row.querySelector('.b-img').value.trim()||'',expiryDate:row.querySelector('.b-expiry').value||null,description:null,variants:variants.length?variants:null});
   });
   if(errors>0){showToast('⚠️ '+errors+' row(s) in red — fix them!');return;}

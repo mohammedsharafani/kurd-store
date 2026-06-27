@@ -239,12 +239,13 @@ body{padding-bottom:80px;}
           <div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:10px;">🎮 Choose your option:</div>
           <div class="variant-select" id="variantSel">
             ${game.variants.map((v,i)=>{
-              const colors={activeps5:'#059669',activeps4:'#3b82f6',inaccount:'#7c3aed'};
-              const bgs={activeps5:'#d1fae5',activeps4:'#dbeafe',inaccount:'#ede9fe'};
+              const colors={activeps5:'#059669',activeps4:'#3b82f6',inaccount:'#7c3aed',xboxhome:'#059669',xboxswitch:'#3b82f6'};
+              const bgs={activeps5:'#d1fae5',activeps4:'#dbeafe',inaccount:'#ede9fe',xboxhome:'#d1fae5',xboxswitch:'#dbeafe'};
+              const icons={activeps5:'✅',activeps4:'✅',inaccount:'👤',xboxhome:'🏠',xboxswitch:'🔄'};
               const c=colors[v.type]||'#7c3aed', bg=bgs[v.type]||'#ede9fe';
               return `<div class="variant-opt${i===0?' sel':''}" onclick="pickVariant(this,${i})" data-idx="${i}">
                 <div style="display:flex;align-items:center;gap:10px;flex:1;">
-                  <div style="width:38px;height:38px;border-radius:9px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${v.type==='inaccount'?'👤':'✅'}</div>
+                  <div style="width:38px;height:38px;border-radius:9px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${icons[v.type]||'✅'}</div>
                   <div><div class="variant-opt-label" style="color:${c};">${v.label}</div><div class="variant-opt-desc">${v.desc}</div></div>
                 </div>
                 <div style="display:flex;align-items:center;gap:9px;">
