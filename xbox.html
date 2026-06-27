@@ -215,15 +215,17 @@ function doSearch(v){ searchQ=v.toLowerCase().trim(); renderGrid(); }
 function initPage(){
   buildNav('xbox').then(()=>applyLang());
 
-  // ── STEP 1: Show DEFAULT_GAMES instantly (zero delay) ──
+  // Show from localStorage cache instantly if available
   const cacheKey = 'ks_games_xbox';
-  let cached = null;
-  try{ const c=localStorage.getItem(cacheKey); if(c) cached=JSON.parse(c); }catch(e){}
-  const instant = cached || DEFAULT_GAMES.filter(g=>g.category==='xbox');
-  allGames = autoExpireGames(instant);
-  renderGrid();
+  try{
+    const c = localStorage.getItem(cacheKey);
+    if(c){
+      allGames = autoExpireGames(JSON.parse(c));
+      renderGrid();
+    }
+  }catch(e){}
 
-  // ── STEP 2: Load real data from Firebase (updates silently) ──
+  // Always load fresh from Firebase (updates display + refreshes cache)
   waitForDB(()=>{
     window._KS_DB.listenGames(games=>{
       const filtered = games.filter(g=>g.category==='xbox');
