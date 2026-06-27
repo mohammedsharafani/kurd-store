@@ -132,7 +132,8 @@ async function tryHeroCode(){
 async function initPage(){
   await buildNav('discounts'); applyLang();
   window._KS_DB.listenGames(games=>{
-    const sale=games.filter(g=>g.badge==='sale');
+    // In-stock games first, then sort
+    const sale=games.filter(g=>g.badge==='sale').sort((a,b)=>(b.stock?1:0)-(a.stock?1:0));
     document.getElementById('saleCount').textContent=sale.length+' games on sale';
     if(!sale.length){document.getElementById('saleGrid').innerHTML='';document.getElementById('noResults').style.display='block';}
     else{document.getElementById('noResults').style.display='none';document.getElementById('saleGrid').innerHTML=sale.map(gameCardHTML).join('');}

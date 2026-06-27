@@ -179,14 +179,24 @@ initTheme();
 let allGames=[], activeFilter='all', searchQ='', sortMode='default';
 
 function getFiltered(){
-  return allGames.filter(g=>{
+  let list = allGames.filter(g=>{
     if(activeFilter==='new'     && g.badge!=='new')  return false;
     if(activeFilter==='sale'    && g.badge!=='sale') return false;
     if(activeFilter==='instock' && !g.stock)         return false;
-    if(searchQ && !g.title.toLowerCase().includes(searchQ) && !g.titleKd.includes(searchQ)) return false;
+    if(searchQ && !g.title.toLowerCase().includes(searchQ) && !(g.titleKd||'').includes(searchQ)) return false;
     return true;
   });
+  // Always show in-stock games first
+  list.sort((a,b) => (b.stock?1:0) - (a.stock?1:0));
+  // Then apply sort mode on top
+  if(sortMode==='price-asc')  list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return a.price-b.price; });
+  if(sortMode==='price-desc') list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return b.price-a.price; });
+  if(sortMode==='name-az')    list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return a.title.localeCompare(b.title); });
+  if(sortMode==='new')        list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return b.id-a.id; });
+  if(sortMode==='sale')       list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return (b.badge==='sale'?1:0)-(a.badge==='sale'?1:0); });
+  return list;
 }
+function doSort(v){ sortMode=v; renderGrid(); }
 function renderGrid(){
   const list=getFiltered();
   const grid=document.getElementById('gameGrid');
