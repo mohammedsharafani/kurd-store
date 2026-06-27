@@ -649,14 +649,23 @@ function subCardHTML(s){
   </div>`;
 }
 async function buildNav(activePage){
-  // STEP 1: Render nav immediately with defaults (no Firebase needed)
-  let s=Object.assign({},DEFAULT_SETTINGS);
-  renderNav(activePage,s);
-  // STEP 2: Load real settings and re-render if available
+  // STEP 1: Show cached settings instantly (from previous visit)
+  let s = Object.assign({}, DEFAULT_SETTINGS);
+  try{
+    const cached = localStorage.getItem('ks_settings');
+    if(cached) s = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(cached));
+  }catch(e){}
+  renderNav(activePage, s);
+
+  // STEP 2: Load fresh settings from Firebase and update
   try{
     if(window._KS_DB){
-      const loaded=await window._KS_DB.getSettings();
-      if(loaded){ s=Object.assign({},DEFAULT_SETTINGS,loaded); renderNav(activePage,s); }
+      const loaded = await window._KS_DB.getSettings();
+      if(loaded){
+        s = Object.assign({}, DEFAULT_SETTINGS, loaded);
+        try{ localStorage.setItem('ks_settings', JSON.stringify(loaded)); }catch(e){}
+        renderNav(activePage, s);
+      }
     }
   }catch(e){}
 }

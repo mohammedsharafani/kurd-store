@@ -490,87 +490,51 @@ async function loadVIPWall(){
 async function initPage(){
   await buildNav('home');
   applyLang();
-  initBackToTop();
   setTimeout(applyLang, 1000);
 
-  // Guard against null _KS_DB
-  if(!window._KS_DB){ console.log('DB not ready'); return; }
+  waitForDB(()=>{
+    if(!window._KS_DB) return;
 
-  try{ loadLeaderboard(); }catch(e){}
-  try{ loadVIPWall(); }catch(e){}
+    try{ loadLeaderboard(); }catch(e){}
+    try{ loadVIPWall(); }catch(e){}
+    try{ window._KS_DB.listenSettings(s=>{
+      renderBanner(s);
+      const cats=[{id:'Ps',key:'catLogoPs'},{id:'Xbox',key:'catLogoXbox'},{id:'Pc',key:'catLogoPc'},{id:'Nin',key:'catLogoNin'},{id:'Subs',key:'catLogoSubs'}];
+      cats.forEach(c=>{ if(s[c.key]){ const icon=document.getElementById('catIcon'+c.id); if(icon) icon.innerHTML='<img src="'+s[c.key]+'" style="width:52px;height:52px;object-fit:contain;" onerror="this.parentElement.innerHTML=\'🎮\'"/>'; } });
+    }); }catch(e){}
 
-  // Load banner settings
-  try{ window._KS_DB.listenSettings(s=>{ 
-    renderBanner(s);
-    // Load category logos
-    const cats=[
-      {id:'Ps',   key:'catLogoPs'},
-      {id:'Xbox',  key:'catLogoXbox'},
-      {id:'Pc',    key:'catLogoPc'},
-      {id:'Nin',   key:'catLogoNin'},
-      {id:'Subs',  key:'catLogoSubs'}
-    ];
-    cats.forEach(c=>{
-      if(s[c.key]){
-        const icon=document.getElementById('catIcon'+c.id);
-        if(icon){
-          // Replace content with just the image (remove emoji text node)
-          icon.innerHTML='<img src="'+s[c.key]+'" style="width:52px;height:52px;object-fit:contain;" onerror="this.parentElement.innerHTML=\'🎮\'"/>';
-        }
-      }
-    });
-  }); }catch(e){}
-
-  // Live listeners — auto update when admin saves
-  // Show cached games instantly
-  try{
-    const cached = localStorage.getItem('ks_games_all');
-    if(cached){
-      const games = autoExpireGames(JSON.parse(cached));
+    window._KS_DB.listenGames(rawGames=>{
+      const games = autoExpireGames(rawGames);
       _allGames = games;
       document.getElementById('ctrGames').textContent = games.length+'+';
       document.getElementById('featuredGrid').innerHTML = games.slice(0,4).map(gameCardHTML).join('');
-      document.getElementById('newGrid').innerHTML = games.filter(g=>g.badge==='new').slice(0,4).map(gameCardHTML).join('') || '<div style="color:var(--gray);padding:14px;">No new games yet</div>';
+      document.getElementById('newGrid').innerHTML  = games.filter(g=>g.badge==='new').slice(0,4).map(gameCardHTML).join('') || '<div style="color:var(--gray);padding:14px;">No new games yet</div>';
       document.getElementById('saleGrid').innerHTML = games.filter(g=>g.badge==='sale').slice(0,4).map(gameCardHTML).join('') || '<div style="color:var(--gray);padding:14px;">No sales right now</div>';
-      document.getElementById('stPs').textContent = games.filter(g=>g.category==='ps').length+' games';
+      document.getElementById('stPs').textContent   = games.filter(g=>g.category==='ps').length+' games';
       document.getElementById('stXbox').textContent = games.filter(g=>g.category==='xbox').length+' games';
-      document.getElementById('stPc').textContent = games.filter(g=>g.category==='pc').length+' games';
-      document.getElementById('stNin').textContent = games.filter(g=>g.category==='nintendo').length+' games';
-    }
-  }catch(e){}
+      document.getElementById('stPc').textContent   = games.filter(g=>g.category==='pc').length+' games';
+      document.getElementById('stNin').textContent  = games.filter(g=>g.category==='nintendo').length+' games';
+    });
 
-  window._KS_DB.listenGames(rawGames=>{
-    const games = autoExpireGames(rawGames);
-    _allGames = games;
-    try{ localStorage.setItem('ks_games_all', JSON.stringify(rawGames)); }catch(e){}
-    document.getElementById('stGames').textContent=games.length;
-    const ctr = document.getElementById('ctrGames');
-    if(ctr) ctr.textContent = games.length+'+';
-    document.getElementById('cPs').textContent=games.filter(g=>g.category==='ps').length+' games';
-    document.getElementById('cXbox').textContent=games.filter(g=>g.category==='xbox').length+' games';
-    document.getElementById('cPc').textContent=games.filter(g=>g.category==='pc').length+' games';
-    document.getElementById('cNin').textContent=games.filter(g=>g.category==='nintendo').length+' games';
-    document.getElementById('cDisc').textContent=games.filter(g=>g.badge==='sale').length+' deals';
-    document.getElementById('featuredGrid').innerHTML=games.slice(0,4).map(gameCardHTML).join('');
-    document.getElementById('newGrid').innerHTML=games.filter(g=>g.badge==='new').slice(0,4).map(gameCardHTML).join('');
-    document.getElementById('saleGrid').innerHTML=games.filter(g=>g.badge==='sale').slice(0,4).map(gameCardHTML).join('');
+    try{ window._KS_DB.listenSubs(subs=>{
+      _allSubs = subs;
+      document.getElementById('stSubs').textContent = subs.length+' plans';
+      document.getElementById('cSubs').textContent  = subs.length+' plans';
+      document.getElementById('subsGrid').innerHTML = subs.slice(0,3).map(subCardHTML).join('');
+    }); }catch(e){}
+
+    try{ window._KS_DB.listenReviews(reviews=>{
+      document.getElementById('reviewsGrid').innerHTML = reviews.slice(0,6).map(r=>`
+        <div class="review-card">
+          <div class="rv-hd"><div class="rv-avatar">${r.name[0]}</div><div><div class="rv-name">${r.name}</div><div class="rv-date">${r.date}</div></div></div>
+          <div class="rv-stars">${'⭐'.repeat(r.stars)}</div>
+          <div class="rv-text">${r.text}</div>
+          <div class="rv-game">🎮 ${r.game}</div>
+        </div>`).join('');
+    }); }catch(e){}
+
+    renderHist();
   });
-  try{ window._KS_DB.listenSubs(subs=>{
-    _allSubs = subs;
-    document.getElementById('stSubs').textContent=subs.length;
-    document.getElementById('cSubs').textContent=subs.length+' plans';
-    document.getElementById('subsGrid').innerHTML=subs.slice(0,3).map(subCardHTML).join('');
-  }); }catch(e){}
-  try{ window._KS_DB.listenReviews(reviews=>{
-    document.getElementById('reviewsGrid').innerHTML=reviews.slice(0,6).map(r=>`
-      <div class="review-card">
-        <div class="rv-hd"><div class="rv-avatar">${r.name[0]}</div><div><div class="rv-name">${r.name}</div><div class="rv-date">${r.date}</div></div></div>
-        <div class="rv-stars">${'⭐'.repeat(r.stars)}</div>
-        <div class="rv-text">${r.text}</div>
-        <div class="rv-game">🎮 ${r.game}</div>
-      </div>`).join('');
-  }); }catch(e){}
-  renderHist();
 }
 
 initPage(); // runs immediately - no waiting

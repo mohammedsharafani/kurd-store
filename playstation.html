@@ -3,68 +3,66 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="preconnect" href="https://www.gstatic.com"/>
-<link rel="preconnect" href="https://firebaseinstallations.googleapis.com"/>
-<link rel="dns-prefetch" href="https://firebaseio.com"/>
-<meta name="description" content="Buy PS4 and PS5 digital game keys instantly. Best prices in IQD."/>
-<meta property="og:title" content="PlayStation Games — Kurd Store"/>
-<meta property="og:description" content="Buy PS4 and PS5 digital game keys instantly. Best prices in IQD."/>
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://mohammedsharafani.github.io/kurd-store/playstation.html"/>
-<meta property="og:image" content="https://mohammedsharafani.github.io/kurd-store/og-image.png"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="PlayStation Games — Kurd Store"/>
-<meta name="twitter:description" content="Buy PS4 and PS5 digital game keys instantly. Best prices in IQD."/>
-<title>PlayStation Games — Kurd Store</title>
-<link rel="manifest" href="manifest.json"/>
+<meta name="description" content="PlayStation Games — Kurd Store"/>
 <meta name="theme-color" content="#7c3aed"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Kurd Store"/>
-<link rel="apple-touch-icon" href="https://placehold.co/192x192/7c3aed/white?text=KS"/>
-<script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-</script>
+<link rel="manifest" href="manifest.json"/>
+<title>PlayStation Games — Kurd Store</title>
 <link rel="stylesheet" href="shared.css"/>
+<script src="firebase-config.js"></script>
+<script type="module" src="db.js"></script>
+<script src="app.js"></script>
 <script>(function(){ document.documentElement.setAttribute('data-theme',localStorage.getItem('ks_theme')||'light'); })();</script>
 </head>
 <body>
 <div id="navMount"></div>
-<div class="page-hd" style="background:linear-gradient(135deg,#003087,#0070cc);">
-  <div class="bc"><a href="index.html">🏠 Home</a> › <span>🎮 PlayStation Games</span></div>
+<div class="page-hd" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);">
   <h1>🎮 PlayStation Games</h1>
+  <p style="font-size:.85rem;opacity:.8;margin-top:4px;">PS4 & PS5 Digital Keys — Instant Delivery</p>
 </div>
-<div style="padding:28px 4vw 0;">
-  <div class="search-wrap">
-    <input class="search-input" id="searchInput" type="text" placeholder="Search..." oninput="doSearch(this.value)"/>
-    <span class="search-icon">🔍</span>
+
+<div style="padding:18px 4vw 8px;max-width:1200px;margin:0 auto;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+    <input type="text" id="searchInput" placeholder="🔍 Search games..." oninput="doSearch(this.value)"
+      style="flex:1;min-width:180px;padding:9px 14px;border:1.5px solid var(--border);border-radius:99px;font-size:.85rem;background:var(--card);color:var(--text);outline:none;font-family:var(--fb);"/>
+    <div class="sort-wrap" style="margin:0;">
+      <span class="sort-label">Sort:</span>
+      <select class="sort-select" onchange="doSort(this.value)">
+        <option value="default">Default</option>
+        <option value="price-asc">Price ↑</option>
+        <option value="price-desc">Price ↓</option>
+        <option value="name-az">A → Z</option>
+        <option value="new">Newest</option>
+        <option value="sale">On Sale</option>
+      </select>
+    </div>
   </div>
-  <div class="tabs">
+  <div class="tabs" style="margin-bottom:14px;">
     <button class="tab active" onclick="filterTab(this,'all')">All</button>
     <button class="tab" onclick="filterTab(this,'new')">🆕 New</button>
-    <button class="tab" onclick="filterTab(this,'sale')">🏷️ On Sale</button>
+    <button class="tab" onclick="filterTab(this,'sale')">🏷️ Sale</button>
     <button class="tab" onclick="filterTab(this,'instock')">✅ In Stock</button>
   </div>
-  <div class="sort-wrap">
-    <span class="sort-label">Sort by:</span>
-    <select class="sort-select" id="sortSelect" onchange="doSort(this.value)">
-      <option value="default">Default</option>
-      <option value="price-asc">Price: Low to High</option>
-      <option value="price-desc">Price: High to Low</option>
-      <option value="name-az">Name: A to Z</option>
-      <option value="new">Newest First</option>
-      <option value="sale">On Sale First</option>
-    </select>
-  </div>
-  <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;" id="resultCount"></div>
+  <div style="font-size:.78rem;color:var(--gray);margin-bottom:10px;" id="resultCount"></div>
 </div>
-<div class="section" style="padding-top:0;">
-  <div class="grid-4" id="gameGrid"><div style="color:var(--gray);padding:20px;">Loading...</div></div>
-  <div class="no-results" id="noResults" style="display:none;"><div class="no-results-icon">🔍</div><p>No games found</p></div>
-</div>
-<div id="footerMount"></div>
 
+<div style="padding:0 4vw 48px;max-width:1200px;margin:0 auto;">
+  <div class="grid-4" id="gameGrid"><div style="color:var(--gray);padding:30px;text-align:center;">Loading games...</div></div>
+  <div style="display:none;text-align:center;padding:40px;color:var(--gray);" id="noResults">No games found</div>
+</div>
+
+<div id="footerMount"></div>
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-hd"><h2>🛒 Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-disc-row"><input class="cart-disc-input" id="cartDiscInput" type="text" placeholder="Discount code..."/><button class="cart-disc-btn" onclick="applyCartDisc()">Apply</button></div>
+  <div class="disc-msg" id="discMsg"></div>
+  <div class="cart-ft" id="cartFt" style="display:none;">
+    <div class="cart-disc-line" id="cartDiscLine" style="display:none;"><span>🏷️ Discount</span><span id="cartDiscAmt"></span></div>
+    <div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-price" id="cartTotalPrice">0 IQD</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">Checkout →</button>
+  </div>
+</div>
 <!-- CART -->
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
 <div class="cart-sidebar" id="cartSidebar">
@@ -78,14 +76,16 @@ if('serviceWorker' in navigator){
     <button class="checkout-btn" onclick="openCheckout()">Checkout →</button>
   </div>
 </div>
+
 <!-- CHECKOUT MODAL -->
 <div class="modal-overlay" id="checkoutModal" onclick="if(event.target===this)closeCheckout()">
   <div class="modal">
     <div class="modal-hd"><div class="modal-title" id="modalTitle">Complete Order</div><button class="close-btn" onclick="closeCheckout()">✕</button></div>
-    <div class="order-sum"><div class="order-sum-title">📋 Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div>
-    <div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Proof</div><div class="mstep"><span class="mstep-num">4</span>Details</div></div>
-    <div class="step-panel active" id="sp1"><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
-    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr">1. Open <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong><br>3. Screenshot it<br>4. Click "I've Paid"<br><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە<br>٣. ئایمەیجی بکە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
+    <div class="order-sum"><div class="order-sum-title">📋 Order Summary</div><div id="orderItems"></div><div class="order-total-row"><span>Total</span><span id="orderTotal">0 IQD</span></div></div>
+    <div class="msteps"><div class="mstep active"><span class="mstep-num">1</span>Method</div><div class="mstep"><span class="mstep-num">2</span>Pay</div><div class="mstep"><span class="mstep-num">3</span>Proof</div><div class="mstep"><span class="mstep-num">4</span>Confirm</div></div>
+    <div class="step-panel active" id="sp1"><p style="font-size:.82rem;color:var(--text2);margin-bottom:12px;">Choose payment method:</p><div class="pay-methods" id="payMethodsEl"></div><div class="modal-nav"><button class="btn-next" onclick="goStep(2)">Next →</button></div></div>
+    <div class="step-panel" id="sp2"><div class="pay-detail-box"><div class="pdb-method" id="pdbMethod"></div><div class="pdb-num" id="pdbNum"></div><div style="font-size:.7rem;color:#a78bfa;">Tap to copy</div><button class="copy-btn" onclick="copyPayNum()">📋 Copy</button></div><div class="pay-instr"><strong>How to pay:</strong><br>1. Open your <span id="instrMethod"></span> app<br>2. Send <strong id="instrAmt"></strong> to the number above<br>3. Screenshot the transfer<br>4. Click "I've Paid"<br><br><strong>چۆن پارەبدەیت:</strong><br>١. ئەپی <span id="instrMethodKd"></span> بکەرەوە<br>٢. مەبلەغ بنێرە<br>٣. ئایمەیجی بکە<br>٤. "پارەم داوە" دابکە</div><div class="modal-nav"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-next" onclick="goStep(3)">I've Paid ✓</button></div></div>
+    <!-- STEP 2.5: SCREENSHOT UPLOAD -->
         <div class="step-panel" id="sp25" style="display:none!important"></div>
     <div class="step-panel" id="sp3">
       <div class="form-group"><label class="form-label">Name / ناوت / الاسم</label><input class="form-input" id="custName" type="text" placeholder="Ahmed Ali"/></div>
@@ -168,14 +168,24 @@ if('serviceWorker' in navigator){
     </div>
   </div>
 </div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal" onclick="if(event.target===this)closeReviewModal()">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">⭐ Add Review</div><button class="close-btn" onclick="closeReviewModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" id="rvName" type="text" placeholder="Ahmed Ali"/></div>
+    <div class="form-group"><label class="form-label">Game / Product</label><input class="form-input" id="rvGame" type="text" placeholder="God of War"/></div>
+    <div class="form-group"><label class="form-label">Rating</label>
+      <div class="star-select" id="starSel">
+        <span class="star-btn active" onclick="setStar(1)">⭐</span><span class="star-btn active" onclick="setStar(2)">⭐</span><span class="star-btn active" onclick="setStar(3)">⭐</span><span class="star-btn active" onclick="setStar(4)">⭐</span><span class="star-btn active" onclick="setStar(5)">⭐</span>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Review</label><textarea class="form-input" id="rvText" rows="3" placeholder="Your experience..."></textarea></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="submitReview()">Submit ✓</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
-
-<script src="firebase-config.js"></script>
-<script type="module" src="db.js"></script>
-<script src="app.js"></script>
-
 <script>
-initTheme();
 let allGames=[], activeFilter='all', searchQ='', sortMode='default';
 
 function getFiltered(){
@@ -186,56 +196,37 @@ function getFiltered(){
     if(searchQ && !g.title.toLowerCase().includes(searchQ) && !(g.titleKd||'').includes(searchQ)) return false;
     return true;
   });
-  // Always show in-stock games first
-  list.sort((a,b) => (b.stock?1:0) - (a.stock?1:0));
-  // Then apply sort mode on top
-  if(sortMode==='price-asc')  list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return a.price-b.price; });
-  if(sortMode==='price-desc') list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return b.price-a.price; });
-  if(sortMode==='name-az')    list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return a.title.localeCompare(b.title); });
-  if(sortMode==='new')        list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return b.id-a.id; });
-  if(sortMode==='sale')       list.sort((a,b) => { if(a.stock!==b.stock) return (b.stock?1:0)-(a.stock?1:0); return (b.badge==='sale'?1:0)-(a.badge==='sale'?1:0); });
+  list.sort((a,b)=>(b.stock?1:0)-(a.stock?1:0));
+  if(sortMode==='price-asc')  list.sort((a,b)=>a.stock!==b.stock?(b.stock?1:0)-(a.stock?1:0):a.price-b.price);
+  if(sortMode==='price-desc') list.sort((a,b)=>a.stock!==b.stock?(b.stock?1:0)-(a.stock?1:0):b.price-a.price);
+  if(sortMode==='name-az')    list.sort((a,b)=>a.stock!==b.stock?(b.stock?1:0)-(a.stock?1:0):a.title.localeCompare(b.title));
+  if(sortMode==='new')        list.sort((a,b)=>a.stock!==b.stock?(b.stock?1:0)-(a.stock?1:0):b.id-a.id);
+  if(sortMode==='sale')       list.sort((a,b)=>a.stock!==b.stock?(b.stock?1:0)-(a.stock?1:0):(b.badge==='sale'?1:0)-(a.badge==='sale'?1:0));
   return list;
 }
-function doSort(v){ sortMode=v; renderGrid(); }
 function renderGrid(){
   const list=getFiltered();
   const grid=document.getElementById('gameGrid');
-  const nr=document.getElementById('noResults');
   const rc=document.getElementById('resultCount');
   rc.textContent=list.length+' game'+(list.length!==1?'s':'')+' found';
-  if(!list.length){ grid.innerHTML=''; nr.style.display='block'; }
-  else { nr.style.display='none'; grid.innerHTML=list.map(gameCardHTML).join(''); }
+  document.getElementById('noResults').style.display=list.length?'none':'block';
+  grid.innerHTML=list.length?list.map(gameCardHTML).join(''):'';
 }
-function filterTab(btn,t){
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); activeFilter=t; renderGrid();
-}
+function filterTab(btn,t){ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); activeFilter=t; renderGrid(); }
 function doSearch(v){ searchQ=v.toLowerCase().trim(); renderGrid(); }
+function doSort(v){ sortMode=v; renderGrid(); }
 
-function initPage(){
-  buildNav('ps').then(()=>applyLang());
-
-  // Show from localStorage cache instantly if available
-  const cacheKey = 'ks_games_ps';
-  try{
-    const c = localStorage.getItem(cacheKey);
-    if(c){
-      allGames = autoExpireGames(JSON.parse(c));
-      renderGrid();
-    }
-  }catch(e){}
-
-  // Always load fresh from Firebase (updates display + refreshes cache)
+async function initPage(){
+  await buildNav('ps');
+  applyLang();
   waitForDB(()=>{
     window._KS_DB.listenGames(games=>{
-      const filtered = games.filter(g=>g.category==='ps');
-      allGames = autoExpireGames(filtered);
-      try{ localStorage.setItem(cacheKey, JSON.stringify(filtered)); }catch(e){}
+      allGames = autoExpireGames(games.filter(g=>g.category==='ps'));
       renderGrid();
     });
+    checkReferralCode();
   });
 }
-
 initPage();
 </script>
 </body>
