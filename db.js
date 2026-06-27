@@ -16,7 +16,7 @@
 
     // ── IN-MEMORY CACHE (avoids repeated Firebase reads) ──
     const _cache = {};
-    const _CACHE_TTL = 5000; // 5 seconds — refreshes quickly after admin saves
+    const _CACHE_TTL = 10000; // 10 seconds cache
 
     async function _getCached(path, fallback){
       const now = Date.now();

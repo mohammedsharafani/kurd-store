@@ -307,15 +307,15 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 /* ══════════════════════════════════════
    LOADING SPINNER
 ══════════════════════════════════════ */
-.page-loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .4s,visibility .4s;}
+
 .page-loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
-.loader-logo{font-size:2.8rem;animation:pulse 1.2s ease-in-out infinite;}
-.loader-ring{width:52px;height:52px;border:4px solid var(--border);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite;}
-.loader-text{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--text2);}
+
+
+
 .loader-dots::after{content:'';animation:dots 1.2s steps(4,end) infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
-@keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%,100%{content:'...';}}
+50%{content:'..';}75%,100%{content:'...';}}
 
 /* ══════════════════════════════════════
    STICKY ADD TO CART
@@ -435,3 +435,10 @@ footer{background:#1a0533;color:#c4b5fd;padding:42px 4vw 22px;margin-top:20px;}
 
 /* ══ LOYALTY CARD LINK IN NAV ══ */
 .card-nav-link{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a0533 !important;border-radius:99px;padding:4px 12px;font-size:.75rem;font-weight:700;}
+
+/* ══ SKELETON LOADING FOR GAME CARDS ══ */
+.pcard-skeleton{background:var(--card);border-radius:var(--r);overflow:hidden;border:1.5px solid var(--border);}
+.skeleton-img{height:160px;background:linear-gradient(90deg,var(--gl) 25%,var(--border) 50%,var(--gl) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+.skeleton-line{height:12px;border-radius:6px;margin:10px 14px 6px;background:linear-gradient(90deg,var(--gl) 25%,var(--border) 50%,var(--gl) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+.skeleton-line.short{width:60%;margin-top:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}

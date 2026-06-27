@@ -839,17 +839,9 @@ function notifyMe(gameId, gameTitle){
 }
 
 // ── PAGE LOADER ──
-function showLoader(emoji){
-  if(document.getElementById('pageLoader')) return;
-  const el = document.createElement('div');
-  el.id = 'pageLoader'; el.className = 'page-loader';
-  el.innerHTML = `<div class="loader-logo">${emoji||'🎮'}</div><div class="loader-ring"></div><div class="loader-text">Loading<span class="loader-dots"></span></div>`;
-  document.body.appendChild(el);
-}
-function hideLoader(){
-  const el = document.getElementById('pageLoader');
-  if(el){ el.classList.add('hidden'); setTimeout(()=>el.remove(), 500); }
-}
+// No full-screen loader - page content shows immediately
+function showLoader(emoji){ /* disabled - page renders immediately */ }
+function hideLoader(){ /* disabled */ }
 
 // ── REFERRAL CODE AUTO-APPLY ──
 async function checkReferralCode(){
@@ -893,12 +885,9 @@ function initBackToTop(){
 
 // ── KEY FIX: Poll for _KS_DB instead of relying on events ──
 function waitForDB(callback){
-  const needsLoader = !window._KS_DB_READY;
-  if(needsLoader) showLoader('🎮');
   let done = false;
   function run(){
     if(done) return; done=true;
-    if(needsLoader) hideLoader();
     callback();
   }
   // Already ready?
