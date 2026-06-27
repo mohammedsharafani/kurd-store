@@ -212,17 +212,29 @@ function filterTab(btn,t){
 }
 function doSearch(v){ searchQ=v.toLowerCase().trim(); renderGrid(); }
 
-async function initPage(){
-  await buildNav('nintendo');
-  applyLang();
-  // Live listener
-  window._KS_DB.listenGames(games=>{
-    allGames='nintendo'?games.filter(g=>g.category==='nintendo'):games;
-    renderGrid();
+function initPage(){
+  buildNav('nintendo').then(()=>applyLang());
+
+  // ── STEP 1: Show DEFAULT_GAMES instantly (zero delay) ──
+  const cacheKey = 'ks_games_nintendo';
+  let cached = null;
+  try{ const c=localStorage.getItem(cacheKey); if(c) cached=JSON.parse(c); }catch(e){}
+  const instant = cached || DEFAULT_GAMES.filter(g=>g.category==='nintendo');
+  allGames = autoExpireGames(instant);
+  renderGrid();
+
+  // ── STEP 2: Load real data from Firebase (updates silently) ──
+  waitForDB(()=>{
+    window._KS_DB.listenGames(games=>{
+      const filtered = games.filter(g=>g.category==='nintendo');
+      allGames = autoExpireGames(filtered);
+      try{ localStorage.setItem(cacheKey, JSON.stringify(filtered)); }catch(e){}
+      renderGrid();
+    });
   });
 }
 
-waitForDB(initPage);
+initPage();
 </script>
 </body>
 </html>

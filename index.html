@@ -522,9 +522,27 @@ async function initPage(){
   }); }catch(e){}
 
   // Live listeners — auto update when admin saves
+  // Show cached games instantly
+  try{
+    const cached = localStorage.getItem('ks_games_all');
+    if(cached){
+      const games = autoExpireGames(JSON.parse(cached));
+      _allGames = games;
+      document.getElementById('ctrGames').textContent = games.length+'+';
+      document.getElementById('featuredGrid').innerHTML = games.slice(0,4).map(gameCardHTML).join('');
+      document.getElementById('newGrid').innerHTML = games.filter(g=>g.badge==='new').slice(0,4).map(gameCardHTML).join('') || '<div style="color:var(--gray);padding:14px;">No new games yet</div>';
+      document.getElementById('saleGrid').innerHTML = games.filter(g=>g.badge==='sale').slice(0,4).map(gameCardHTML).join('') || '<div style="color:var(--gray);padding:14px;">No sales right now</div>';
+      document.getElementById('stPs').textContent = games.filter(g=>g.category==='ps').length+' games';
+      document.getElementById('stXbox').textContent = games.filter(g=>g.category==='xbox').length+' games';
+      document.getElementById('stPc').textContent = games.filter(g=>g.category==='pc').length+' games';
+      document.getElementById('stNin').textContent = games.filter(g=>g.category==='nintendo').length+' games';
+    }
+  }catch(e){}
+
   window._KS_DB.listenGames(rawGames=>{
     const games = autoExpireGames(rawGames);
     _allGames = games;
+    try{ localStorage.setItem('ks_games_all', JSON.stringify(rawGames)); }catch(e){}
     document.getElementById('stGames').textContent=games.length;
     const ctr = document.getElementById('ctrGames');
     if(ctr) ctr.textContent = games.length+'+';
@@ -555,7 +573,7 @@ async function initPage(){
   renderHist();
 }
 
-waitForDB(initPage);
+initPage(); // runs immediately - no waiting
 </script>
 </body>
 </html>
